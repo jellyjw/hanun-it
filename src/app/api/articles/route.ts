@@ -36,8 +36,7 @@ export async function GET(request: NextRequest) {
     let dataQuery = supabase
       .from("articles")
       .select("*")
-      .order("pub_date", { ascending: false })
-      .range(offset, offset + limit - 1);
+      .order("pub_date", { ascending: false });
 
     // 필터 적용
     if (category && category !== "all") {
@@ -47,6 +46,8 @@ export async function GET(request: NextRequest) {
     if (isDomestic !== null) {
       dataQuery = dataQuery.eq("is_domestic", isDomestic === "true");
     }
+
+    dataQuery = dataQuery.range(offset, offset + limit - 1);
 
     const { data: articles, error } = await dataQuery;
 

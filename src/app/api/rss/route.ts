@@ -2,8 +2,35 @@ import { NextRequest, NextResponse } from "next/server";
 import Parser from "rss-parser";
 import { createClient } from "@/utils/supabase/server";
 import { RSS_SOURCES } from "./sources";
+import { fetchMetaImage } from "./utils";
 
-const parser = new Parser();
+type CustomFeed = {
+  title: string;
+  description: string;
+  items: CustomItem[];
+};
+
+type CustomItem = {
+  title: string;
+  link: string;
+  pubDate: string;
+  content: string;
+  originContent: string;
+  contentSnippet: string;
+  enclosure?: {
+    url: string;
+  };
+  image?: {
+    url: string;
+  };
+};
+
+// Parser 인스턴스 생성 시 customFields 설정
+const parser: Parser<CustomFeed, CustomItem> = new Parser({
+  customFields: {
+    item: [["content:encoded", "originContent"]],
+  },
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,12 +41,20 @@ export async function GET(request: NextRequest) {
       try {
         console.log(`Fetching RSS from: ${source.name}`);
         const feed = await parser.parseURL(source.url);
+        console.log("Feed items:", feed.items[0]); // 첫 번째 아이템의 구조 확인용
 
         for (const item of feed.items) {
+          let thumbnailUrl = item.enclosure?.url || item.image?.url || "";
+
+          if (!thumbnailUrl && item.link) {
+            thumbnailUrl = (await fetchMetaImage(item.link)) || "";
+          }
+
           const article = {
             title: item.title || "",
             description: item.contentSnippet || item.content || "",
-            content: item.content || "",
+            summary: item.content || "",
+            content: item.originContent || item.content || "",
             link: item.link || "",
             pub_date: item.pubDate
               ? new Date(item.pubDate).toISOString()
@@ -28,6 +63,7 @@ export async function GET(request: NextRequest) {
             source_url: source.url,
             category: source.category,
             is_domestic: source.isDomestic,
+            thumbnail: thumbnailUrl,
           };
 
           // 중복 체크 후 삽입
