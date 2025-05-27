@@ -1,0 +1,155 @@
+export const RSS_SOURCES = [
+  // 국내 개발 블로그 & 테크 미디어
+  {
+    name: "카카오테크",
+    url: "https://tech.kakao.com/rss/",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "네이버 D2",
+    url: "https://d2.naver.com/d2.atom",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "우아한형제들 기술블로그",
+    url: "https://techblog.woowahan.com/feed/",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "토스 기술블로그",
+    url: "https://toss.tech/rss.xml",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "당근마켓 기술블로그",
+    url: "https://medium.com/feed/daangn",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "라인 기술블로그",
+    url: "https://engineering.linecorp.com/ko/rss/",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "NHN 기술블로그",
+    url: "https://meetup.nhncloud.com/rss",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "뱅크샐러드 기술블로그",
+    url: "https://blog.banksalad.com/rss.xml",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "컬리 기술블로그",
+    url: "https://helloworld.kurly.com/feed.xml",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "요기요 기술블로그",
+    url: "https://medium.com/feed/deliverytechkorea",
+    isDomestic: true,
+    category: "tech",
+  },
+
+  // 해외 개발 블로그 & 테크 미디어
+  {
+    name: "Hacker News",
+    url: "https://hnrss.org/frontpage",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Dev.to",
+    url: "https://dev.to/feed",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Medium - Programming",
+    url: "https://medium.com/feed/tag/programming",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "GitHub Blog",
+    url: "https://github.blog/feed/",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Stack Overflow Blog",
+    url: "https://stackoverflow.blog/feed/",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Google Developers Blog",
+    url: "https://developers.googleblog.com/feeds/posts/default",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Netflix Tech Blog",
+    url: "https://netflixtechblog.com/feed",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Uber Engineering",
+    url: "https://eng.uber.com/rss/",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Airbnb Engineering",
+    url: "https://medium.com/feed/airbnb-engineering",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Facebook Engineering",
+    url: "https://engineering.fb.com/feed/",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "AWS Blog",
+    url: "https://aws.amazon.com/blogs/aws/feed/",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Microsoft Developer Blog",
+    url: "https://devblogs.microsoft.com/feed/",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Vercel Blog",
+    url: "https://vercel.com/blog/rss.xml",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "CSS-Tricks",
+    url: "https://css-tricks.com/feed/",
+    isDomestic: false,
+    category: "tech",
+  },
+  {
+    name: "Smashing Magazine",
+    url: "https://www.smashingmagazine.com/feed/",
+    isDomestic: false,
+    category: "tech",
+  },
+];
