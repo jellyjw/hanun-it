@@ -5,16 +5,20 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/pagination/Pagination";
 import PageInfo from "@/components/pagination/PageInfo";
+import { Header } from "@/components/Header";
 
 interface Article {
   id: string;
   title: string;
   description: string;
   link: string;
+  content: string;
   pub_date: string;
   source_name: string;
   category: string;
   is_domestic: boolean;
+  thumbnail: string;
+  summary: string;
 }
 
 interface ArticlesResponse {
@@ -59,6 +63,7 @@ export default function ArticlesPage() {
       const response = await fetch("/api/rss");
       const result = await response.json();
       if (result.success) {
+        console.log(result, "result");
         alert(`${result.articles}개의 새로운 아티클을 수집했습니다.`);
         refetch();
       }
@@ -117,16 +122,7 @@ export default function ArticlesPage() {
 
   return (
     <div className="container mx-auto p-8">
-      {/* 헤더 */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">테크 아티클</h1>
-        <button
-          onClick={handleRefreshRSS}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-        >
-          RSS 새로고침
-        </button>
-      </div>
+      <Header handleRefreshRSS={handleRefreshRSS} />
 
       {/* 필터 및 설정 */}
       <div className="mb-6 flex flex-wrap gap-4 items-center">
@@ -241,14 +237,6 @@ export default function ArticlesPage() {
             totalPages={data.pagination.totalPages}
             onPageChange={handlePageChange}
             showPageNumbers={7}
-          />
-
-          {/* 하단 페이지 정보 */}
-          <PageInfo
-            currentPage={data.pagination.page}
-            totalPages={data.pagination.totalPages}
-            totalItems={data.pagination.total}
-            itemsPerPage={data.pagination.limit}
           />
         </div>
       )}

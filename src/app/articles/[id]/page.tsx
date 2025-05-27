@@ -14,6 +14,9 @@ interface Article {
   source_name: string;
   category: string;
   is_domestic: boolean;
+  thumbnail: string;
+  originContent: string;
+  summary: string;
 }
 
 interface ArticleResponse {
@@ -24,7 +27,7 @@ interface ArticleResponse {
 export default function ArticleDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const articleId = params.id as string;
+  const articleId = params?.id as string;
 
   const { data, isLoading, error } = useQuery<ArticleResponse>({
     queryKey: ["article", articleId],
@@ -34,6 +37,8 @@ export default function ArticleDetailPage() {
       return response.json();
     },
   });
+
+  console.log(data, "data");
 
   if (isLoading) {
     return (

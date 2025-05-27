@@ -6,12 +6,13 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await params; // params를 await 해야 함
     const supabase = await createClient();
 
     const { data: article, error } = await supabase
       .from("articles")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (error) {
