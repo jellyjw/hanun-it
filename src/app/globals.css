@@ -23,57 +23,101 @@ body {
 
 @layer base {
   :root {
+    /* 퍼플 테마 색상 시스템 */
     --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 220.9 39.3% 11%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
+    --popover-foreground: 240 10% 3.9%;
+
+    /* 메인 퍼플 색상 (#924DBF 기준) */
+    --primary: 274 45% 52%;
+    --primary-foreground: 0 0% 98%;
+
+    /* 보조 퍼플 색상들 */
+    --secondary: 274 20% 95%;
+    --secondary-foreground: 274 45% 25%;
+    --muted: 274 15% 96%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 274 25% 90%;
+    --accent-foreground: 274 45% 25%;
+
+    /* 시스템 색상 */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 224 71.4% 4.1%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --destructive-foreground: 0 0% 98%;
+    --border: 274 20% 90%;
+    --input: 274 20% 90%;
+    --ring: 274 45% 52%;
+
+    /* 차트 색상 (퍼플 계열) */
+    --chart-1: 274 45% 52%;
+    --chart-2: 294 45% 52%;
+    --chart-3: 254 45% 52%;
+    --chart-4: 284 45% 52%;
+    --chart-5: 264 45% 52%;
+
+    --radius: 0.75rem;
+
+    /* 커스텀 퍼플 그라데이션 색상 */
+    --purple-50: 274 100% 99%;
+    --purple-100: 274 85% 96%;
+    --purple-200: 274 75% 90%;
+    --purple-300: 274 65% 80%;
+    --purple-400: 274 55% 65%;
+    --purple-500: 274 45% 52%;
+    --purple-600: 274 45% 42%;
+    --purple-700: 274 45% 32%;
+    --purple-800: 274 45% 22%;
+    --purple-900: 274 45% 12%;
   }
+
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
+    /* 다크모드 색상 시스템 */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    /* 다크모드 메인 퍼플 */
+    --primary: 274 45% 65%;
+    --primary-foreground: 240 10% 3.9%;
+
+    /* 다크모드 보조 색상 */
+    --secondary: 240 10% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 10% 15%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 10% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    /* 다크모드 시스템 색상 */
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 274 45% 65%;
+
+    /* 다크모드 차트 색상 */
+    --chart-1: 274 45% 65%;
+    --chart-2: 294 45% 65%;
+    --chart-3: 254 45% 65%;
+    --chart-4: 284 45% 65%;
+    --chart-5: 264 45% 65%;
+
+    /* 다크모드 커스텀 퍼플 색상 */
+    --purple-50: 274 45% 12%;
+    --purple-100: 274 45% 22%;
+    --purple-200: 274 45% 32%;
+    --purple-300: 274 45% 42%;
+    --purple-400: 274 45% 52%;
+    --purple-500: 274 45% 65%;
+    --purple-600: 274 55% 75%;
+    --purple-700: 274 65% 80%;
+    --purple-800: 274 75% 90%;
+    --purple-900: 274 85% 96%;
   }
 }
 

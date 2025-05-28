@@ -3,29 +3,37 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { Calendar, ExternalLink, Globe, MapPin, Loader2 } from "lucide-react";
 import Pagination from "@/components/pagination/Pagination";
 import PageInfo from "@/components/pagination/PageInfo";
 import { Header } from "@/components/header/Header";
 import { ArticlesResponse } from "@/types/articles";
 import SelectBox from "@/components/select/SelectBox";
 import { SELECT_OPTIONS } from "@/utils/options";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function ArticlesPage() {
   const router = useRouter();
-  const [category, setCategory] = useState("all");
   const [isDomestic, setIsDomestic] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
 
   const { data, isLoading, error, refetch } = useQuery<ArticlesResponse>({
-    queryKey: ["articles", category, isDomestic, page, itemsPerPage],
+    queryKey: ["articles", isDomestic, page, itemsPerPage],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: itemsPerPage.toString(),
       });
 
-      if (category !== "all") params.append("category", category);
       if (isDomestic !== null) params.append("domestic", isDomestic);
 
       const response = await fetch(`/api/articles?${params}`);
@@ -43,35 +51,31 @@ export default function ArticlesPage() {
         alert(`${result.articles}개의 새로운 아티클을 수집했습니다.`);
         refetch();
       }
-    } catch (error) {
+    } catch {
       alert("RSS 수집 중 오류가 발생했습니다.");
     }
   };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    // 페이지 변경 시 스크롤을 맨 위로
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleFilterChange = () => {
-    // 필터 변경 시 첫 페이지로 리셋
     setPage(1);
   };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="border rounded-lg p-4">
-              <div className="h-6 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+      <div className="min-h-screen bg-background">
+        <Header handleRefreshRSS={handleRefreshRSS} />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex flex-col items-center space-y-4">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="text-muted-foreground">아티클을 불러오는 중...</p>
             </div>
-          ))}
+          </div>
         </div>
       </div>
     );
@@ -79,120 +83,176 @@ export default function ArticlesPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto p-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">
-            오류가 발생했습니다
-          </h1>
-          <p className="text-gray-600 mb-4">아티클을 불러올 수 없습니다.</p>
-          <button
-            onClick={() => refetch()}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            다시 시도
-          </button>
+      <div className="min-h-screen bg-background">
+        <Header handleRefreshRSS={handleRefreshRSS} />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Card className="w-full max-w-md">
+              <CardHeader className="text-center">
+                <CardTitle className="text-destructive">
+                  오류가 발생했습니다
+                </CardTitle>
+                <CardDescription>아티클을 불러올 수 없습니다.</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button onClick={() => refetch()} variant="outline">
+                  다시 시도
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="min-h-screen bg-background">
       <Header handleRefreshRSS={handleRefreshRSS} />
 
-      {/* 필터 및 설정 */}
-      <div className="mb-6 flex flex-wrap gap-4 items-center">
-        <SelectBox
-          options={SELECT_OPTIONS.isDomestic}
-          value={isDomestic || ""}
-          onChange={(value) => {
-            setIsDomestic(value || null);
-            handleFilterChange();
-          }}
-        />
-        <SelectBox
-          options={SELECT_OPTIONS.itemsPerPage}
-          value={itemsPerPage.toString()}
-          onChange={(value) => {
-            setItemsPerPage(Number(value));
-            setPage(1);
-          }}
-        />
-      </div>
-
-      {/* 페이지 정보 */}
-      {data?.pagination && (
-        <div className="mb-4">
-          <PageInfo
-            currentPage={data.pagination.page}
-            totalPages={data.pagination.totalPages}
-            totalItems={data.pagination.total}
-            itemsPerPage={data.pagination.limit}
-          />
-        </div>
-      )}
-
-      {/* 아티클 목록 */}
-      <div className="space-y-4 mb-8">
-        {data?.articles && data.articles.length > 0 ? (
-          data.articles.map((article) => (
-            <div
-              key={article.id}
-              className="border rounded-lg p-4 hover:shadow-md cursor-pointer transition-all duration-200 hover:border-blue-300"
-              onClick={() => router.push(`/articles/${article.id}`)}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <h2 className="text-xl font-semibold hover:text-blue-600 transition-colors">
-                  {article.title}
-                </h2>
-                <span
-                  className={`px-2 py-1 text-xs rounded flex-shrink-0 ml-2 ${
-                    article.is_domestic
-                      ? "bg-green-100 text-green-800"
-                      : "bg-blue-100 text-blue-800"
-                  }`}
-                >
-                  {article.is_domestic ? "국내" : "해외"}
-                </span>
-              </div>
-
-              <p className="text-gray-600 mb-2 line-clamp-2">
-                {article.description}
-              </p>
-
-              <div className="flex justify-between text-sm text-gray-500">
-                <span className="font-medium">{article.source_name}</span>
-                <span>
-                  {new Date(article.pub_date).toLocaleDateString("ko-KR", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>
-              </div>
+      <div className="container mx-auto px-4 py-8">
+        {/* 필터 및 설정 */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex flex-wrap gap-4 items-center">
+              <SelectBox
+                options={SELECT_OPTIONS.isDomestic}
+                value={isDomestic || ""}
+                onChange={(value) => {
+                  setIsDomestic(value || null);
+                  handleFilterChange();
+                }}
+              />
+              <SelectBox
+                options={SELECT_OPTIONS.itemsPerPage}
+                value={itemsPerPage.toString()}
+                onChange={(value) => {
+                  setItemsPerPage(Number(value));
+                  setPage(1);
+                }}
+              />
             </div>
-          ))
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">아티클이 없습니다.</p>
-            <p className="text-gray-400 text-sm mt-2">
-              필터 조건을 변경하거나 RSS를 새로고침해보세요.
-            </p>
+          </CardContent>
+        </Card>
+
+        {/* 페이지 정보 */}
+        {data?.pagination && (
+          <div className="mb-6">
+            <PageInfo
+              currentPage={data.pagination.page}
+              totalPages={data.pagination.totalPages}
+              totalItems={data.pagination.total}
+              itemsPerPage={data.pagination.limit}
+            />
+          </div>
+        )}
+
+        {/* 아티클 목록 */}
+        <div className="space-y-6 mb-8">
+          {data?.articles && data.articles.length > 0 ? (
+            data.articles.map((article) => (
+              <Card
+                key={article.id}
+                className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/20 hover:bg-accent/5"
+                onClick={() => router.push(`/articles/${article.id}`)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
+                      {article.title}
+                    </CardTitle>
+                    <Badge
+                      variant={article.is_domestic ? "default" : "secondary"}
+                      className={
+                        article.is_domestic
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      }
+                    >
+                      {article.is_domestic ? (
+                        <>
+                          <MapPin className="w-3 h-3 mr-1" />
+                          국내
+                        </>
+                      ) : (
+                        <>
+                          <Globe className="w-3 h-3 mr-1" />
+                          해외
+                        </>
+                      )}
+                    </Badge>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="pt-0">
+                  <CardDescription className="text-base mb-4 line-clamp-3">
+                    {article.description}
+                  </CardDescription>
+
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-4">
+                      <span className="font-medium text-foreground">
+                        {article.source_name}
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          {new Date(article.pub_date).toLocaleDateString(
+                            "ko-KR",
+                            {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            }
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <Card className="text-center py-12">
+              <CardContent>
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                    <Globe className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-medium text-muted-foreground mb-2">
+                      아티클이 없습니다
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      필터 조건을 변경하거나 RSS를 새로고침해보세요
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* 페이지네이션 */}
+        {data?.pagination && data.pagination.totalPages > 1 && (
+          <div className="flex flex-col items-center space-y-6">
+            <Pagination
+              currentPage={data.pagination.page}
+              totalPages={data.pagination.totalPages}
+              onPageChange={handlePageChange}
+              showPageNumbers={7}
+            />
+
+            <PageInfo
+              currentPage={data.pagination.page}
+              totalPages={data.pagination.totalPages}
+              totalItems={data.pagination.total}
+              itemsPerPage={data.pagination.limit}
+            />
           </div>
         )}
       </div>
-
-      {/* 페이지네이션 */}
-      {data?.pagination && data.pagination.totalPages > 1 && (
-        <div className="flex flex-col items-center space-y-4">
-          <Pagination
-            currentPage={data.pagination.page}
-            totalPages={data.pagination.totalPages}
-            onPageChange={handlePageChange}
-            showPageNumbers={7}
-          />
-        </div>
-      )}
     </div>
   );
 }
