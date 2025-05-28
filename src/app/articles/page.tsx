@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Pagination from "@/components/pagination/Pagination";
 import PageInfo from "@/components/pagination/PageInfo";
-import { Header } from "@/components/Header";
+import { Header } from "@/components/header/Header";
 
 interface Article {
   id: string;
