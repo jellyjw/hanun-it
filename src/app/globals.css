@@ -3,7 +3,22 @@
 @tailwind utilities;
 
 body {
-  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  font-family:
+    "Pretendard Variable",
+    Pretendard,
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    Roboto,
+    "Helvetica Neue",
+    "Segoe UI",
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    "Malgun Gothic",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    sans-serif;
 }
 
 @layer base {
@@ -94,4 +109,116 @@ body {
     background-color 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease;
+}
+
+/* 아티클 콘텐츠 스타일링 */
+.article-content {
+  @apply text-gray-800 dark:text-gray-200 leading-relaxed;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  @apply font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4;
+}
+
+.article-content h1 {
+  @apply text-3xl;
+}
+
+.article-content h2 {
+  @apply text-2xl;
+}
+
+.article-content h3 {
+  @apply text-xl;
+}
+
+.article-content h4 {
+  @apply text-lg;
+}
+
+.article-content p {
+  @apply mb-4 text-base leading-7;
+}
+
+.article-content ul,
+.article-content ol {
+  @apply mb-4 pl-6;
+}
+
+.article-content li {
+  @apply mb-2;
+}
+
+.article-content ul li {
+  @apply list-disc;
+}
+
+.article-content ol li {
+  @apply list-decimal;
+}
+
+.article-content blockquote {
+  @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 my-4;
+}
+
+.article-content code {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono;
+}
+
+.article-content pre {
+  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto my-4;
+}
+
+.article-content pre code {
+  @apply bg-transparent p-0;
+}
+
+.article-content a {
+  @apply text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline;
+}
+
+.article-content img {
+  @apply max-w-full h-auto rounded-lg my-4 mx-auto;
+}
+
+.article-content table {
+  @apply w-full border-collapse border border-gray-300 dark:border-gray-600 my-4;
+}
+
+.article-content th,
+.article-content td {
+  @apply border border-gray-300 dark:border-gray-600 px-4 py-2 text-left;
+}
+
+.article-content th {
+  @apply bg-gray-100 dark:bg-gray-800 font-semibold;
+}
+
+.article-content hr {
+  @apply border-gray-300 dark:border-gray-600 my-8;
+}
+
+/* Medium 스타일 특화 */
+.article-content figure {
+  @apply my-6;
+}
+
+.article-content figcaption {
+  @apply text-sm text-gray-600 dark:text-gray-400 text-center mt-2 italic;
+}
+
+/* 강조 텍스트 */
+.article-content strong,
+.article-content b {
+  @apply font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.article-content em,
+.article-content i {
+  @apply italic;
 }

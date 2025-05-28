@@ -3,26 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-
-interface Article {
-  id: string;
-  title: string;
-  description: string;
-  content: string;
-  link: string;
-  pub_date: string;
-  source_name: string;
-  category: string;
-  is_domestic: boolean;
-  thumbnail: string;
-  originContent: string;
-  summary: string;
-}
-
-interface ArticleResponse {
-  success: boolean;
-  article: Article;
-}
+import { ArticleResponse } from "@/types/articles";
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -37,8 +18,6 @@ export default function ArticleDetailPage() {
       return response.json();
     },
   });
-
-  console.log(data, "data");
 
   if (isLoading) {
     return (
@@ -137,10 +116,10 @@ export default function ArticleDetailPage() {
       </div>
 
       {/* 아티클 내용 */}
-      <div className="prose prose-lg max-w-none">
+      <div className="prose prose-lg prose-gray max-w-none dark:prose-invert">
         {article.content ? (
           <div
-            className="text-gray-800 leading-relaxed"
+            className="article-content"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
         ) : (
