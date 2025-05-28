@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { ArticleResponse } from "@/types/articles";
+import { TranslateButton } from "@/components/translate/TranslateButton";
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -94,6 +95,10 @@ export default function ArticleDetailPage() {
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
           {article.title}
         </h1>
+        <TranslateButton
+          articleId={articleId}
+          isDomestic={article.is_domestic}
+        />
 
         {/* 원문 링크 */}
         <div className="bg-gray-50 border rounded-lg p-4 mb-6">
@@ -127,7 +132,16 @@ export default function ArticleDetailPage() {
             <p className="mb-4">{article.description}</p>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <p className="text-yellow-800">
-                이 아티클의 전체 내용을 보려면 원문 링크를 클릭해주세요.
+                이 아티클의 전체 내용을 확인하시려면{" "}
+                <a
+                  href={article.link}
+                  className="text-blue-600"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  원문 링크
+                </a>
+                를 클릭해주세요.
               </p>
             </div>
           </div>
