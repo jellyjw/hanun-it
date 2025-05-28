@@ -6,33 +6,7 @@ import { useRouter } from "next/navigation";
 import Pagination from "@/components/pagination/Pagination";
 import PageInfo from "@/components/pagination/PageInfo";
 import { Header } from "@/components/header/Header";
-
-interface Article {
-  id: string;
-  title: string;
-  description: string;
-  link: string;
-  content: string;
-  pub_date: string;
-  source_name: string;
-  category: string;
-  is_domestic: boolean;
-  thumbnail: string;
-  summary: string;
-}
-
-interface ArticlesResponse {
-  success: boolean;
-  articles: Article[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
+import { ArticlesResponse } from "@/types/articles";
 
 export default function ArticlesPage() {
   const router = useRouter();
