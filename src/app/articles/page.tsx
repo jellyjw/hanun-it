@@ -7,6 +7,8 @@ import Pagination from "@/components/pagination/Pagination";
 import PageInfo from "@/components/pagination/PageInfo";
 import { Header } from "@/components/header/Header";
 import { ArticlesResponse } from "@/types/articles";
+import SelectBox from "@/components/select/SelectBox";
+import { SELECT_OPTIONS } from "@/utils/options";
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -100,45 +102,22 @@ export default function ArticlesPage() {
 
       {/* 필터 및 설정 */}
       <div className="mb-6 flex flex-wrap gap-4 items-center">
-        <select
-          value={category}
-          onChange={(e) => {
-            setCategory(e.target.value);
-            handleFilterChange();
-          }}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">모든 카테고리</option>
-          <option value="tech">기술</option>
-          <option value="news">뉴스</option>
-        </select>
-
-        <select
+        <SelectBox
+          options={SELECT_OPTIONS.isDomestic}
           value={isDomestic || ""}
-          onChange={(e) => {
-            setIsDomestic(e.target.value || null);
+          onChange={(value) => {
+            setIsDomestic(value || null);
             handleFilterChange();
           }}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">국내/해외 전체</option>
-          <option value="true">국내</option>
-          <option value="false">해외</option>
-        </select>
-
-        <select
-          value={itemsPerPage}
-          onChange={(e) => {
-            setItemsPerPage(Number(e.target.value));
+        />
+        <SelectBox
+          options={SELECT_OPTIONS.itemsPerPage}
+          value={itemsPerPage.toString()}
+          onChange={(value) => {
+            setItemsPerPage(Number(value));
             setPage(1);
           }}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value={10}>10개씩 보기</option>
-          <option value={20}>20개씩 보기</option>
-          <option value={50}>50개씩 보기</option>
-          <option value={100}>100개씩 보기</option>
-        </select>
+        />
       </div>
 
       {/* 페이지 정보 */}
