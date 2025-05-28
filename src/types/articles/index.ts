@@ -10,6 +10,10 @@ export interface Article {
   is_domestic: boolean;
   thumbnail: string;
   summary: string;
+  is_translated?: boolean;
+  original_article_id?: string;
+  original_language?: string;
+  translated_language?: string;
 }
 
 // * 아티클 목록
