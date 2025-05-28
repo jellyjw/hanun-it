@@ -7,11 +7,12 @@ export async function GET(
 ) {
   try {
     const supabase = await createClient();
+    const { id } = await params;
 
     const { data: article, error } = await supabase
       .from("articles")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (article) {
@@ -53,7 +54,7 @@ export async function GET(
     const { data: translatedArticle, error: translatedError } = await supabase
       .from("translated_articles")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (translatedError || !translatedArticle) {
