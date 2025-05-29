@@ -20,9 +20,7 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
               <Code2 className="w-6 h-6 text-black dark:text-white" />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 dark:from-purple-400 dark:to-purple-600 bg-clip-text text-transparent">
-                한눈IT
-              </h1>
+              <h1 className="text-xl font-bold text-foreground">한눈IT</h1>
               <p className="text-xs text-muted-foreground">
                 국내, 해외의 IT 최신 아티클을 한눈에
               </p>
@@ -36,6 +34,12 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
               className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
             >
               아티클
+            </Link>
+            <Link
+              href="/videos"
+              className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
+            >
+              YouTube 영상
             </Link>
             <Link
               href="/trending"
@@ -87,6 +91,15 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
             >
               <Code2 className="w-4 h-4" />
               <span>아티클</span>
+            </Link>
+            <Link
+              href="/videos"
+              className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors"
+            >
+              <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-sm flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </div>
+              <span>YouTube</span>
             </Link>
             <Link
               href="/trending"

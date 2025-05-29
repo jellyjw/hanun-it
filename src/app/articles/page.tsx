@@ -39,13 +39,8 @@ export default function ArticlesPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // 검색 훅 사용
-  const {
-    searchValue,
-    debouncedSearchValue,
-    updateSearchValue,
-    clearSearch,
-    isSearching,
-  } = useSearch("", 800);
+  const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } =
+    useSearch("", 800);
 
   const { data, isLoading, error, refetch } = useQuery<ArticlesResponse>({
     queryKey: [
