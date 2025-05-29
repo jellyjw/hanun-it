@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import {
   Globe,
   MapPin,
@@ -10,6 +10,7 @@ import {
   FileText,
   ChevronRight,
   X,
+  Youtube,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,8 @@ export function CategorySidebar({
   isOpen = true,
   onClose,
 }: CategorySidebarProps) {
+  const router = useRouter();
+
   const { data: stats } = useQuery<CategoryStats>({
     queryKey: ["category-stats"],
     queryFn: async () => {
@@ -51,6 +54,7 @@ export function CategorySidebar({
       icon: FileText,
       count: stats?.total || 0,
       description: "모든 아티클 보기",
+      type: "article" as const,
     },
     {
       id: "domestic",
@@ -58,6 +62,7 @@ export function CategorySidebar({
       icon: MapPin,
       count: stats?.domestic || 0,
       description: "한국 기업 및 개발자 블로그",
+      type: "article" as const,
     },
     {
       id: "foreign",
@@ -65,6 +70,7 @@ export function CategorySidebar({
       icon: Globe,
       count: stats?.foreign || 0,
       description: "해외 기술 블로그 및 미디어",
+      type: "article" as const,
     },
     {
       id: "weekly",
@@ -72,11 +78,27 @@ export function CategorySidebar({
       icon: TrendingUp,
       count: stats?.weekly || 0,
       description: "조회수 기준 인기 아티클",
+      type: "article" as const,
+    },
+    {
+      id: "youtube",
+      label: "YouTube 영상",
+      icon: Youtube,
+      count: 0, // YouTube는 실시간이므로 고정 count
+      description: "최신 IT 기술 YouTube 영상",
+      type: "video" as const,
     },
   ];
 
-  const handleCategoryClick = (categoryId: string) => {
-    onCategoryChange(categoryId);
+  const handleCategoryClick = (category: (typeof categories)[0]) => {
+    if (category.type === "video") {
+      // YouTube 카테고리는 별도 페이지로 이동
+      router.push("/videos");
+    } else {
+      // 일반 아티클 카테고리
+      onCategoryChange(category.id);
+    }
+
     // 모바일에서 카테고리 선택 후 사이드바 닫기
     if (onClose && window.innerWidth < 768) {
       onClose();
@@ -126,39 +148,57 @@ export function CategorySidebar({
               return (
                 <button
                   key={category.id}
-                  onClick={() => handleCategoryClick(category.id)}
+                  onClick={() => handleCategoryClick(category)}
                   className={`w-full p-3 rounded-lg text-left transition-all duration-200 group ${
                     isSelected
-                      ? "bg-primary text-primary-foreground shadow-md"
+                      ? category.id === "youtube"
+                        ? "bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md"
+                        : "bg-primary text-primary-foreground shadow-md"
                       : "hover:bg-muted/50 border border-transparent hover:border-border"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Icon
-                        className={`w-4 h-4 ${isSelected ? "text-primary-foreground" : "text-muted-foreground"}`}
+                        className={`w-4 h-4 ${
+                          isSelected
+                            ? category.id === "youtube"
+                              ? "text-white"
+                              : "text-primary-foreground"
+                            : "text-muted-foreground"
+                        }`}
                       />
                       <div
-                        className={`font-medium text-sm ${isSelected ? "text-primary-foreground" : "text-foreground"}`}
+                        className={`font-medium text-sm ${
+                          isSelected
+                            ? category.id === "youtube"
+                              ? "text-white"
+                              : "text-primary-foreground"
+                            : "text-foreground"
+                        }`}
                       >
                         {category.label}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge
-                        variant={isSelected ? "secondary" : "outline"}
-                        className={`text-xs ${
-                          isSelected
-                            ? "bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30"
-                            : ""
-                        }`}
-                      >
-                        {category.count}
-                      </Badge>
+                      {category.id !== "youtube" && (
+                        <Badge
+                          variant={isSelected ? "secondary" : "outline"}
+                          className={`text-xs ${
+                            isSelected
+                              ? "bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30"
+                              : ""
+                          }`}
+                        >
+                          {category.count}
+                        </Badge>
+                      )}
                       <ChevronRight
                         className={`w-3 h-3 transition-transform ${
                           isSelected
-                            ? "rotate-90 text-primary-foreground"
+                            ? category.id === "youtube"
+                              ? "rotate-90 text-white"
+                              : "rotate-90 text-primary-foreground"
                             : "text-muted-foreground group-hover:translate-x-1"
                         }`}
                       />
@@ -205,6 +245,18 @@ export function CategorySidebar({
                 className="bg-orange-50 text-orange-700 border-orange-200"
               >
                 {stats?.weekly || 0}
+              </Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">
+                YouTube 영상
+              </span>
+              <Badge
+                variant="outline"
+                className="bg-red-50 text-red-700 border-red-200"
+              >
+                <Youtube className="w-3 h-3 mr-1" />
+                LIVE
               </Badge>
             </div>
           </CardContent>
