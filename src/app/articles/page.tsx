@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
@@ -28,6 +28,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import SearchInput from "@/components/SearchInput";
+import { useSearch } from "@/hooks/useSearch";
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -36,8 +38,23 @@ export default function ArticlesPage() {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // 검색 훅 사용
+  const {
+    searchValue,
+    debouncedSearchValue,
+    updateSearchValue,
+    clearSearch,
+    isSearching,
+  } = useSearch("", 800);
+
   const { data, isLoading, error, refetch } = useQuery<ArticlesResponse>({
-    queryKey: ["articles", selectedCategory, page, itemsPerPage],
+    queryKey: [
+      "articles",
+      selectedCategory,
+      page,
+      itemsPerPage,
+      debouncedSearchValue,
+    ],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -46,6 +63,11 @@ export default function ArticlesPage() {
 
       if (selectedCategory !== "all") {
         params.append("category", selectedCategory);
+      }
+
+      // 검색어가 있으면 searchValue 파라미터 추가
+      if (debouncedSearchValue.trim()) {
+        params.append("searchValue", debouncedSearchValue);
       }
 
       const response = await fetch(`/api/articles?${params}`);
@@ -68,23 +90,6 @@ export default function ArticlesPage() {
     }
   };
 
-  const handleMigrateViews = async () => {
-    try {
-      const response = await fetch("/api/articles/migrate-views", {
-        method: "POST",
-      });
-      const result = await response.json();
-      if (result.success) {
-        alert(`${result.updated}개의 아티클 조회수를 초기화했습니다.`);
-        refetch();
-      } else {
-        alert("마이그레이션 실패: " + result.error);
-      }
-    } catch {
-      alert("마이그레이션 중 오류가 발생했습니다.");
-    }
-  };
-
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -95,7 +100,20 @@ export default function ArticlesPage() {
     setPage(1);
   };
 
+  // 검색 처리 함수
+  const handleSearch = useCallback(
+    (value: string) => {
+      updateSearchValue(value);
+      setPage(1); // 검색 시 첫 페이지로 이동
+    },
+    [updateSearchValue]
+  );
+
   const getCategoryTitle = () => {
+    if (debouncedSearchValue.trim()) {
+      return `"${debouncedSearchValue}" 검색 결과`;
+    }
+
     switch (selectedCategory) {
       case "domestic":
         return "국내 아티클";
@@ -187,42 +205,37 @@ export default function ArticlesPage() {
           />
 
           <div className="flex-1 space-y-6">
+            {/* 검색 입력 섹션 */}
             <Card>
               <CardContent className="pt-6">
-                <div className="flex flex-wrap gap-4 items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="md:hidden"
-                      onClick={() => setIsSidebarOpen(true)}
-                    >
-                      <Menu className="w-4 h-4" />
-                    </Button>
-                    <div>
-                      <h1 className="text-2xl font-bold text-foreground mb-1">
-                        {getCategoryTitle()}
-                      </h1>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedCategory === "weekly"
-                          ? "조회수가 높은 인기 아티클을 확인하세요"
-                          : selectedCategory === "domestic"
-                            ? "한국 기업 및 개발자들의 기술 블로그"
-                            : selectedCategory === "foreign"
-                              ? "해외 기술 블로그 및 미디어"
-                              : "모든 카테고리의 아티클을 한 곳에서"}
-                      </p>
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-4 items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="md:hidden"
+                        onClick={() => setIsSidebarOpen(true)}
+                      >
+                        <Menu className="w-4 h-4" />
+                      </Button>
+                      <div>
+                        <h1 className="text-2xl font-bold text-foreground mb-1">
+                          {getCategoryTitle()}
+                        </h1>
+                        <p className="text-sm text-muted-foreground">
+                          {debouncedSearchValue.trim()
+                            ? `${selectedCategory !== "all" ? getCategoryTitle().split(" 검색")[0] + " 카테고리에서 " : ""}검색된 결과입니다`
+                            : selectedCategory === "weekly"
+                              ? "조회수가 높은 인기 아티클을 확인하세요"
+                              : selectedCategory === "domestic"
+                                ? "한국 기업 및 개발자들의 기술 블로그"
+                                : selectedCategory === "foreign"
+                                  ? "해외 기술 블로그 및 미디어"
+                                  : "모든 카테고리의 아티클을 한 곳에서"}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-4 items-center">
-                    <Button
-                      onClick={handleMigrateViews}
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                    >
-                      조회수 초기화
-                    </Button>
                     <SelectBox
                       options={SELECT_OPTIONS.itemsPerPage}
                       value={itemsPerPage.toString()}
@@ -230,6 +243,15 @@ export default function ArticlesPage() {
                         setItemsPerPage(Number(value));
                         setPage(1);
                       }}
+                    />
+                  </div>
+
+                  {/* 검색 입력 */}
+                  <div className="w-full">
+                    <SearchInput
+                      onSearch={handleSearch}
+                      isSearching={isSearching}
+                      initialValue={searchValue}
                     />
                   </div>
                 </div>
@@ -329,10 +351,14 @@ export default function ArticlesPage() {
                       </div>
                       <div>
                         <p className="text-lg font-medium text-muted-foreground mb-2">
-                          아티클이 없습니다
+                          {debouncedSearchValue.trim()
+                            ? "검색 결과가 없습니다"
+                            : "아티클이 없습니다"}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          다른 카테고리를 선택하거나 RSS를 새로고침해보세요
+                          {debouncedSearchValue.trim()
+                            ? "다른 검색어를 시도해보거나 카테고리를 변경해보세요"
+                            : "다른 카테고리를 선택하거나 RSS를 새로고침해보세요"}
                         </p>
                       </div>
                     </div>
@@ -347,14 +373,6 @@ export default function ArticlesPage() {
                   currentPage={data.pagination.page}
                   totalPages={data.pagination.totalPages}
                   onPageChange={handlePageChange}
-                  showPageNumbers={7}
-                />
-
-                <PageInfo
-                  currentPage={data.pagination.page}
-                  totalPages={data.pagination.totalPages}
-                  totalItems={data.pagination.total}
-                  itemsPerPage={data.pagination.limit}
                 />
               </div>
             )}
