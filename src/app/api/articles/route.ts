@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const isDomestic = searchParams.get("domestic");
+    const searchValue = searchParams.get("searchValue");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
     const offset = (page - 1) * limit;
@@ -16,6 +17,13 @@ export async function GET(request: NextRequest) {
     let countQuery = supabase
       .from("articles")
       .select("*", { count: "exact", head: true });
+
+    // 검색어가 있는 경우 검색 조건 추가
+    if (searchValue && searchValue.trim()) {
+      countQuery = countQuery.or(
+        `title.ilike.%${searchValue}%,description.ilike.%${searchValue}%,source_name.ilike.%${searchValue}%`
+      );
+    }
 
     // 필터 적용 (count 쿼리에도 동일하게 적용)
     if (category && category !== "all") {
@@ -49,6 +57,13 @@ export async function GET(request: NextRequest) {
 
     // 실제 데이터 조회
     let dataQuery = supabase.from("articles").select("*");
+
+    // 검색어가 있는 경우 검색 조건 추가
+    if (searchValue && searchValue.trim()) {
+      dataQuery = dataQuery.or(
+        `title.ilike.%${searchValue}%,description.ilike.%${searchValue}%,source_name.ilike.%${searchValue}%`
+      );
+    }
 
     // 정렬 기준 설정
     if (category === "weekly") {
@@ -106,6 +121,7 @@ export async function GET(request: NextRequest) {
         hasNext: page < totalPages,
         hasPrev: page > 1,
       },
+      searchValue,
     });
   } catch (error) {
     console.error("아티클 조회 중 오류:", error);
