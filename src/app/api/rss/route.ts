@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import Parser from "rss-parser";
 import { createClient } from "@/utils/supabase/server";
 import { RSS_SOURCES } from "./sources";
-import { fetchMetaImage } from "./utils";
 
 type CustomFeed = {
   title: string;
@@ -11,17 +10,17 @@ type CustomFeed = {
 };
 
 type CustomItem = {
-  title: string;
-  link: string;
-  pubDate: string;
-  content: string;
-  originContent: string;
-  contentSnippet: string;
+  title?: string;
+  link?: string;
+  pubDate?: string;
+  content?: string;
+  contentSnippet?: string;
+  originContent?: string;
   enclosure?: {
-    url: string;
+    url?: string;
   };
   image?: {
-    url: string;
+    url?: string;
   };
 };
 
@@ -31,6 +30,31 @@ const parser: Parser<CustomFeed, CustomItem> = new Parser({
     item: [["content:encoded", "originContent"]],
   },
 });
+
+async function fetchMetaImage(url: string): Promise<string | null> {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      },
+    });
+
+    if (!response.ok) return null;
+
+    const html = await response.text();
+    const ogImageMatch = html.match(
+      /<meta\s+property="og:image"\s+content="([^"]+)"/i
+    );
+    const twitterImageMatch = html.match(
+      /<meta\s+name="twitter:image"\s+content="([^"]+)"/i
+    );
+
+    return ogImageMatch?.[1] || twitterImageMatch?.[1] || null;
+  } catch {
+    return null;
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -46,9 +70,9 @@ export async function GET(request: NextRequest) {
         for (const item of feed.items) {
           let thumbnailUrl = item.enclosure?.url || item.image?.url || "";
 
-          if (!thumbnailUrl && item.link) {
-            thumbnailUrl = (await fetchMetaImage(item.link)) || "";
-          }
+          // if (!thumbnailUrl && item.link) {
+          //   thumbnailUrl = (await fetchMetaImage(item.link)) || "";
+          // }
 
           const article = {
             title: item.title || "",
@@ -64,6 +88,7 @@ export async function GET(request: NextRequest) {
             category: source.category,
             is_domestic: source.isDomestic,
             thumbnail: thumbnailUrl,
+            view_count: 0, // 기본 조회수 0으로 설정
           };
 
           // 중복 체크 후 삽입
@@ -90,6 +115,7 @@ export async function GET(request: NextRequest) {
         );
       } catch (error) {
         console.error(`Error fetching RSS from ${source.name}:`, error);
+        continue;
       }
     }
 

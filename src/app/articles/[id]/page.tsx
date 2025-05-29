@@ -1,10 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { useEffect } from "react";
+import { ArrowLeft, ExternalLink, Eye } from "lucide-react";
 import { ArticleResponse } from "@/types/articles";
-import { TranslateButton } from "@/components/translate/TranslateButton";
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -19,6 +19,24 @@ export default function ArticleDetailPage() {
       return response.json();
     },
   });
+
+  // 조회수 증가 뮤테이션
+  const incrementViewMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/articles/${id}/view`, {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error("Failed to increment view count");
+      return response.json();
+    },
+  });
+
+  // 컴포넌트 마운트 시 조회수 증가
+  useEffect(() => {
+    if (articleId && data?.success) {
+      incrementViewMutation.mutate(articleId);
+    }
+  }, [articleId, data?.success]);
 
   if (isLoading) {
     return (
@@ -90,15 +108,20 @@ export default function ArticleDetailPage() {
               day: "numeric",
             })}
           </span>
+          {article.view_count !== undefined && (
+            <>
+              <span className="text-sm text-gray-500">•</span>
+              <div className="flex items-center gap-1 text-sm text-gray-500">
+                <Eye size={14} />
+                <span>{article.view_count.toLocaleString()}회</span>
+              </div>
+            </>
+          )}
         </div>
 
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
           {article.title}
         </h1>
-        <TranslateButton
-          articleId={articleId}
-          isDomestic={article.is_domestic}
-        />
 
         {/* 원문 링크 */}
         <div className="bg-gray-50 border rounded-lg p-4 mb-6">
