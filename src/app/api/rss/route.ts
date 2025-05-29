@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Parser from "rss-parser";
 import { createClient } from "@/utils/supabase/server";
-import { RSS_SOURCES } from "./sources";
+import { RSS_SOURCES } from "@/utils/constants";
 
 type CustomFeed = {
   title: string;
