@@ -10,6 +10,7 @@ export interface Article {
   is_domestic: boolean;
   thumbnail: string;
   summary: string;
+  view_count?: number;
   is_translated?: boolean;
   original_article_id?: string;
   original_language?: string;
