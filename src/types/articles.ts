@@ -7,6 +7,7 @@ export interface Article {
   source_name: string;
   is_domestic: boolean;
   view_count?: number;
+  thumbnail?: string;
 }
 
 export interface YoutubeVideo {

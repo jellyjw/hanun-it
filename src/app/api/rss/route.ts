@@ -31,27 +31,23 @@ const parser: Parser<CustomFeed, CustomItem> = new Parser({
   },
 });
 
-async function fetchMetaImage(url: string): Promise<string | null> {
+// 썸네일 추출 함수
+async function extractThumbnail(url: string): Promise<string | null> {
   try {
-    const response = await fetch(url, {
+    const response = await fetch("/api/extract-thumbnail", {
+      method: "POST",
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({ url }),
     });
 
     if (!response.ok) return null;
 
-    const html = await response.text();
-    const ogImageMatch = html.match(
-      /<meta\s+property="og:image"\s+content="([^"]+)"/i
-    );
-    const twitterImageMatch = html.match(
-      /<meta\s+name="twitter:image"\s+content="([^"]+)"/i
-    );
-
-    return ogImageMatch?.[1] || twitterImageMatch?.[1] || null;
-  } catch {
+    const result = await response.json();
+    return result.thumbnail || null;
+  } catch (error) {
+    console.error(`썸네일 추출 실패 (${url}):`, error);
     return null;
   }
 }
@@ -60,19 +56,30 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const articles = [];
+    let totalProcessed = 0;
+    let thumbnailsExtracted = 0;
 
     for (const source of RSS_SOURCES) {
       try {
         console.log(`Fetching RSS from: ${source.name}`);
         const feed = await parser.parseURL(source.url);
-        console.log("Feed items:", feed.items[0]); // 첫 번째 아이템의 구조 확인용
+        console.log(`Found ${feed.items.length} items from ${source.name}`);
 
         for (const item of feed.items) {
+          totalProcessed++;
+
+          // 1순위: RSS에서 제공하는 이미지
           let thumbnailUrl = item.enclosure?.url || item.image?.url || "";
 
-          // if (!thumbnailUrl && item.link) {
-          //   thumbnailUrl = (await fetchMetaImage(item.link)) || "";
-          // }
+          // 2순위: 원문 페이지에서 썸네일 추출
+          if (!thumbnailUrl && item.link) {
+            console.log(`썸네일 추출 시도: ${item.title}`);
+            thumbnailUrl = (await extractThumbnail(item.link)) || "";
+            if (thumbnailUrl) {
+              thumbnailsExtracted++;
+              console.log(`썸네일 추출 성공: ${item.title}`);
+            }
+          }
 
           const article = {
             title: item.title || "",
@@ -99,6 +106,8 @@ export async function GET(request: NextRequest) {
 
           if (!error) {
             articles.push(article);
+          } else {
+            console.error(`DB 삽입 오류 (${item.title}):`, error);
           }
         }
 
@@ -113,6 +122,8 @@ export async function GET(request: NextRequest) {
           },
           { onConflict: "url" }
         );
+
+        console.log(`Completed processing ${source.name}`);
       } catch (error) {
         console.error(`Error fetching RSS from ${source.name}:`, error);
         continue;
@@ -121,8 +132,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `${articles.length}개의 아티클을 수집했습니다.`,
+      message: `${articles.length}개의 아티클을 수집했습니다. (썸네일 ${thumbnailsExtracted}개 추출)`,
       articles: articles.length,
+      totalProcessed,
+      thumbnailsExtracted,
     });
   } catch (error) {
     console.error("RSS 수집 중 오류:", error);
