@@ -11,6 +11,8 @@ import {
   Loader2,
   Menu,
   Eye,
+  Image as ImageIcon,
+  Download,
 } from "lucide-react";
 import Pagination from "@/components/pagination/Pagination";
 import PageInfo from "@/components/pagination/PageInfo";
@@ -30,6 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import SearchInput from "@/components/SearchInput";
 import { useSearch } from "@/hooks/useSearch";
+import FallbackThumbnail from "@/components/FallbackThumbnail";
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -37,10 +40,16 @@ export default function ArticlesPage() {
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isExtractingThumbnails, setIsExtractingThumbnails] = useState(false);
 
   // 검색 훅 사용
-  const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } =
-    useSearch("", 800);
+  const {
+    searchValue,
+    debouncedSearchValue,
+    updateSearchValue,
+    clearSearch,
+    isSearching,
+  } = useSearch("", 800);
 
   const { data, isLoading, error, refetch } = useQuery<ArticlesResponse>({
     queryKey: [
@@ -77,11 +86,54 @@ export default function ArticlesPage() {
       const result = await response.json();
       if (result.success) {
         console.log(result, "result");
-        alert(`${result.articles}개의 새로운 아티클을 수집했습니다.`);
+        alert(
+          `${result.articles}개의 새로운 아티클을 수집했습니다. (썸네일 ${result.thumbnailsExtracted || 0}개 추출)`
+        );
         refetch();
       }
     } catch {
       alert("RSS 수집 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleMigrateViews = async () => {
+    try {
+      const response = await fetch("/api/articles/migrate-views", {
+        method: "POST",
+      });
+      const result = await response.json();
+      if (result.success) {
+        alert(`${result.updated}개의 아티클 조회수를 초기화했습니다.`);
+        refetch();
+      } else {
+        alert("마이그레이션 실패: " + result.error);
+      }
+    } catch {
+      alert("마이그레이션 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleExtractThumbnails = async () => {
+    if (isExtractingThumbnails) return;
+
+    setIsExtractingThumbnails(true);
+    try {
+      const response = await fetch("/api/articles/extract-thumbnails", {
+        method: "POST",
+      });
+      const result = await response.json();
+      if (result.success) {
+        alert(
+          `${result.extracted}개의 썸네일을 추출했습니다. (총 ${result.processed}개 처리)`
+        );
+        refetch();
+      } else {
+        alert("썸네일 추출 실패: " + result.error);
+      }
+    } catch {
+      alert("썸네일 추출 중 오류가 발생했습니다.");
+    } finally {
+      setIsExtractingThumbnails(false);
     }
   };
 
@@ -231,14 +283,43 @@ export default function ArticlesPage() {
                         </p>
                       </div>
                     </div>
-                    <SelectBox
-                      options={SELECT_OPTIONS.itemsPerPage}
-                      value={itemsPerPage.toString()}
-                      onChange={(value) => {
-                        setItemsPerPage(Number(value));
-                        setPage(1);
-                      }}
-                    />
+                    <div className="flex gap-2 items-center flex-wrap">
+                      <Button
+                        onClick={handleExtractThumbnails}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        disabled={isExtractingThumbnails}
+                      >
+                        {isExtractingThumbnails ? (
+                          <>
+                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                            썸네일 추출 중...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-3 h-3 mr-1" />
+                            썸네일 추출
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        onClick={handleMigrateViews}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        조회수 초기화
+                      </Button>
+                      <SelectBox
+                        options={SELECT_OPTIONS.itemsPerPage}
+                        value={itemsPerPage.toString()}
+                        onChange={(value) => {
+                          setItemsPerPage(Number(value));
+                          setPage(1);
+                        }}
+                      />
+                    </div>
                   </div>
 
                   {/* 검색 입력 */}
@@ -264,106 +345,150 @@ export default function ArticlesPage() {
               </div>
             )}
 
-            <div className="space-y-6">
+            {/* 카드형 그리드 레이아웃 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {data?.articles && data.articles.length > 0 ? (
                 data.articles.map((article) => (
                   <Card
                     key={article.id}
-                    className="group transition-all duration-300 cursor-pointer hover:shadow-lg"
+                    className="group transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 overflow-hidden"
                     onClick={() => router.push(`/articles/${article.id}`)}
                   >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between gap-4">
-                        <CardTitle className="text-base font-semibold group-hover:text-primary transition-colors line-clamp-2">
-                          {article.title}
-                        </CardTitle>
-                        <Badge
-                          variant={
-                            article.is_domestic ? "default" : "secondary"
-                          }
-                          className={
-                            article.is_domestic
-                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                              : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                          }
-                        >
-                          {article.is_domestic ? (
-                            <>
-                              <MapPin className="w-3 h-3 mr-1" />
-                              국내
-                            </>
-                          ) : (
-                            <>
-                              <Globe className="w-3 h-3 mr-1" />
-                              해외
-                            </>
-                          )}
-                        </Badge>
-                      </div>
-                    </CardHeader>
+                    {/* 썸네일 섹션 */}
+                    <div className="relative aspect-video bg-muted overflow-hidden">
+                      {article.thumbnail ? (
+                        <img
+                          src={article.thumbnail}
+                          alt={article.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            const parent = target.parentElement;
+                            if (parent) {
+                              // 이미지 로드 실패 시 FallbackThumbnail로 교체
+                              const fallbackDiv = document.createElement("div");
+                              fallbackDiv.className = "w-full h-full";
+                              parent.innerHTML = "";
+                              parent.appendChild(fallbackDiv);
 
-                    <CardContent className="pt-0">
-                      <CardDescription className="text-sm mb-4 line-clamp-3 text-gray-600">
+                              // React 컴포넌트를 동적으로 렌더링하기 위해
+                              // 여기서는 간단한 HTML로 대체
+                              parent.innerHTML = `
+                                <div class="w-full h-full bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 flex items-center justify-center">
+                                  <div class="text-white text-center">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2">
+                                      <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                                      <circle cx="9" cy="9" r="2"/>
+                                      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                                    </svg>
+                                    <div class="text-sm font-semibold">${article.source_name}</div>
+                                  </div>
+                                </div>
+                              `;
+                            }
+                          }}
+                        />
+                      ) : (
+                        <FallbackThumbnail
+                          title={article.title}
+                          category={(article as any).category || undefined}
+                          sourceName={article.source_name}
+                          isDomestic={article.is_domestic}
+                        />
+                      )}
+
+                      {/* 국내/해외 배지 */}
+                      <Badge
+                        className={`absolute top-2 right-2 ${
+                          article.is_domestic
+                            ? "bg-green-500 hover:bg-green-600"
+                            : "bg-blue-500 hover:bg-blue-600"
+                        } text-white border-0`}
+                      >
+                        {article.is_domestic ? (
+                          <>
+                            <MapPin className="w-3 h-3 mr-1" />
+                            국내
+                          </>
+                        ) : (
+                          <>
+                            <Globe className="w-3 h-3 mr-1" />
+                            해외
+                          </>
+                        )}
+                      </Badge>
+                    </div>
+
+                    {/* 콘텐츠 섹션 */}
+                    <CardContent className="p-4">
+                      <CardTitle className="text-sm font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+                        {article.title}
+                      </CardTitle>
+
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                        <span className="font-medium text-foreground truncate">
+                          {article.source_name}
+                        </span>
+                        <span>•</span>
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          <span>
+                            {(article.view_count || 0).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <CardDescription className="text-xs mb-3 line-clamp-2">
                         {article.description}
                       </CardDescription>
 
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <div className="flex items-center space-x-4">
-                          <span className="font-medium text-foreground">
-                            {article.source_name}
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          <span>
+                            {new Date(article.pub_date).toLocaleDateString(
+                              "ko-KR",
+                              {
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
                           </span>
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>
-                              {new Date(article.pub_date).toLocaleDateString(
-                                "ko-KR",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                }
-                              )}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Eye className="w-4 h-4" />
-                            <span>
-                              {(article.view_count || 0).toLocaleString()}
-                            </span>
-                          </div>
                         </div>
-                        <ExternalLink className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                     </CardContent>
                   </Card>
                 ))
               ) : (
-                <Card className="text-center py-12">
-                  <CardContent>
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                        <Globe className="w-8 h-8 text-muted-foreground" />
+                <div className="col-span-full">
+                  <Card className="text-center py-12">
+                    <CardContent>
+                      <div className="flex flex-col items-center space-y-4">
+                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                          <Globe className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-lg font-medium text-muted-foreground mb-2">
+                            {debouncedSearchValue.trim()
+                              ? "검색 결과가 없습니다"
+                              : "아티클이 없습니다"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {debouncedSearchValue.trim()
+                              ? "다른 검색어를 시도해보거나 카테고리를 변경해보세요"
+                              : "다른 카테고리를 선택하거나 RSS를 새로고침해보세요"}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-lg font-medium text-muted-foreground mb-2">
-                          {debouncedSearchValue.trim()
-                            ? "검색 결과가 없습니다"
-                            : "아티클이 없습니다"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {debouncedSearchValue.trim()
-                            ? "다른 검색어를 시도해보거나 카테고리를 변경해보세요"
-                            : "다른 카테고리를 선택하거나 RSS를 새로고침해보세요"}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </div>
 
             {data?.pagination && data.pagination.totalPages > 1 && (
-              <div className="flex flex-col items-center space-y-6">
+              <div className="flex justify-center">
                 <Pagination
                   currentPage={data.pagination.page}
                   totalPages={data.pagination.totalPages}
