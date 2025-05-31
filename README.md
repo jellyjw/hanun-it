@@ -109,3 +109,130 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 소셜 로그인 설정
+
+이 프로젝트는 Supabase를 사용하여 GitHub, Google, Kakao 소셜 로그인을 지원합니다.
+
+### 1. 환경변수 설정
+
+`.env.local` 파일을 생성하고 다음 변수들을 설정하세요:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SITE_URL=http://localhost:7007
+```
+
+### 2. Supabase 대시보드 설정
+
+#### GitHub OAuth 설정
+
+1. [GitHub Developer Settings](https://github.com/settings/developers)에서 새 OAuth App 생성
+2. Authorization callback URL: `https://your-project.supabase.co/auth/v1/callback`
+3. Supabase 대시보드 > Authentication > Providers > GitHub에서 Client ID와 Client Secret 입력
+
+#### Google OAuth 설정
+
+1. [Google Cloud Console](https://console.cloud.google.com/)에서 새 프로젝트 생성
+2. OAuth 2.0 클라이언트 ID 생성
+3. 승인된 리디렉션 URI: `https://your-project.supabase.co/auth/v1/callback`
+4. Supabase 대시보드 > Authentication > Providers > Google에서 Client ID와 Client Secret 입력
+
+#### Kakao OAuth 설정
+
+1. [Kakao Developers](https://developers.kakao.com/)에서 애플리케이션 생성
+2. 플랫폼 설정 > Web > 사이트 도메인 등록
+3. 카카오 로그인 > Redirect URI: `https://your-project.supabase.co/auth/v1/callback`
+4. Supabase 대시보드 > Authentication > Providers > Kakao에서 Client ID와 Client Secret 입력
+
+### 3. 사용 방법
+
+#### 로그인 페이지
+
+```typescript
+import SocialLogin from "@/components/auth/SocialLogin";
+
+export default function LoginPage() {
+  return (
+    <div>
+      <h1>로그인</h1>
+      <SocialLogin redirectTo="/profile" />
+    </div>
+  );
+}
+```
+
+#### 사용자 프로필 표시
+
+```typescript
+import UserProfile from "@/components/auth/UserProfile";
+
+export default function Header() {
+  return (
+    <header>
+      <UserProfile />
+    </header>
+  );
+}
+```
+
+#### 보호된 라우트
+
+```typescript
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+
+export default function PrivatePage() {
+  return (
+    <ProtectedRoute>
+      <div>인증된 사용자만 볼 수 있는 내용</div>
+    </ProtectedRoute>
+  );
+}
+```
+
+#### 인증 상태 확인
+
+```typescript
+import { useAuth } from "@/hooks/useAuth";
+
+export default function MyComponent() {
+  const { user, isAuthenticated, loading, signOut } = useAuth();
+
+  if (loading) return <div>로딩 중...</div>;
+
+  return (
+    <div>
+      {isAuthenticated ? (
+        <div>
+          <p>안녕하세요, {user?.email}님!</p>
+          <button onClick={signOut}>로그아웃</button>
+        </div>
+      ) : (
+        <a href="/auth/login">로그인</a>
+      )}
+    </div>
+  );
+}
+```
+
+### 4. 라우트 구조
+
+- `/auth/login` - 로그인 페이지
+- `/auth/callback` - OAuth 콜백 처리
+- `/profile` - 보호된 프로필 페이지 (예시)
+
+### 5. 주요 컴포넌트
+
+- `SocialLogin` - 소셜 로그인 버튼들
+- `UserProfile` - 사용자 정보 및 로그아웃 버튼
+- `ProtectedRoute` - 인증이 필요한 페이지 보호
+- `useAuth` - 인증 상태 관리 훅
+
+## 개발 서버 실행
+
+```bash
+pnpm dev
+```
+
+서버가 http://localhost:7007에서 실행됩니다.

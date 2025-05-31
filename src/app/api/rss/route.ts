@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import Parser from "rss-parser";
 import { createClient } from "@/utils/supabase/server";
 import { RSS_SOURCES } from "@/utils/constants";
@@ -52,7 +52,7 @@ async function extractThumbnail(url: string): Promise<string | null> {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient();
     const articles = [];
