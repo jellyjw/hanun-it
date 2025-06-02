@@ -46,3 +46,44 @@ export async function signup(formData: FormData) {
   revalidatePath("/", "layout");
   redirect("/");
 }
+
+// react-hook-form과 호환되는 새로운 액션들
+export async function loginWithCredentials(data: {
+  email: string;
+  password: string;
+}) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signInWithPassword(data);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true };
+}
+
+export async function signupWithCredentials(data: {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}) {
+  if (data.password !== data.confirmPassword) {
+    return { success: false, error: "비밀번호가 일치하지 않습니다." };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signUp({
+    email: data.email,
+    password: data.password,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true };
+}

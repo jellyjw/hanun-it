@@ -1,15 +1,17 @@
 "use client";
 
-import { RefreshCw, Code2, Zap } from "lucide-react";
+import { RefreshCw, Code2, Zap, User } from "lucide-react";
 // import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderProps {
   handleRefreshRSS: () => void;
 }
 
 export function Header({ handleRefreshRSS }: HeaderProps) {
+  const { isAuthenticated, signOut } = useAuth();
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -57,6 +59,23 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
 
           {/* 액션 버튼들 */}
           <div className="flex items-center space-x-3">
+            {!isAuthenticated ? (
+              <Link href="/auth/login">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:flex items-center space-x-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200"
+                >
+                  <User className="w-4 h-4" />
+                  <span>로그인</span>
+                </Button>
+              </Link>
+            ) : (
+              <Button variant="outline" size="sm" onClick={signOut}>
+                <User className="w-4 h-4" />
+                <span>로그아웃</span>
+              </Button>
+            )}
             <Button
               onClick={handleRefreshRSS}
               variant="outline"
@@ -65,15 +84,6 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
             >
               <RefreshCw className="w-4 h-4" />
               <span>새로고침</span>
-            </Button>
-
-            <Button
-              onClick={handleRefreshRSS}
-              variant="outline"
-              size="icon"
-              className="sm:hidden border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950"
-            >
-              <RefreshCw className="w-4 h-4" />
             </Button>
 
             {/* <ThemeToggle /> */}
