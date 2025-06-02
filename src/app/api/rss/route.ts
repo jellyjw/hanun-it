@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Parser from "rss-parser";
 import { createClient } from "@/utils/supabase/server";
 import { RSS_SOURCES } from "@/utils/constants";
+import { processArticleContent } from "@/utils/markdown";
 
 type CustomFeed = {
   title: string;
@@ -85,7 +86,9 @@ export async function GET() {
             title: item.title || "",
             description: item.contentSnippet || item.content || "",
             summary: item.content || "",
-            content: item.originContent || item.content || "",
+            content: processArticleContent(
+              item.originContent || item.content || ""
+            ),
             link: item.link || "",
             pub_date: item.pubDate
               ? new Date(item.pubDate).toISOString()

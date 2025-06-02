@@ -2,16 +2,18 @@
 
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { ArrowLeft, ExternalLink, Eye } from "lucide-react";
-import { ArticleResponse } from "@/types/articles";
+import { ArticleResponse } from "@/types/articles/index";
+import { processArticleContent } from "@/utils/markdown";
+import { Button } from "@/components/ui/button";
 
 export default function ArticleDetailPage() {
   const params = useParams();
   const router = useRouter();
   const articleId = params?.id as string;
 
-  const { data, isLoading, error } = useQuery<ArticleResponse>({
+  const { data, isLoading, error, refetch } = useQuery<ArticleResponse>({
     queryKey: ["article", articleId],
     queryFn: async () => {
       const response = await fetch(`/api/articles/${articleId}`);
@@ -37,6 +39,35 @@ export default function ArticleDetailPage() {
       incrementViewMutation.mutate(articleId);
     }
   }, [articleId, data?.success]);
+
+  const processedContent = useMemo(() => {
+    if (!data?.article?.content) return "";
+    return processArticleContent(data.article.content);
+  }, [data?.article?.content]);
+
+  const handleConvertMarkdown = async () => {
+    if (isLoading) return;
+
+    const confirmed = confirm(
+      "기존 마크다운 아티클들을 HTML로 변환하시겠습니까?"
+    );
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch("/api/articles/convert-markdown", {
+        method: "POST",
+      });
+      const result = await response.json();
+      if (result.success) {
+        alert(result.message);
+        refetch();
+      } else {
+        alert("마크다운 변환 실패: " + result.error);
+      }
+    } catch {
+      alert("마크다운 변환 중 오류가 발생했습니다.");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -88,6 +119,14 @@ export default function ArticleDetailPage() {
           <ArrowLeft size={20} />
           목록으로 돌아가기
         </button>
+        <Button
+          onClick={handleConvertMarkdown}
+          variant="outline"
+          size="sm"
+          className="text-xs"
+        >
+          마크다운 변환
+        </Button>
 
         <div className="flex items-center gap-2 mb-2">
           <span
@@ -148,7 +187,7 @@ export default function ArticleDetailPage() {
         {article.content ? (
           <div
             className="article-content"
-            dangerouslySetInnerHTML={{ __html: article.content }}
+            dangerouslySetInnerHTML={{ __html: processedContent }}
           />
         ) : (
           <div className="text-gray-800 leading-relaxed">
