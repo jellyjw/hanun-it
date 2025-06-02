@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { ArrowLeft, ExternalLink, Eye } from "lucide-react";
 import { ArticleResponse } from "@/types/articles";
+import CommentSection from "@/components/comments/CommentSection";
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -170,6 +171,8 @@ export default function ArticleDetailPage() {
           </div>
         )}
       </div>
+
+      <CommentSection articleId={articleId} />
 
       {/* 하단 액션 */}
       <div className="mt-8 pt-6 border-t border-gray-200">
