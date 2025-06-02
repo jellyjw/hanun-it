@@ -21,17 +21,38 @@ export interface Article {
 export interface ArticlesResponse {
   success: boolean;
   articles: Article[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
+  pagination: Pagination;
 }
 
 export interface ArticleResponse {
   success: boolean;
   article: Article;
+}
+
+export interface YoutubeVideo {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  videoId: string;
+  channelTitle: string;
+  publishedAt: string;
+  duration: string;
+  viewCount: number;
+  likeCount?: number;
+  commentCount?: number;
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
+export interface YoutubeResponse {
+  videos: YoutubeVideo[];
+  pagination: Pagination;
 }
