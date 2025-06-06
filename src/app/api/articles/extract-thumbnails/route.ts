@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
 
 // 썸네일 추출 함수
 async function extractThumbnail(url: string): Promise<string | null> {
   try {
-    const response = await fetch("/api/extract-thumbnail", {
-      method: "POST",
+    const response = await fetch('/api/extract-thumbnail', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ url }),
     });
@@ -26,16 +26,16 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get("limit") || "50"); // 한 번에 처리할 개수
+    const limit = parseInt(searchParams.get('limit') || '50'); // 한 번에 처리할 개수
 
     console.log(`썸네일 일괄 추출 시작 (최대 ${limit}개)`);
 
     // 썸네일이 없는 아티클들을 가져오기
     const { data: articles, error } = await supabase
-      .from("articles")
-      .select("id, title, link, thumbnail")
-      .or("thumbnail.is.null,thumbnail.eq.")
-      .not("link", "is", null)
+      .from('articles')
+      .select('id, title, link, thumbnail')
+      .or('thumbnail.is.null,thumbnail.eq.')
+      .not('link', 'is', null)
       .limit(limit);
 
     if (error) {
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     if (!articles || articles.length === 0) {
       return NextResponse.json({
         success: true,
-        message: "처리할 아티클이 없습니다.",
+        message: '처리할 아티클이 없습니다.',
         processed: 0,
         extracted: 0,
       });
@@ -64,10 +64,7 @@ export async function POST(request: NextRequest) {
 
         if (thumbnail) {
           // 썸네일이 추출되면 DB 업데이트
-          const { error: updateError } = await supabase
-            .from("articles")
-            .update({ thumbnail })
-            .eq("id", article.id);
+          const { error: updateError } = await supabase.from('articles').update({ thumbnail }).eq('id', article.id);
 
           if (!updateError) {
             extracted++;
@@ -84,7 +81,7 @@ export async function POST(request: NextRequest) {
               id: article.id,
               title: article.title,
               success: false,
-              error: "DB 업데이트 실패",
+              error: 'DB 업데이트 실패',
             });
           }
         } else {
@@ -92,7 +89,7 @@ export async function POST(request: NextRequest) {
             id: article.id,
             title: article.title,
             success: false,
-            error: "썸네일 추출 실패",
+            error: '썸네일 추출 실패',
           });
         }
 
@@ -104,7 +101,7 @@ export async function POST(request: NextRequest) {
           id: article.id,
           title: article.title,
           success: false,
-          error: error instanceof Error ? error.message : "알 수 없는 오류",
+          error: error instanceof Error ? error.message : '알 수 없는 오류',
         });
       }
     }
@@ -119,14 +116,14 @@ export async function POST(request: NextRequest) {
       results,
     });
   } catch (error) {
-    console.error("썸네일 일괄 추출 중 오류:", error);
+    console.error('썸네일 일괄 추출 중 오류:', error);
     return NextResponse.json(
       {
         success: false,
-        error: "썸네일 일괄 추출 중 오류가 발생했습니다.",
-        details: error instanceof Error ? error.message : "알 수 없는 오류",
+        error: '썸네일 일괄 추출 중 오류가 발생했습니다.',
+        details: error instanceof Error ? error.message : '알 수 없는 오류',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

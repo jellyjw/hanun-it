@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import Parser from "rss-parser";
-import { createClient } from "@/utils/supabase/server";
-import { RSS_SOURCES } from "@/utils/constants";
+import { NextResponse } from 'next/server';
+import Parser from 'rss-parser';
+import { createClient } from '@/utils/supabase/server';
+import { RSS_SOURCES } from '@/utils/constants';
 
 type CustomFeed = {
   title: string;
@@ -27,17 +27,17 @@ type CustomItem = {
 // Parser 인스턴스 생성 시 customFields 설정
 const parser: Parser<CustomFeed, CustomItem> = new Parser({
   customFields: {
-    item: [["content:encoded", "originContent"]],
+    item: [['content:encoded', 'originContent']],
   },
 });
 
 // 썸네일 추출 함수
 async function extractThumbnail(url: string): Promise<string | null> {
   try {
-    const response = await fetch("/api/extract-thumbnail", {
-      method: "POST",
+    const response = await fetch('/api/extract-thumbnail', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ url }),
     });
@@ -69,12 +69,12 @@ export async function GET() {
           totalProcessed++;
 
           // 1순위: RSS에서 제공하는 이미지
-          let thumbnailUrl = item.enclosure?.url || item.image?.url || "";
+          let thumbnailUrl = item.enclosure?.url || item.image?.url || '';
 
           // 2순위: 원문 페이지에서 썸네일 추출
           if (!thumbnailUrl && item.link) {
             console.log(`썸네일 추출 시도: ${item.title}`);
-            thumbnailUrl = (await extractThumbnail(item.link)) || "";
+            thumbnailUrl = (await extractThumbnail(item.link)) || '';
             if (thumbnailUrl) {
               thumbnailsExtracted++;
               console.log(`썸네일 추출 성공: ${item.title}`);
@@ -82,14 +82,12 @@ export async function GET() {
           }
 
           const article = {
-            title: item.title || "",
-            description: item.contentSnippet || item.content || "",
-            summary: item.content || "",
-            content: item.originContent || item.content || "",
-            link: item.link || "",
-            pub_date: item.pubDate
-              ? new Date(item.pubDate).toISOString()
-              : new Date().toISOString(),
+            title: item.title || '',
+            description: item.contentSnippet || item.content || '',
+            summary: item.content || '',
+            content: item.originContent || item.content || '',
+            link: item.link || '',
+            pub_date: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
             source_name: source.name,
             source_url: source.url,
             category: source.category,
@@ -99,8 +97,8 @@ export async function GET() {
           };
 
           // 중복 체크 후 삽입
-          const { error } = await supabase.from("articles").upsert(article, {
-            onConflict: "link",
+          const { error } = await supabase.from('articles').upsert(article, {
+            onConflict: 'link',
             ignoreDuplicates: true,
           });
 
@@ -112,7 +110,7 @@ export async function GET() {
         }
 
         // RSS 소스 마지막 수집 시간 업데이트
-        await supabase.from("rss_sources").upsert(
+        await supabase.from('rss_sources').upsert(
           {
             name: source.name,
             url: source.url,
@@ -120,7 +118,7 @@ export async function GET() {
             category: source.category,
             last_fetched: new Date().toISOString(),
           },
-          { onConflict: "url" }
+          { onConflict: 'url' },
         );
 
         console.log(`Completed processing ${source.name}`);
@@ -138,10 +136,7 @@ export async function GET() {
       thumbnailsExtracted,
     });
   } catch (error) {
-    console.error("RSS 수집 중 오류:", error);
-    return NextResponse.json(
-      { success: false, error: "RSS 수집 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    console.error('RSS 수집 중 오류:', error);
+    return NextResponse.json({ success: false, error: 'RSS 수집 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

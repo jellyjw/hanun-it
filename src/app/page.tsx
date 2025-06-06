@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useStore } from "@/store/useStore";
+import { useStore } from '@/store/useStore';
 
 export default function Home() {
   const { count, increment, decrement } = useStore();

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 
 interface PaginationProps {
   currentPage: number;
@@ -9,12 +9,7 @@ interface PaginationProps {
   showPageNumbers?: number; // 표시할 페이지 번호 개수
 }
 
-export default function Pagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-  showPageNumbers = 5,
-}: PaginationProps) {
+export default function Pagination({ currentPage, totalPages, onPageChange, showPageNumbers = 5 }: PaginationProps) {
   // 페이지 번호 배열 생성
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
@@ -34,7 +29,7 @@ export default function Pagination({
 
       // 시작 부분에 ... 추가
       if (startPage > 2) {
-        pages.push("...");
+        pages.push('...');
       }
 
       // 중간 페이지들 추가
@@ -46,7 +41,7 @@ export default function Pagination({
 
       // 끝 부분에 ... 추가
       if (endPage < totalPages - 1) {
-        pages.push("...");
+        pages.push('...');
       }
 
       // 마지막 페이지는 항상 표시 (총 페이지가 1보다 클 때만)
@@ -77,12 +72,9 @@ export default function Pagination({
       {/* 페이지 번호들 */}
       <div className="flex space-x-1">
         {pageNumbers.map((pageNum, index) => {
-          if (pageNum === "...") {
+          if (pageNum === '...') {
             return (
-              <span
-                key={`ellipsis-${index}`}
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-700"
-              >
+              <span key={`ellipsis-${index}`} className="flex items-center px-3 py-2 text-sm font-medium text-gray-700">
                 <MoreHorizontal className="w-4 h-4" />
               </span>
             );
@@ -96,8 +88,8 @@ export default function Pagination({
               onClick={() => onPageChange(pageNum as number)}
               className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 isCurrentPage
-                  ? "bg-blue-600 text-white border border-blue-600"
-                  : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-900"
+                  ? 'bg-blue-600 text-white border border-blue-600'
+                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               {pageNum}

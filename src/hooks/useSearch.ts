@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
-import { useDebounceValue } from "usehooks-ts";
+import { useState, useCallback } from 'react';
+import { useDebounceValue } from 'usehooks-ts';
 
-export const useSearch = (initialValue: string = "", delay: number = 800) => {
+export const useSearch = (initialValue: string = '', delay: number = 800) => {
   const [searchValue, setSearchValue] = useState(initialValue);
   const [debouncedSearchValue] = useDebounceValue(searchValue, delay);
 
@@ -10,7 +10,7 @@ export const useSearch = (initialValue: string = "", delay: number = 800) => {
   }, []);
 
   const clearSearch = useCallback(() => {
-    setSearchValue("");
+    setSearchValue('');
   }, []);
 
   return {

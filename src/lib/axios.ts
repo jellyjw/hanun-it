@@ -1,11 +1,11 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
 // axios 인스턴스 생성
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 5000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
@@ -13,7 +13,7 @@ const axiosInstance: AxiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     // 토큰이 필요한 경우 여기서 헤더에 추가
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -21,7 +21,7 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // 응답 인터셉터
@@ -31,10 +31,10 @@ axiosInstance.interceptors.response.use(
     // 에러 처리 로직
     if (error.response?.status === 401) {
       // 인증 에러 처리
-      localStorage.removeItem("token");
+      localStorage.removeItem('token');
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // HTTP 메서드 래퍼 함수들
