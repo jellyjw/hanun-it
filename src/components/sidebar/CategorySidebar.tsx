@@ -63,7 +63,7 @@ export function CategorySidebar({
       label: "전체 아티클",
       icon: FileText,
       count: stats?.total || 0,
-      description: "모든 아티클 보기",
+      description: "",
       type: "article" as const,
       badgeText: "All",
       badgeVariant: "secondary" as const,
@@ -103,9 +103,9 @@ export function CategorySidebar({
   const otherCategories = [
     {
       id: "youtube",
-      label: "YouTube 영상",
+      label: "YouTube",
       icon: Youtube,
-      description: "최신 IT 기술 영상",
+      description: "IT 관련 YouTube",
       type: "video" as const,
       badgeText: "Video",
       badgeVariant: "destructive" as const,
@@ -160,7 +160,7 @@ export function CategorySidebar({
                   }`}
                 />
               </div>
-              <div>
+              <div className="flex flex-col">
                 <h3
                   className={`font-medium text-sm transition-colors duration-300 ${
                     isSelected
@@ -170,9 +170,12 @@ export function CategorySidebar({
                 >
                   {category.label}
                 </h3>
+                <span className="text-xs text-gray-500">
+                  {category.description}
+                </span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               {category.count !== undefined && (
                 <Badge
                   variant="outline"
@@ -185,7 +188,7 @@ export function CategorySidebar({
                   {category.count}
                 </Badge>
               )}
-            </div>
+            </div> */}
           </div>
         </CardContent>
       </Card>
