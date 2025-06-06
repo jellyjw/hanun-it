@@ -7,6 +7,12 @@ export interface Comment {
   content: string;
   created_at: string;
   updated_at: string;
+  // 댓글 작성 시점의 사용자 프로필 스냅샷
+  user_email?: string;
+  user_full_name?: string;
+  user_username?: string;
+  user_avatar_url?: string;
+  // 클라이언트에서 사용할 프로필 정보 (API 응답용)
   user_profile?: {
     email: string;
     full_name?: string;

@@ -18,29 +18,22 @@ export default function AccountForm({ user }: { user: User | null }) {
     try {
       setLoading(true);
 
-      const { data, error, status } = await supabase
-        .from("profiles")
-        .select(`full_name, username, website, avatar_url`)
-        .eq("id", user?.id)
-        .single();
+      if (user) {
+        // auth.users 테이블에서 직접 사용자 정보 가져오기
+        const userData = user.user_metadata || {};
 
-      if (error && status !== 406) {
-        console.log(error);
-        throw error;
-      }
-
-      if (data) {
-        setFullname(data.full_name);
-        setUsername(data.username);
-        setWebsite(data.website);
-        setAvatarUrl(data.avatar_url);
+        setFullname(userData.full_name || user.email?.split("@")[0] || null);
+        setUsername(userData.username || user.email?.split("@")[0] || null);
+        setWebsite(userData.website || null);
+        setAvatarUrl(userData.avatar_url || null);
       }
     } catch (error) {
-      alert("Error loading user data!");
+      console.error("사용자 데이터 로드 오류:", error);
+      alert("사용자 데이터를 불러오는 중 오류가 발생했습니다!");
     } finally {
       setLoading(false);
     }
-  }, [user, supabase]);
+  }, [user]);
 
   useEffect(() => {
     getProfile();
@@ -48,6 +41,7 @@ export default function AccountForm({ user }: { user: User | null }) {
 
   async function updateProfile({
     username,
+    fullname,
     website,
     avatar_url,
   }: {
@@ -59,18 +53,22 @@ export default function AccountForm({ user }: { user: User | null }) {
     try {
       setLoading(true);
 
-      const { error } = await supabase.from("profiles").upsert({
-        id: user?.id as string,
-        full_name: fullname,
-        username,
-        website,
-        avatar_url,
-        updated_at: new Date().toISOString(),
+      // auth.users 테이블의 user_metadata 업데이트
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: fullname,
+          username,
+          website,
+          avatar_url,
+          updated_at: new Date().toISOString(),
+        },
       });
+
       if (error) throw error;
-      alert("Profile updated!");
+      alert("프로필이 업데이트되었습니다!");
     } catch (error) {
-      alert("Error updating the data!");
+      console.error("프로필 업데이트 오류:", error);
+      alert("프로필 업데이트 중 오류가 발생했습니다!");
     } finally {
       setLoading(false);
     }
