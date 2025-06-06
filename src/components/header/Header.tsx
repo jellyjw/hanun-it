@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { RefreshCw, Code2, Zap, User } from "lucide-react";
+import { RefreshCw, Code2, Zap, User } from 'lucide-react';
 // import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { useAuth } from "@/hooks/useAuth";
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 
 interface HeaderProps {
   handleRefreshRSS: () => void;
@@ -23,9 +23,7 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
             </div>
             <div className="flex flex-col">
               <h1 className="text-xl font-bold text-foreground">한눈IT</h1>
-              <p className="text-xs text-muted-foreground">
-                국내, 해외의 IT 최신 아티클을 한눈에
-              </p>
+              <p className="text-xs text-muted-foreground">국내, 해외의 IT 최신 아티클을 한눈에</p>
             </div>
           </div>
 

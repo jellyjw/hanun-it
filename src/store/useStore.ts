@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { StateCreator } from "zustand";
+import { create } from 'zustand';
+import { StateCreator } from 'zustand';
 
 interface StoreState {
   count: number;
@@ -9,9 +9,7 @@ interface StoreState {
 
 type Store = StateCreator<StoreState, [], [], StoreState>;
 
-const createStore: Store = (
-  set: (fn: (state: StoreState) => Partial<StoreState>) => void
-) => ({
+const createStore: Store = (set: (fn: (state: StoreState) => Partial<StoreState>) => void) => ({
   count: 0,
   increment: () => set((state: StoreState) => ({ count: state.count + 1 })),
   decrement: () => set((state: StoreState) => ({ count: state.count - 1 })),

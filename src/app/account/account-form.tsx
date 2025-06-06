@@ -1,8 +1,13 @@
-"use client";
-import { useCallback, useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
-import { type User } from "@supabase/supabase-js";
-import Avatar from "./avatar";
+'use client';
+import { useCallback, useEffect, useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { type User } from '@supabase/supabase-js';
+import Avatar from './avatar';
+('use client');
+import { useCallback, useEffect, useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { type User } from '@supabase/supabase-js';
+import Avatar from './avatar';
 
 // ...
 
@@ -22,14 +27,14 @@ export default function AccountForm({ user }: { user: User | null }) {
         // auth.users 테이블에서 직접 사용자 정보 가져오기
         const userData = user.user_metadata || {};
 
-        setFullname(userData.full_name || user.email?.split("@")[0] || null);
-        setUsername(userData.username || user.email?.split("@")[0] || null);
+        setFullname(userData.full_name || user.email?.split('@')[0] || null);
+        setUsername(userData.username || user.email?.split('@')[0] || null);
         setWebsite(userData.website || null);
         setAvatarUrl(userData.avatar_url || null);
       }
     } catch (error) {
-      console.error("사용자 데이터 로드 오류:", error);
-      alert("사용자 데이터를 불러오는 중 오류가 발생했습니다!");
+      console.error('사용자 데이터 로드 오류:', error);
+      alert('사용자 데이터를 불러오는 중 오류가 발생했습니다!');
     } finally {
       setLoading(false);
     }
@@ -65,10 +70,10 @@ export default function AccountForm({ user }: { user: User | null }) {
       });
 
       if (error) throw error;
-      alert("프로필이 업데이트되었습니다!");
+      alert('프로필이 업데이트되었습니다!');
     } catch (error) {
-      console.error("프로필 업데이트 오류:", error);
-      alert("프로필 업데이트 중 오류가 발생했습니다!");
+      console.error('프로필 업데이트 오류:', error);
+      alert('프로필 업데이트 중 오류가 발생했습니다!');
     } finally {
       setLoading(false);
     }
@@ -92,41 +97,23 @@ export default function AccountForm({ user }: { user: User | null }) {
       </div>
       <div>
         <label htmlFor="fullName">Full Name</label>
-        <input
-          id="fullName"
-          type="text"
-          value={fullname || ""}
-          onChange={(e) => setFullname(e.target.value)}
-        />
+        <input id="fullName" type="text" value={fullname || ''} onChange={(e) => setFullname(e.target.value)} />
       </div>
       <div>
         <label htmlFor="username">Username</label>
-        <input
-          id="username"
-          type="text"
-          value={username || ""}
-          onChange={(e) => setUsername(e.target.value)}
-        />
+        <input id="username" type="text" value={username || ''} onChange={(e) => setUsername(e.target.value)} />
       </div>
       <div>
         <label htmlFor="website">Website</label>
-        <input
-          id="website"
-          type="url"
-          value={website || ""}
-          onChange={(e) => setWebsite(e.target.value)}
-        />
+        <input id="website" type="url" value={website || ''} onChange={(e) => setWebsite(e.target.value)} />
       </div>
 
       <div>
         <button
           className="button primary block"
-          onClick={() =>
-            updateProfile({ fullname, username, website, avatar_url })
-          }
-          disabled={loading}
-        >
-          {loading ? "Loading ..." : "Update"}
+          onClick={() => updateProfile({ fullname, username, website, avatar_url })}
+          disabled={loading}>
+          {loading ? 'Loading ...' : 'Update'}
         </button>
       </div>
 

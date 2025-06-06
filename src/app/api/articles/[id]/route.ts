@@ -1,19 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const supabase = await createClient();
     const { id } = await params;
 
-    const { data: article, error } = await supabase
-      .from("articles")
-      .select("*")
-      .eq("id", id)
-      .single();
+    const { data: article, error } = await supabase.from('articles').select('*').eq('id', id).single();
 
     if (article) {
       // // 해외 아티클인 경우, 번역된 버전이 있는지 확인
@@ -52,16 +45,13 @@ export async function GET(
 
     // articles 테이블에 없으면 translated_articles 테이블에서 직접 조회
     const { data: translatedArticle, error: translatedError } = await supabase
-      .from("translated_articles")
-      .select("*")
-      .eq("id", id)
+      .from('translated_articles')
+      .select('*')
+      .eq('id', id)
       .single();
 
     if (translatedError || !translatedArticle) {
-      return NextResponse.json(
-        { success: false, error: "아티클을 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: '아티클을 찾을 수 없습니다.' }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -73,10 +63,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("아티클 조회 중 오류:", error);
-    return NextResponse.json(
-      { success: false, error: "아티클 조회 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    console.error('아티클 조회 중 오류:', error);
+    return NextResponse.json({ success: false, error: '아티클 조회 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }
