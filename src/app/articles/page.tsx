@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Calendar,
   ExternalLink,
@@ -11,7 +11,6 @@ import {
   Loader2,
   Menu,
   Eye,
-  Image as ImageIcon,
   Download,
 } from "lucide-react";
 import Pagination from "@/components/pagination/Pagination";
@@ -33,23 +32,73 @@ import { Badge } from "@/components/ui/badge";
 import SearchInput from "@/components/SearchInput";
 import { useSearch } from "@/hooks/useSearch";
 import FallbackThumbnail from "@/components/FallbackThumbnail";
+import { WeeklyPopularSidebar } from "@/components/sidebar/WeeklyPopularSidebar";
 
 export default function ArticlesPage() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const searchParams = useSearchParams();
+
+  // URL 파라미터에서 초기값 설정
+  const [selectedCategory, setSelectedCategory] = useState(() => {
+    return searchParams.get("category") || "all";
+  });
+  const [page, setPage] = useState(() => {
+    return parseInt(searchParams.get("page") || "1");
+  });
+  const [itemsPerPage, setItemsPerPage] = useState(() => {
+    return parseInt(searchParams.get("limit") || "20");
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isExtractingThumbnails, setIsExtractingThumbnails] = useState(false);
 
-  // 검색 훅 사용
-  const {
-    searchValue,
-    debouncedSearchValue,
-    updateSearchValue,
-    clearSearch,
-    isSearching,
-  } = useSearch("", 800);
+  // 검색 훅 사용 - 초기값을 URL에서 가져옴
+  const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } =
+    useSearch(searchParams.get("search") || "", 800);
+
+  // URL 업데이트 함수
+  const updateURL = useCallback(
+    (params: Record<string, string | number | null>) => {
+      const newSearchParams = new URLSearchParams(searchParams);
+
+      Object.entries(params).forEach(([key, value]) => {
+        if (
+          value === null ||
+          value === "" ||
+          (key === "category" && value === "all") ||
+          (key === "page" && value === 1)
+        ) {
+          newSearchParams.delete(key);
+        } else {
+          newSearchParams.set(key, String(value));
+        }
+      });
+
+      const newURL = `${window.location.pathname}${newSearchParams.toString() ? "?" + newSearchParams.toString() : ""}`;
+      router.replace(newURL, { scroll: false });
+    },
+    [searchParams, router]
+  );
+
+  // URL 파라미터 변경 시 상태 동기화
+  useEffect(() => {
+    const categoryFromURL = searchParams.get("category") || "all";
+    const pageFromURL = parseInt(searchParams.get("page") || "1");
+    const limitFromURL = parseInt(searchParams.get("limit") || "20");
+    const searchFromURL = searchParams.get("search") || "";
+
+    if (categoryFromURL !== selectedCategory) {
+      setSelectedCategory(categoryFromURL);
+    }
+    if (pageFromURL !== page) {
+      setPage(pageFromURL);
+    }
+    if (limitFromURL !== itemsPerPage) {
+      setItemsPerPage(limitFromURL);
+    }
+    if (searchFromURL !== searchValue) {
+      updateSearchValue(searchFromURL);
+    }
+  }, [searchParams]);
 
   const { data, isLoading, error, refetch } = useQuery<ArticlesResponse>({
     queryKey: [
@@ -139,12 +188,24 @@ export default function ArticlesPage() {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    updateURL({
+      category: selectedCategory,
+      page: newPage,
+      limit: itemsPerPage,
+      search: debouncedSearchValue,
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     setPage(1);
+    updateURL({
+      category: category,
+      page: 1,
+      limit: itemsPerPage,
+      search: debouncedSearchValue,
+    });
   };
 
   // 검색 처리 함수
@@ -152,9 +213,28 @@ export default function ArticlesPage() {
     (value: string) => {
       updateSearchValue(value);
       setPage(1); // 검색 시 첫 페이지로 이동
+      updateURL({
+        category: selectedCategory,
+        page: 1,
+        limit: itemsPerPage,
+        search: value,
+      });
     },
-    [updateSearchValue]
+    [updateSearchValue, selectedCategory, itemsPerPage, updateURL]
   );
+
+  // 페이지당 아이템 수 변경 처리
+  const handleItemsPerPageChange = (value: string) => {
+    const newItemsPerPage = Number(value);
+    setItemsPerPage(newItemsPerPage);
+    setPage(1);
+    updateURL({
+      category: selectedCategory,
+      page: 1,
+      limit: newItemsPerPage,
+      search: debouncedSearchValue,
+    });
+  };
 
   const getCategoryTitle = () => {
     if (debouncedSearchValue.trim()) {
@@ -314,10 +394,7 @@ export default function ArticlesPage() {
                       <SelectBox
                         options={SELECT_OPTIONS.itemsPerPage}
                         value={itemsPerPage.toString()}
-                        onChange={(value) => {
-                          setItemsPerPage(Number(value));
-                          setPage(1);
-                        }}
+                        onChange={handleItemsPerPageChange}
                       />
                     </div>
                   </div>
@@ -391,7 +468,7 @@ export default function ArticlesPage() {
                       ) : (
                         <FallbackThumbnail
                           title={article.title}
-                          category={(article as any).category || undefined}
+                          category={undefined}
                           sourceName={article.source_name}
                           isDomestic={article.is_domestic}
                         />
@@ -497,6 +574,9 @@ export default function ArticlesPage() {
               </div>
             )}
           </div>
+          {/* <div className="w-64">
+            <WeeklyPopularSidebar />
+          </div> */}
         </div>
       </div>
     </div>
