@@ -35,31 +35,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 각 댓글의 사용자 정보 조회
-    const commentsWithProfiles = await Promise.all(
-      (comments || []).map(async (comment) => {
-        // auth.users 테이블에서 사용자 정보 조회
-        const { data: userData, error: userError } =
-          await supabase.auth.admin.getUserById(comment.user_id);
-
-        // profiles 테이블에서 프로필 정보 조회
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("full_name, username, avatar_url")
-          .eq("id", comment.user_id)
-          .single();
-
-        return {
-          ...comment,
-          user_profile: {
-            email: userData?.user?.email || "",
-            full_name: profileData?.full_name || null,
-            username: profileData?.username || null,
-            avatar_url: profileData?.avatar_url || null,
-          },
-        };
-      })
-    );
+    // 저장된 사용자 정보를 사용하여 댓글 목록 구성
+    const commentsWithProfiles = (comments || []).map((comment) => ({
+      ...comment,
+      user_profile: {
+        email: comment.user_email || "",
+        full_name: comment.user_full_name || null,
+        username: comment.user_username || null,
+        avatar_url: comment.user_avatar_url || null,
+      },
+    }));
 
     // 전체 댓글 수 조회
     const { count, error: countError } = await supabase
@@ -133,6 +118,13 @@ export async function POST(request: NextRequest) {
         article_id,
         user_id: user.id,
         content: content.trim(),
+        // 사용자 프로필 정보도 함께 저장 (스냅샷)
+        user_email: user.email || "",
+        user_full_name:
+          user.user_metadata?.full_name || user.email?.split("@")[0] || null,
+        user_username:
+          user.user_metadata?.username || user.email?.split("@")[0] || null,
+        user_avatar_url: user.user_metadata?.avatar_url || null,
       })
       .select("*")
       .single();
@@ -145,20 +137,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 사용자 프로필 정보 조회
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("full_name, username, avatar_url")
-      .eq("id", user.id)
-      .single();
-
+    // 사용자 프로필 정보는 저장된 데이터에서 가져오기
     const commentWithProfile = {
       ...comment,
       user_profile: {
-        email: user.email || "",
-        full_name: profileData?.full_name || null,
-        username: profileData?.username || null,
-        avatar_url: profileData?.avatar_url || null,
+        email: comment.user_email,
+        full_name: comment.user_full_name,
+        username: comment.user_username,
+        avatar_url: comment.user_avatar_url,
       },
     };
 
