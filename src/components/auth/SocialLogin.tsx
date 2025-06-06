@@ -1,17 +1,15 @@
-import { createClient } from "@/utils/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Github } from "lucide-react";
+import { createClient } from '@/utils/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Github } from 'lucide-react';
 
 interface SocialLoginProps {
   redirectTo?: string;
 }
 
-export default function SocialLogin({
-  redirectTo = "/articles",
-}: SocialLoginProps) {
+export default function SocialLogin({ redirectTo = '/articles' }: SocialLoginProps) {
   const supabase = createClient();
 
-  const handleSocialLogin = async (provider: "github" | "google" | "kakao") => {
+  const handleSocialLogin = async (provider: 'github' | 'google' | 'kakao') => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -32,20 +30,12 @@ export default function SocialLogin({
 
   return (
     <div className="space-y-3">
-      <Button
-        onClick={() => handleSocialLogin("github")}
-        variant="outline"
-        className="w-full flex items-center gap-2"
-      >
+      <Button onClick={() => handleSocialLogin('github')} variant="outline" className="w-full flex items-center gap-2">
         <Github className="w-5 h-5" />
         GitHub로 로그인
       </Button>
 
-      <Button
-        onClick={() => handleSocialLogin("google")}
-        variant="outline"
-        className="w-full flex items-center gap-2"
-      >
+      <Button onClick={() => handleSocialLogin('google')} variant="outline" className="w-full flex items-center gap-2">
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path
             fill="currentColor"

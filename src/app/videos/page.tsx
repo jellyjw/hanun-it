@@ -1,35 +1,20 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import {
-  Loader2,
-  Menu,
-  Eye,
-  Clock,
-  Play,
-  ThumbsUp,
-  MessageCircle,
-  Youtube,
-} from "lucide-react";
-import Pagination from "@/components/pagination/Pagination";
-import PageInfo from "@/components/pagination/PageInfo";
-import { Header } from "@/components/header/Header";
-import { CategorySidebar } from "@/components/sidebar/CategorySidebar";
-import { YoutubeResponse } from "@/types/articles";
-import SelectBox from "@/components/select/SelectBox";
-import { SELECT_OPTIONS } from "@/utils/options";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import SearchInput from "@/components/SearchInput";
-import { useSearch } from "@/hooks/useSearch";
+import { useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { Loader2, Menu, Eye, Clock, Play, ThumbsUp, MessageCircle, Youtube } from 'lucide-react';
+import Pagination from '@/components/pagination/Pagination';
+import PageInfo from '@/components/pagination/PageInfo';
+import { Header } from '@/components/header/Header';
+import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
+import { YoutubeResponse } from '@/types/articles';
+import SelectBox from '@/components/select/SelectBox';
+import { SELECT_OPTIONS } from '@/utils/options';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import SearchInput from '@/components/SearchInput';
+import { useSearch } from '@/hooks/useSearch';
 
 export default function VideosPage() {
   const router = useRouter();
@@ -38,11 +23,10 @@ export default function VideosPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // 검색 훅 사용
-  const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } =
-    useSearch("", 800);
+  const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } = useSearch('', 800);
 
   const { data, isLoading, error, refetch } = useQuery<YoutubeResponse>({
-    queryKey: ["youtube", page, itemsPerPage, debouncedSearchValue],
+    queryKey: ['youtube', page, itemsPerPage, debouncedSearchValue],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -50,11 +34,11 @@ export default function VideosPage() {
       });
 
       if (debouncedSearchValue.trim()) {
-        params.append("searchValue", debouncedSearchValue);
+        params.append('searchValue', debouncedSearchValue);
       }
 
       const response = await fetch(`/api/youtube?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch videos");
+      if (!response.ok) throw new Error('Failed to fetch videos');
       return response.json();
     },
   });
@@ -62,24 +46,24 @@ export default function VideosPage() {
   const handleRefreshRSS = async () => {
     try {
       refetch();
-      alert("YouTube 영상을 새로고침했습니다.");
+      alert('YouTube 영상을 새로고침했습니다.');
     } catch {
-      alert("YouTube 영상 새로고침 중 오류가 발생했습니다.");
+      alert('YouTube 영상 새로고침 중 오류가 발생했습니다.');
     }
   };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCategoryChange = (category: string) => {
-    if (category === "youtube") {
+    if (category === 'youtube') {
       // 이미 YouTube 페이지에 있음
       return;
     }
     // 다른 카테고리로 이동
-    router.push("/articles");
+    router.push('/articles');
   };
 
   const handleSearch = useCallback(
@@ -87,11 +71,11 @@ export default function VideosPage() {
       updateSearchValue(value);
       setPage(1);
     },
-    [updateSearchValue]
+    [updateSearchValue],
   );
 
   const openVideo = (videoId: string) => {
-    window.open(`https://www.youtube.com/watch?v=${videoId}`, "_blank");
+    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
   };
 
   if (isLoading) {
@@ -119,9 +103,7 @@ export default function VideosPage() {
                     <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">
                       YouTube 영상을 불러오는 중입니다
                     </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      잠시만 기다려주세요...
-                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">잠시만 기다려주세요...</p>
                   </div>
                 </div>
               </div>
@@ -151,9 +133,7 @@ export default function VideosPage() {
                     <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
                       <Youtube className="w-8 h-8 text-white" />
                     </div>
-                    <CardTitle className="text-xl font-bold text-slate-800">
-                      문제가 발생했습니다
-                    </CardTitle>
+                    <CardTitle className="text-xl font-bold text-slate-800">문제가 발생했습니다</CardTitle>
                     <CardDescription className="text-slate-600">
                       YouTube 영상을 불러올 수 없습니다. API 키를 확인해주세요.
                     </CardDescription>
@@ -214,14 +194,14 @@ export default function VideosPage() {
                               <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
                                 {debouncedSearchValue.trim()
                                   ? `"${debouncedSearchValue}" 검색 결과`
-                                  : "YouTube 기술 영상"}
+                                  : 'YouTube 기술 영상'}
                               </h1>
                             </div>
                           </div>
                           <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed max-w-2xl">
                             {debouncedSearchValue.trim()
-                              ? "YouTube에서 검색된 기술 관련 영상들입니다"
-                              : "최신 IT 기술과 프로그래밍 관련 YouTube 영상을 한 곳에서 만나보세요"}
+                              ? 'YouTube에서 검색된 기술 관련 영상들입니다'
+                              : '최신 IT 기술과 프로그래밍 관련 YouTube 영상을 한 곳에서 만나보세요'}
                           </p>
                         </div>
                       </div>
@@ -238,11 +218,7 @@ export default function VideosPage() {
                     </div>
 
                     <div className="w-full">
-                      <SearchInput
-                        onSearch={handleSearch}
-                        isSearching={isSearching}
-                        initialValue={searchValue}
-                      />
+                      <SearchInput onSearch={handleSearch} isSearching={isSearching} initialValue={searchValue} />
                     </div>
                   </div>
                 </CardContent>
@@ -316,37 +292,28 @@ export default function VideosPage() {
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-1.5 text-slate-500">
                             <Eye className="w-4 h-4" />
-                            <span className="font-medium">
-                              {video.viewCount.toLocaleString()}
-                            </span>
+                            <span className="font-medium">{video.viewCount.toLocaleString()}</span>
                           </div>
                           {(video.likeCount ?? 0) > 0 && (
                             <div className="flex items-center space-x-1.5 text-slate-500">
                               <ThumbsUp className="w-4 h-4" />
-                              <span className="font-medium">
-                                {(video.likeCount ?? 0).toLocaleString()}
-                              </span>
+                              <span className="font-medium">{(video.likeCount ?? 0).toLocaleString()}</span>
                             </div>
                           )}
                           {(video.commentCount ?? 0) > 0 && (
                             <div className="flex items-center space-x-1.5 text-slate-500">
                               <MessageCircle className="w-4 h-4" />
-                              <span className="font-medium">
-                                {(video.commentCount ?? 0).toLocaleString()}
-                              </span>
+                              <span className="font-medium">{(video.commentCount ?? 0).toLocaleString()}</span>
                             </div>
                           )}
                         </div>
                         <div className="flex items-center space-x-1.5 text-slate-500">
                           <Clock className="w-4 h-4" />
                           <span className="text-xs">
-                            {new Date(video.publishedAt).toLocaleDateString(
-                              "ko-KR",
-                              {
-                                month: "short",
-                                day: "numeric",
-                              }
-                            )}
+                            {new Date(video.publishedAt).toLocaleDateString('ko-KR', {
+                              month: 'short',
+                              day: 'numeric',
+                            })}
                           </span>
                         </div>
                       </div>
@@ -366,14 +333,12 @@ export default function VideosPage() {
                         </div>
                         <div className="space-y-2">
                           <p className="text-xl font-semibold text-slate-700 dark:text-slate-300">
-                            {debouncedSearchValue.trim()
-                              ? "검색 결과가 없습니다"
-                              : "영상을 불러올 수 없습니다"}
+                            {debouncedSearchValue.trim() ? '검색 결과가 없습니다' : '영상을 불러올 수 없습니다'}
                           </p>
                           <p className="text-slate-500 dark:text-slate-400 max-w-md">
                             {debouncedSearchValue.trim()
-                              ? "다른 검색어를 시도해보세요"
-                              : "YouTube API 설정을 확인하거나 잠시 후 다시 시도해주세요"}
+                              ? '다른 검색어를 시도해보세요'
+                              : 'YouTube API 설정을 확인하거나 잠시 후 다시 시도해주세요'}
                           </p>
                         </div>
                       </div>

@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
-import { ArticleTranslator } from "@/lib/translator/translator";
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
+import { ArticleTranslator } from '@/lib/translator/translator';
 
 export async function POST(request: NextRequest) {
   try {
     if (!process.env.DEEPL_API_KEY) {
-      throw new Error("DeepL API key not configured");
+      throw new Error('DeepL API key not configured');
     }
 
     const supabase = await createClient();
@@ -16,11 +16,11 @@ export async function POST(request: NextRequest) {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     const { data: articles, error } = await supabase
-      .from("articles")
-      .select("*")
-      .eq("is_domestic", false)
-      .gte("pub_date", sevenDaysAgo.toISOString())
-      .order("pub_date", { ascending: false })
+      .from('articles')
+      .select('*')
+      .eq('is_domestic', false)
+      .gte('pub_date', sevenDaysAgo.toISOString())
+      .order('pub_date', { ascending: false })
       .limit(2); // 주 1회 2개 제한
 
     if (error) {
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (!articles || articles.length === 0) {
       return NextResponse.json({
         success: true,
-        message: "번역할 새로운 아티클이 없습니다.",
+        message: '번역할 새로운 아티클이 없습니다.',
         translated: 0,
       });
     }
@@ -41,9 +41,9 @@ export async function POST(request: NextRequest) {
       try {
         // 이미 번역된 아티클인지 확인
         const { data: existingTranslation } = await supabase
-          .from("translated_articles")
-          .select("id")
-          .eq("original_article_id", article.id)
+          .from('translated_articles')
+          .select('id')
+          .eq('original_article_id', article.id)
           .single();
 
         if (existingTranslation) {
@@ -72,12 +72,12 @@ export async function POST(request: NextRequest) {
           is_domestic: false,
           is_translated: true,
           thumbnail: article.thumbnail,
-          original_language: "EN",
-          translated_language: "KO",
+          original_language: 'EN',
+          translated_language: 'KO',
         };
 
         const { data: savedTranslation, error: saveError } = await supabase
-          .from("translated_articles")
+          .from('translated_articles')
           .insert(translatedArticle)
           .select()
           .single();
@@ -105,10 +105,7 @@ export async function POST(request: NextRequest) {
       articles: translatedArticles,
     });
   } catch (error) {
-    console.error("자동 번역 중 오류:", error);
-    return NextResponse.json(
-      { success: false, error: "자동 번역 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    console.error('자동 번역 중 오류:', error);
+    return NextResponse.json({ success: false, error: '자동 번역 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

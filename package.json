@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack --port 7007",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prettier": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.2.5",

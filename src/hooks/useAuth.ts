@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { createClient } from "@/utils/supabase/client";
+import { useEffect, useState } from 'react';
+import { User } from '@supabase/supabase-js';
+import { createClient } from '@/utils/supabase/client';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -35,7 +35,7 @@ export function useAuth() {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error("로그아웃 오류:", error);
+      console.error('로그아웃 오류:', error);
     }
   };
 

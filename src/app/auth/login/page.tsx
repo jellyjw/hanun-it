@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import SocialLogin from "@/components/auth/SocialLogin";
-import AuthForm from "@/components/auth/AuthForm";
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import SocialLogin from '@/components/auth/SocialLogin';
+import AuthForm from '@/components/auth/AuthForm';
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const errorParam = searchParams.get("error");
-    if (errorParam === "auth_failed") {
-      setError("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'auth_failed') {
+      setError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   }, [searchParams]);
 
@@ -27,11 +27,7 @@ export default function LoginPage() {
           <div className="relative flex justify-center text-sm">
             <span className="px-2 bg-gray-50 text-gray-500">또는</span>
           </div>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-              {error}
-            </div>
-          )}
+          {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">{error}</div>}
         </div>
 
         <SocialLogin />

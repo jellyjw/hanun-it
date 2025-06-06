@@ -1,31 +1,14 @@
-"use client";
+'use client';
 
-import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  Mail,
-  Lock,
-  User,
-  CheckCircle,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  loginWithCredentials,
-  signupWithCredentials,
-} from "@/app/auth/login/actions";
+import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, Loader2, Mail, Lock, User, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { loginWithCredentials, signupWithCredentials } from '@/app/auth/login/actions';
 
 interface LoginFormData {
   email: string;
@@ -51,9 +34,9 @@ const calculatePasswordStrength = (password: string) => {
 };
 
 const getPasswordStrengthLabel = (score: number) => {
-  if (score <= 2) return { label: "약함", color: "bg-red-500" };
-  if (score <= 4) return { label: "보통", color: "bg-yellow-500" };
-  return { label: "강함", color: "bg-green-500" };
+  if (score <= 2) return { label: '약함', color: 'bg-red-500' };
+  if (score <= 4) return { label: '보통', color: 'bg-yellow-500' };
+  return { label: '강함', color: 'bg-green-500' };
 };
 
 export default function AuthForm() {
@@ -66,19 +49,19 @@ export default function AuthForm() {
 
   const loginForm = useForm<LoginFormData>({
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const signupForm = useForm<SignupFormData>({
     defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
+      email: '',
+      password: '',
+      confirmPassword: '',
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const onLoginSubmit = (data: LoginFormData) => {
@@ -87,12 +70,12 @@ export default function AuthForm() {
       try {
         const result = await loginWithCredentials(data);
         if (result.success) {
-          router.push("/");
+          router.push('/');
         } else {
-          setError(result.error || "로그인에 실패했습니다.");
+          setError(result.error || '로그인에 실패했습니다.');
         }
       } catch (error) {
-        setError("로그인 중 오류가 발생했습니다.");
+        setError('로그인 중 오류가 발생했습니다.');
       }
     });
   };
@@ -104,14 +87,14 @@ export default function AuthForm() {
         const result = await signupWithCredentials(data);
         if (result.success) {
           setError(null);
-          alert("회원가입이 완료되었습니다! 이메일을 확인해주세요.");
+          alert('회원가입이 완료되었습니다! 이메일을 확인해주세요.');
           setIsLogin(true);
           signupForm.reset();
         } else {
-          setError(result.error || "회원가입에 실패했습니다.");
+          setError(result.error || '회원가입에 실패했습니다.');
         }
       } catch (error) {
-        setError("회원가입 중 오류가 발생했습니다.");
+        setError('회원가입 중 오류가 발생했습니다.');
       }
     });
   };
@@ -127,36 +110,30 @@ export default function AuthForm() {
 
   // 이메일 유효성 검사
   const emailValidation = {
-    required: "이메일을 입력해주세요",
+    required: '이메일을 입력해주세요',
     pattern: {
       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-      message: "올바른 이메일 형식을 입력해주세요",
+      message: '올바른 이메일 형식을 입력해주세요',
     },
   };
 
   // 비밀번호 유효성 검사
   const passwordValidation = {
-    required: "비밀번호를 입력해주세요",
+    required: '비밀번호를 입력해주세요',
     minLength: {
       value: 6,
-      message: "비밀번호는 최소 6자 이상이어야 합니다",
+      message: '비밀번호는 최소 6자 이상이어야 합니다',
     },
     validate: {
-      hasLowerCase: (value: string) =>
-        /[a-z]/.test(value) || "영문 소문자를 포함해야 합니다",
-      hasUpperCase: (value: string) =>
-        /[A-Z]/.test(value) || "영문 대문자를 포함해야 합니다",
-      hasNumber: (value: string) =>
-        /\d/.test(value) || "숫자를 포함해야 합니다",
+      hasLowerCase: (value: string) => /[a-z]/.test(value) || '영문 소문자를 포함해야 합니다',
+      hasUpperCase: (value: string) => /[A-Z]/.test(value) || '영문 대문자를 포함해야 합니다',
+      hasNumber: (value: string) => /\d/.test(value) || '숫자를 포함해야 합니다',
     },
   };
 
   // 현재 비밀번호 강도 계산 (회원가입 시에만)
-  const currentPassword = signupForm.watch("password");
-  const passwordStrength =
-    !isLogin && currentPassword
-      ? calculatePasswordStrength(currentPassword)
-      : 0;
+  const currentPassword = signupForm.watch('password');
+  const passwordStrength = !isLogin && currentPassword ? calculatePasswordStrength(currentPassword) : 0;
   const strengthInfo = getPasswordStrengthLabel(passwordStrength);
 
   return (
@@ -165,13 +142,9 @@ export default function AuthForm() {
         <div className="flex items-center justify-center w-12 h-12 mx-auto bg-primary/10 rounded-full mb-4">
           <User className="w-6 h-6 text-primary" />
         </div>
-        <CardTitle className="text-2xl font-bold">
-          {isLogin ? "로그인" : "회원가입"}
-        </CardTitle>
+        <CardTitle className="text-2xl font-bold">{isLogin ? '로그인' : '회원가입'}</CardTitle>
         <CardDescription>
-          {isLogin
-            ? "계정에 로그인하여 서비스를 이용하세요"
-            : "새 계정을 만들어 서비스를 시작하세요"}
+          {isLogin ? '계정에 로그인하여 서비스를 이용하세요' : '새 계정을 만들어 서비스를 시작하세요'}
         </CardDescription>
       </CardHeader>
 
@@ -184,10 +157,7 @@ export default function AuthForm() {
         )}
 
         {isLogin ? (
-          <form
-            onSubmit={loginForm.handleSubmit(onLoginSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">이메일</Label>
               <div className="relative">
@@ -198,21 +168,17 @@ export default function AuthForm() {
                   placeholder="이메일을 입력하세요"
                   className={`pl-10 transition-colors ${
                     loginForm.formState.errors.email
-                      ? "border-destructive focus-visible:ring-destructive"
-                      : "focus-visible:ring-primary"
+                      ? 'border-destructive focus-visible:ring-destructive'
+                      : 'focus-visible:ring-primary'
                   }`}
-                  {...loginForm.register("email", emailValidation)}
+                  {...loginForm.register('email', emailValidation)}
                 />
-                {loginForm.formState.isValid &&
-                  loginForm.watch("email") &&
-                  !loginForm.formState.errors.email && (
-                    <CheckCircle className="absolute right-3 top-3 h-4 w-4 text-green-500" />
-                  )}
+                {loginForm.formState.isValid && loginForm.watch('email') && !loginForm.formState.errors.email && (
+                  <CheckCircle className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+                )}
               </div>
               {loginForm.formState.errors.email && (
-                <p className="text-sm text-destructive">
-                  {loginForm.formState.errors.email.message}
-                </p>
+                <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>
               )}
             </div>
 
@@ -222,15 +188,15 @@ export default function AuthForm() {
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="비밀번호를 입력하세요"
                   className={`pl-10 pr-10 transition-colors ${
                     loginForm.formState.errors.password
-                      ? "border-destructive focus-visible:ring-destructive"
-                      : "focus-visible:ring-primary"
+                      ? 'border-destructive focus-visible:ring-destructive'
+                      : 'focus-visible:ring-primary'
                   }`}
-                  {...loginForm.register("password", {
-                    required: "비밀번호를 입력해주세요",
+                  {...loginForm.register('password', {
+                    required: '비밀번호를 입력해주세요',
                   })}
                 />
                 <Button
@@ -248,9 +214,7 @@ export default function AuthForm() {
                 </Button>
               </div>
               {loginForm.formState.errors.password && (
-                <p className="text-sm text-destructive">
-                  {loginForm.formState.errors.password.message}
-                </p>
+                <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>
               )}
             </div>
 
@@ -265,15 +229,12 @@ export default function AuthForm() {
                   로그인 중...
                 </>
               ) : (
-                "로그인"
+                '로그인'
               )}
             </Button>
           </form>
         ) : (
-          <form
-            onSubmit={signupForm.handleSubmit(onSignupSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="signup-email">이메일</Label>
               <div className="relative">
@@ -284,20 +245,17 @@ export default function AuthForm() {
                   placeholder="이메일을 입력하세요"
                   className={`pl-10 transition-colors ${
                     signupForm.formState.errors.email
-                      ? "border-destructive focus-visible:ring-destructive"
-                      : "focus-visible:ring-primary"
+                      ? 'border-destructive focus-visible:ring-destructive'
+                      : 'focus-visible:ring-primary'
                   }`}
-                  {...signupForm.register("email", emailValidation)}
+                  {...signupForm.register('email', emailValidation)}
                 />
-                {!signupForm.formState.errors.email &&
-                  signupForm.watch("email") && (
-                    <CheckCircle className="absolute right-3 top-3 h-4 w-4 text-green-500" />
-                  )}
+                {!signupForm.formState.errors.email && signupForm.watch('email') && (
+                  <CheckCircle className="absolute right-3 top-3 h-4 w-4 text-green-500" />
+                )}
               </div>
               {signupForm.formState.errors.email && (
-                <p className="text-sm text-destructive">
-                  {signupForm.formState.errors.email.message}
-                </p>
+                <p className="text-sm text-destructive">{signupForm.formState.errors.email.message}</p>
               )}
             </div>
 
@@ -307,14 +265,14 @@ export default function AuthForm() {
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="signup-password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="비밀번호를 입력하세요"
                   className={`pl-10 pr-10 transition-colors ${
                     signupForm.formState.errors.password
-                      ? "border-destructive focus-visible:ring-destructive"
-                      : "focus-visible:ring-primary"
+                      ? 'border-destructive focus-visible:ring-destructive'
+                      : 'focus-visible:ring-primary'
                   }`}
-                  {...signupForm.register("password", passwordValidation)}
+                  {...signupForm.register('password', passwordValidation)}
                 />
                 <Button
                   type="button"
@@ -335,16 +293,14 @@ export default function AuthForm() {
               {currentPassword && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">
-                      비밀번호 강도:
-                    </span>
+                    <span className="text-muted-foreground">비밀번호 강도:</span>
                     <span
                       className={`font-medium ${
-                        strengthInfo.color === "bg-red-500"
-                          ? "text-red-500"
-                          : strengthInfo.color === "bg-yellow-500"
-                            ? "text-yellow-500"
-                            : "text-green-500"
+                        strengthInfo.color === 'bg-red-500'
+                          ? 'text-red-500'
+                          : strengthInfo.color === 'bg-yellow-500'
+                            ? 'text-yellow-500'
+                            : 'text-green-500'
                       }`}
                     >
                       {strengthInfo.label}
@@ -360,9 +316,7 @@ export default function AuthForm() {
               )}
 
               {signupForm.formState.errors.password && (
-                <p className="text-sm text-destructive">
-                  {signupForm.formState.errors.password.message}
-                </p>
+                <p className="text-sm text-destructive">{signupForm.formState.errors.password.message}</p>
               )}
             </div>
 
@@ -372,18 +326,16 @@ export default function AuthForm() {
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="비밀번호를 다시 입력하세요"
                   className={`pl-10 pr-10 transition-colors ${
                     signupForm.formState.errors.confirmPassword
-                      ? "border-destructive focus-visible:ring-destructive"
-                      : "focus-visible:ring-primary"
+                      ? 'border-destructive focus-visible:ring-destructive'
+                      : 'focus-visible:ring-primary'
                   }`}
-                  {...signupForm.register("confirmPassword", {
-                    required: "비밀번호 확인을 입력해주세요",
-                    validate: (value) =>
-                      value === signupForm.watch("password") ||
-                      "비밀번호가 일치하지 않습니다",
+                  {...signupForm.register('confirmPassword', {
+                    required: '비밀번호 확인을 입력해주세요',
+                    validate: (value) => value === signupForm.watch('password') || '비밀번호가 일치하지 않습니다',
                   })}
                 />
                 <Button
@@ -400,16 +352,13 @@ export default function AuthForm() {
                   )}
                 </Button>
                 {!signupForm.formState.errors.confirmPassword &&
-                  signupForm.watch("confirmPassword") &&
-                  signupForm.watch("confirmPassword") ===
-                    signupForm.watch("password") && (
+                  signupForm.watch('confirmPassword') &&
+                  signupForm.watch('confirmPassword') === signupForm.watch('password') && (
                     <CheckCircle className="absolute right-10 top-3 h-4 w-4 text-green-500" />
                   )}
               </div>
               {signupForm.formState.errors.confirmPassword && (
-                <p className="text-sm text-destructive">
-                  {signupForm.formState.errors.confirmPassword.message}
-                </p>
+                <p className="text-sm text-destructive">{signupForm.formState.errors.confirmPassword.message}</p>
               )}
             </div>
 
@@ -424,7 +373,7 @@ export default function AuthForm() {
                   회원가입 중...
                 </>
               ) : (
-                "회원가입"
+                '회원가입'
               )}
             </Button>
           </form>
@@ -437,9 +386,7 @@ export default function AuthForm() {
             className="text-sm hover:text-primary transition-colors"
             disabled={isPending}
           >
-            {isLogin
-              ? "계정이 없으신가요? 회원가입"
-              : "이미 계정이 있으신가요? 로그인"}
+            {isLogin ? '계정이 없으신가요? 회원가입' : '이미 계정이 있으신가요? 로그인'}
           </Button>
         </div>
       </CardContent>
