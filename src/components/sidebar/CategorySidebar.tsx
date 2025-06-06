@@ -6,13 +6,12 @@ import {
   Globe,
   MapPin,
   TrendingUp,
-  Calendar,
   FileText,
-  ChevronRight,
   X,
   Youtube,
+  LucideIcon,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -28,6 +27,17 @@ interface CategoryStats {
   foreign: number;
   total: number;
   weekly: number;
+}
+
+interface Category {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  description: string;
+  count?: number;
+  type?: "article" | "video";
+  badgeText?: string;
+  badgeVariant?: "default" | "secondary" | "destructive" | "outline";
 }
 
 export function CategorySidebar({
@@ -47,7 +57,7 @@ export function CategorySidebar({
     },
   });
 
-  const categories = [
+  const articleCategories = [
     {
       id: "all",
       label: "전체 아티클",
@@ -55,14 +65,18 @@ export function CategorySidebar({
       count: stats?.total || 0,
       description: "모든 아티클 보기",
       type: "article" as const,
+      badgeText: "All",
+      badgeVariant: "secondary" as const,
     },
     {
       id: "domestic",
       label: "국내 아티클",
       icon: MapPin,
       count: stats?.domestic || 0,
-      description: "한국 기업 및 개발자 블로그",
+      description: "한국 기술 블로그 및 미디어",
       type: "article" as const,
+      badgeText: "KR",
+      badgeVariant: "default" as const,
     },
     {
       id: "foreign",
@@ -71,6 +85,8 @@ export function CategorySidebar({
       count: stats?.foreign || 0,
       description: "해외 기술 블로그 및 미디어",
       type: "article" as const,
+      badgeText: "Global",
+      badgeVariant: "outline" as const,
     },
     {
       id: "weekly",
@@ -79,31 +95,117 @@ export function CategorySidebar({
       count: stats?.weekly || 0,
       description: "조회수 기준 인기 아티클",
       type: "article" as const,
+      badgeText: "Hot",
+      badgeVariant: "destructive" as const,
     },
+  ];
+
+  const otherCategories = [
     {
       id: "youtube",
       label: "YouTube 영상",
       icon: Youtube,
-      count: 0, // YouTube는 실시간이므로 고정 count
-      description: "최신 IT 기술 YouTube 영상",
+      description: "최신 IT 기술 영상",
       type: "video" as const,
+      badgeText: "Video",
+      badgeVariant: "destructive" as const,
     },
   ];
 
-  const handleCategoryClick = (category: (typeof categories)[0]) => {
-    if (category.type === "video") {
-      // YouTube 카테고리는 별도 페이지로 이동
+  const handleCategoryClick = (categoryId: string, type?: string) => {
+    if (type === "video") {
       router.push("/videos");
     } else {
-      // 일반 아티클 카테고리
-      onCategoryChange(category.id);
+      onCategoryChange(categoryId);
     }
 
-    // 모바일에서 카테고리 선택 후 사이드바 닫기
     if (onClose && window.innerWidth < 768) {
       onClose();
     }
   };
+
+  const CategoryCard = ({
+    category,
+    isSelected = false,
+  }: {
+    category: Category;
+    isSelected?: boolean;
+  }) => {
+    const Icon = category.icon;
+
+    return (
+      <Card
+        className={`group cursor-pointer transition-all duration-300 hover:shadow-md hover:-translate-y-[2px] overflow-hidden border ${
+          isSelected
+            ? "bg-gray-50 border-gray-300 shadow-sm"
+            : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50"
+        }`}
+        onClick={() => handleCategoryClick(category.id, category.type)}
+      >
+        <CardContent className="px-3 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div
+                className={`p-2 rounded-lg transition-all duration-300 ${
+                  isSelected
+                    ? "bg-blue-100 border border-blue-200"
+                    : "bg-gray-100 group-hover:bg-blue-50 border border-gray-200 group-hover:border-blue-200"
+                }`}
+              >
+                <Icon
+                  className={`w-4 h-4 transition-colors duration-300 ${
+                    isSelected
+                      ? "text-blue-600"
+                      : "text-gray-600 group-hover:text-blue-500"
+                  }`}
+                />
+              </div>
+              <div>
+                <h3
+                  className={`font-medium text-sm transition-colors duration-300 ${
+                    isSelected
+                      ? "text-gray-900"
+                      : "text-gray-700 group-hover:text-gray-900"
+                  }`}
+                >
+                  {category.label}
+                </h3>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {category.count !== undefined && (
+                <Badge
+                  variant="outline"
+                  className={`text-xs font-medium transition-colors duration-300 ${
+                    isSelected
+                      ? "bg-blue-50 text-blue-700 border-blue-200"
+                      : "bg-gray-50 text-gray-600 border-gray-300 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-200"
+                  }`}
+                >
+                  {category.count}
+                </Badge>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const CategorySection = ({
+    title,
+    children,
+  }: {
+    title: string;
+    children: React.ReactNode;
+  }) => (
+    <div className="space-y-3">
+      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-2">
+        {title}
+      </h2>
+      <div className="space-y-2">{children}</div>
+    </div>
+  );
 
   return (
     <>
@@ -118,10 +220,10 @@ export function CategorySidebar({
       {/* 사이드바 */}
       <div
         className={`
-        fixed md:static top-0 left-0 h-full md:h-auto w-64 bg-background z-50 md:z-auto
+        fixed flex flex-col gap-6 md:static top-0 left-0 h-full md:h-auto w-64 bg-white z-50 md:z-auto
         transform transition-transform duration-300 ease-in-out md:transform-none
         ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-        space-y-4 p-4 md:p-0 overflow-y-auto
+        p-4 overflow-y-auto border-r border-gray-200
       `}
       >
         {/* 모바일 닫기 버튼 */}
@@ -133,134 +235,27 @@ export function CategorySidebar({
           </div>
         )}
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              카테고리
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {categories.map((category) => {
-              const Icon = category.icon;
-              const isSelected = selectedCategory === category.id;
+        {/* 아티클 카테고리 */}
+        <CategorySection title="Articles">
+          {articleCategories.map((category) => (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              isSelected={selectedCategory === category.id}
+            />
+          ))}
+        </CategorySection>
 
-              return (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategoryClick(category)}
-                  className={`w-full p-3 rounded-lg text-left transition-all duration-200 group ${
-                    isSelected
-                      ? category.id === "youtube"
-                        ? "bg-gradient-to-r from-red-500 to-orange-500 text-white shadow-md"
-                        : "bg-primary text-primary-foreground shadow-md"
-                      : "hover:bg-muted/50 border border-transparent hover:border-border"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Icon
-                        className={`w-4 h-4 ${
-                          isSelected
-                            ? category.id === "youtube"
-                              ? "text-white"
-                              : "text-primary-foreground"
-                            : "text-muted-foreground"
-                        }`}
-                      />
-                      <div
-                        className={`font-medium text-sm ${
-                          isSelected
-                            ? category.id === "youtube"
-                              ? "text-white"
-                              : "text-primary-foreground"
-                            : "text-foreground"
-                        }`}
-                      >
-                        {category.label}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {category.id !== "youtube" && (
-                        <Badge
-                          variant={isSelected ? "secondary" : "outline"}
-                          className={`text-xs ${
-                            isSelected
-                              ? "bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30"
-                              : ""
-                          }`}
-                        >
-                          {category.count}
-                        </Badge>
-                      )}
-                      <ChevronRight
-                        className={`w-3 h-3 transition-transform ${
-                          isSelected
-                            ? category.id === "youtube"
-                              ? "rotate-90 text-white"
-                              : "rotate-90 text-primary-foreground"
-                            : "text-muted-foreground group-hover:translate-x-1"
-                        }`}
-                      />
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </CardContent>
-        </Card>
-
-        {/* 빠른 통계 */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold">통계</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">총 아티클</span>
-              <Badge variant="outline">{stats?.total || 0}</Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">국내</span>
-              <Badge
-                variant="outline"
-                className="bg-green-50 text-green-700 border-green-200"
-              >
-                {stats?.domestic || 0}
-              </Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">해외</span>
-              <Badge
-                variant="outline"
-                className="bg-blue-50 text-blue-700 border-blue-200"
-              >
-                {stats?.foreign || 0}
-              </Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">주간 인기</span>
-              <Badge
-                variant="outline"
-                className="bg-orange-50 text-orange-700 border-orange-200"
-              >
-                {stats?.weekly || 0}
-              </Badge>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
-                YouTube 영상
-              </span>
-              <Badge
-                variant="outline"
-                className="bg-red-50 text-red-700 border-red-200"
-              >
-                <Youtube className="w-3 h-3 mr-1" />
-                LIVE
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+        {/* 기타 카테고리 */}
+        <CategorySection title="ETC">
+          {otherCategories.map((category) => (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              isSelected={selectedCategory === category.id}
+            />
+          ))}
+        </CategorySection>
       </div>
     </>
   );
