@@ -364,7 +364,7 @@ export default function ArticlesPage() {
                       </div>
                     </div>
                     <div className="flex gap-2 items-center flex-wrap">
-                      <Button
+                      {/* <Button
                         onClick={handleExtractThumbnails}
                         variant="outline"
                         size="sm"
@@ -390,7 +390,7 @@ export default function ArticlesPage() {
                         className="text-xs"
                       >
                         조회수 초기화
-                      </Button>
+                      </Button> */}
                       <SelectBox
                         options={SELECT_OPTIONS.itemsPerPage}
                         value={itemsPerPage.toString()}

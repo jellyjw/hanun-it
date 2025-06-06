@@ -190,7 +190,7 @@ export default function VideosPage() {
 
           <div className="flex-1 space-y-8">
             {/* 헤더 섹션 */}
-            <div className="relative overflow-hidden">
+            {/* <div className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-orange-600/10 rounded-3xl"></div>
               <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-8">
@@ -247,7 +247,7 @@ export default function VideosPage() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </div> */}
 
             {data?.pagination && (
               <div className="px-1">

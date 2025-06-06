@@ -1,12 +1,6 @@
 export const RSS_SOURCES = [
   // 국내 개발 블로그 & 테크 미디어
   {
-    name: "카카오테크",
-    url: "https://tech.kakao.com/rss/",
-    isDomestic: true,
-    category: "tech",
-  },
-  {
     name: "네이버 D2",
     url: "https://d2.naver.com/d2.atom",
     isDomestic: true,
@@ -15,6 +9,12 @@ export const RSS_SOURCES = [
   {
     name: "우아한형제들 기술블로그",
     url: "https://techblog.woowahan.com/feed/",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "직방",
+    url: "https://medium.com/feed/zigbang",
     isDomestic: true,
     category: "tech",
   },
@@ -33,6 +33,12 @@ export const RSS_SOURCES = [
   {
     name: "라인 기술블로그",
     url: "https://engineering.linecorp.com/ko/rss/",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "쏘카",
+    url: "https://tech.socarcorp.kr/feed",
     isDomestic: true,
     category: "tech",
   },
@@ -72,6 +78,19 @@ export const RSS_SOURCES = [
     isDomestic: true,
     category: "tech",
   }, // // 해외 개발 블로그 & 테크 미디어
+  {
+    name: "카카오 기술블로그",
+    url: "https://tech.kakao.com/feed/",
+    isDomestic: true,
+    category: "tech",
+  },
+  {
+    name: "왓챠",
+    url: "https://medium.com/feed/watcha",
+    isDomestic: true,
+    category: "tech",
+  },
+
   {
     name: "Hacker News",
     url: "https://hnrss.org/frontpage",
