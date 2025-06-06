@@ -369,8 +369,7 @@ export default function ArticlesPage() {
                         variant="outline"
                         size="sm"
                         className="text-xs"
-                        disabled={isExtractingThumbnails}
-                      >
+                        disabled={isExtractingThumbnails}>
                         {isExtractingThumbnails ? (
                           <>
                             <Loader2 className="w-3 h-3 mr-1 animate-spin" />
@@ -428,7 +427,7 @@ export default function ArticlesPage() {
                 data.articles.map((article) => (
                   <Card
                     key={article.id}
-                    className="group transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 overflow-hidden"
+                    className="group transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 overflow-hidden flex flex-col"
                     onClick={() => router.push(`/articles/${article.id}`)}
                   >
                     {/* 썸네일 섹션 */}
@@ -497,8 +496,8 @@ export default function ArticlesPage() {
                     </div>
 
                     {/* 콘텐츠 섹션 */}
-                    <CardContent className="p-4">
-                      <CardTitle className="text-sm font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+                    <CardContent className="p-4 flex-1">
+                      <CardTitle className="text-sm font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight min-h-[2.1875rem]">
                         {article.title}
                       </CardTitle>
 
@@ -515,7 +514,7 @@ export default function ArticlesPage() {
                         </div>
                       </div>
 
-                      <CardDescription className="text-xs mb-3 line-clamp-2">
+                      <CardDescription className="text-xs mb-3 line-clamp-2 min-h-[2rem]">
                         {article.description}
                       </CardDescription>
 
