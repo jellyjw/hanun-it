@@ -58,20 +58,14 @@ export async function PUT(
       );
     }
 
-    // 사용자 프로필 정보 조회
-    const { data: profileData } = await supabase
-      .from("profiles")
-      .select("full_name, username, avatar_url")
-      .eq("id", user.id)
-      .single();
-
+    // 사용자 프로필 정보는 저장된 데이터에서 가져오기
     const commentWithProfile = {
       ...comment,
       user_profile: {
-        email: user.email || "",
-        full_name: profileData?.full_name || null,
-        username: profileData?.username || null,
-        avatar_url: profileData?.avatar_url || null,
+        email: comment.user_email || "",
+        full_name: comment.user_full_name || null,
+        username: comment.user_username || null,
+        avatar_url: comment.user_avatar_url || null,
       },
     };
 
