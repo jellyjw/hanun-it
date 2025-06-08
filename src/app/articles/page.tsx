@@ -11,7 +11,6 @@ import {
   Loader2,
   Menu,
   Eye,
-  Download,
 } from "lucide-react";
 import Pagination from "@/components/pagination/Pagination";
 import PageInfo from "@/components/pagination/PageInfo";
@@ -32,7 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import SearchInput from "@/components/SearchInput";
 import { useSearch } from "@/hooks/useSearch";
 import FallbackThumbnail from "@/components/FallbackThumbnail";
-import { WeeklyPopularSidebar } from "@/components/sidebar/WeeklyPopularSidebar";
+import Image from "next/image";
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -433,10 +432,11 @@ export default function ArticlesPage() {
                     {/* 썸네일 섹션 */}
                     <div className="relative aspect-video bg-muted overflow-hidden">
                       {article.thumbnail ? (
-                        <img
+                        <Image
                           src={article.thumbnail}
                           alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             const parent = target.parentElement;
