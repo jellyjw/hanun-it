@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye, Image as ImageIcon, Download } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye } from 'lucide-react';
 import Pagination from '@/components/pagination/Pagination';
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
@@ -17,17 +17,75 @@ import { Badge } from '@/components/ui/badge';
 import SearchInput from '@/components/SearchInput';
 import { useSearch } from '@/hooks/useSearch';
 import FallbackThumbnail from '@/components/FallbackThumbnail';
+import Image from 'next/image';
 
 export default function ArticlesPage() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const searchParams = useSearchParams();
+
+  // URL 파라미터에서 초기값 설정
+  const [selectedCategory, setSelectedCategory] = useState(() => {
+    return searchParams.get('category') || 'all';
+  });
+  const [page, setPage] = useState(() => {
+    return parseInt(searchParams.get('page') || '1');
+  });
+  const [itemsPerPage, setItemsPerPage] = useState(() => {
+    return parseInt(searchParams.get('limit') || '20');
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isExtractingThumbnails, setIsExtractingThumbnails] = useState(false);
 
-  // 검색 훅 사용
-  const { searchValue, debouncedSearchValue, updateSearchValue, clearSearch, isSearching } = useSearch('', 800);
+  // 검색 훅 사용 - 초기값을 URL에서 가져옴
+  const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } = useSearch(
+    searchParams.get('search') || '',
+    800,
+  );
+
+  // URL 업데이트 함수
+  const updateURL = useCallback(
+    (params: Record<string, string | number | null>) => {
+      const newSearchParams = new URLSearchParams(searchParams);
+
+      Object.entries(params).forEach(([key, value]) => {
+        if (
+          value === null ||
+          value === '' ||
+          (key === 'category' && value === 'all') ||
+          (key === 'page' && value === 1)
+        ) {
+          newSearchParams.delete(key);
+        } else {
+          newSearchParams.set(key, String(value));
+        }
+      });
+
+      const newURL = `${window.location.pathname}${newSearchParams.toString() ? '?' + newSearchParams.toString() : ''}`;
+      router.replace(newURL, { scroll: false });
+    },
+    [searchParams, router],
+  );
+
+  // URL 파라미터 변경 시 상태 동기화
+  useEffect(() => {
+    const categoryFromURL = searchParams.get('category') || 'all';
+    const pageFromURL = parseInt(searchParams.get('page') || '1');
+    const limitFromURL = parseInt(searchParams.get('limit') || '20');
+    const searchFromURL = searchParams.get('search') || '';
+
+    if (categoryFromURL !== selectedCategory) {
+      setSelectedCategory(categoryFromURL);
+    }
+    if (pageFromURL !== page) {
+      setPage(pageFromURL);
+    }
+    if (limitFromURL !== itemsPerPage) {
+      setItemsPerPage(limitFromURL);
+    }
+    if (searchFromURL !== searchValue) {
+      updateSearchValue(searchFromURL);
+    }
+  }, [searchParams]);
 
   const { data, isLoading, error, refetch } = useQuery<ArticlesResponse>({
     queryKey: ['articles', selectedCategory, page, itemsPerPage, debouncedSearchValue],
@@ -109,12 +167,24 @@ export default function ArticlesPage() {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    updateURL({
+      category: selectedCategory,
+      page: newPage,
+      limit: itemsPerPage,
+      search: debouncedSearchValue,
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     setPage(1);
+    updateURL({
+      category: category,
+      page: 1,
+      limit: itemsPerPage,
+      search: debouncedSearchValue,
+    });
   };
 
   // 검색 처리 함수
@@ -122,9 +192,28 @@ export default function ArticlesPage() {
     (value: string) => {
       updateSearchValue(value);
       setPage(1); // 검색 시 첫 페이지로 이동
+      updateURL({
+        category: selectedCategory,
+        page: 1,
+        limit: itemsPerPage,
+        search: value,
+      });
     },
-    [updateSearchValue],
+    [updateSearchValue, selectedCategory, itemsPerPage, updateURL],
   );
+
+  // 페이지당 아이템 수 변경 처리
+  const handleItemsPerPageChange = (value: string) => {
+    const newItemsPerPage = Number(value);
+    setItemsPerPage(newItemsPerPage);
+    setPage(1);
+    updateURL({
+      category: selectedCategory,
+      page: 1,
+      limit: newItemsPerPage,
+      search: debouncedSearchValue,
+    });
+  };
 
   const getCategoryTitle = () => {
     if (debouncedSearchValue.trim()) {
@@ -241,13 +330,12 @@ export default function ArticlesPage() {
                       </div>
                     </div>
                     <div className="flex gap-2 items-center flex-wrap">
-                      <Button
+                      {/* <Button
                         onClick={handleExtractThumbnails}
                         variant="outline"
                         size="sm"
                         className="text-xs"
-                        disabled={isExtractingThumbnails}
-                      >
+                        disabled={isExtractingThumbnails}>
                         {isExtractingThumbnails ? (
                           <>
                             <Loader2 className="w-3 h-3 mr-1 animate-spin" />
@@ -262,14 +350,11 @@ export default function ArticlesPage() {
                       </Button>
                       <Button onClick={handleMigrateViews} variant="outline" size="sm" className="text-xs">
                         조회수 초기화
-                      </Button>
+                      </Button> */}
                       <SelectBox
                         options={SELECT_OPTIONS.itemsPerPage}
                         value={itemsPerPage.toString()}
-                        onChange={(value) => {
-                          setItemsPerPage(Number(value));
-                          setPage(1);
-                        }}
+                        onChange={handleItemsPerPageChange}
                       />
                     </div>
                   </div>
@@ -299,16 +384,16 @@ export default function ArticlesPage() {
                 data.articles.map((article) => (
                   <Card
                     key={article.id}
-                    className="group transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 overflow-hidden"
-                    onClick={() => router.push(`/articles/${article.id}`)}
-                  >
+                    className="group transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 overflow-hidden flex flex-col"
+                    onClick={() => router.push(`/articles/${article.id}`)}>
                     {/* 썸네일 섹션 */}
                     <div className="relative aspect-video bg-muted overflow-hidden">
                       {article.thumbnail ? (
-                        <img
+                        <Image
                           src={article.thumbnail}
                           alt={article.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             const parent = target.parentElement;
@@ -339,7 +424,7 @@ export default function ArticlesPage() {
                       ) : (
                         <FallbackThumbnail
                           title={article.title}
-                          category={(article as any).category || undefined}
+                          category={undefined}
                           sourceName={article.source_name}
                           isDomestic={article.is_domestic}
                         />
@@ -349,8 +434,7 @@ export default function ArticlesPage() {
                       <Badge
                         className={`absolute top-2 right-2 ${
                           article.is_domestic ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'
-                        } text-white border-0`}
-                      >
+                        } text-white border-0`}>
                         {article.is_domestic ? (
                           <>
                             <MapPin className="w-3 h-3 mr-1" />
@@ -366,8 +450,8 @@ export default function ArticlesPage() {
                     </div>
 
                     {/* 콘텐츠 섹션 */}
-                    <CardContent className="p-4">
-                      <CardTitle className="text-sm font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight">
+                    <CardContent className="p-4 flex-1">
+                      <CardTitle className="text-sm font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight min-h-[2.1875rem]">
                         {article.title}
                       </CardTitle>
 
@@ -380,7 +464,9 @@ export default function ArticlesPage() {
                         </div>
                       </div>
 
-                      <CardDescription className="text-xs mb-3 line-clamp-2">{article.description}</CardDescription>
+                      <CardDescription className="text-xs mb-3 line-clamp-2 min-h-[2rem]">
+                        {article.description}
+                      </CardDescription>
 
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
@@ -432,6 +518,9 @@ export default function ArticlesPage() {
               </div>
             )}
           </div>
+          {/* <div className="w-64">
+            <WeeklyPopularSidebar />
+          </div> */}
         </div>
       </div>
     </div>

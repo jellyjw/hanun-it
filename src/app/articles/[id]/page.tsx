@@ -124,8 +124,8 @@ export default function ArticleDetailPage() {
               href={article.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
-              <ExternalLink size={16} />
+              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors text-sm">
+              <ExternalLink size={12} />
               원문 보기
             </a>
           </div>
