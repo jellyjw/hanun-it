@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Loader2, Menu, Eye, Youtube, Calendar, ExternalLink } from 'lucide-react';
-import Pagination from '@/components/pagination/Pagination';
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
@@ -421,11 +420,11 @@ export default function VideosPage() {
 
             {data?.pagination && data.pagination.totalPages > 1 && (
               <div className="flex flex-col items-center space-y-8 pt-4">
-                <Pagination
+                {/* <Pagination
                   currentPage={data.pagination.page}
                   totalPages={data.pagination.totalPages}
                   onPageChange={handlePageChange}
-                />
+                /> */}
               </div>
             )}
           </div>
