@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useEffect } from "react";
+import {
+  useQuery,
+  keepPreviousData,
+  QueryFunctionContext,
+} from "@tanstack/react-query";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Calendar,
   ExternalLink,
@@ -11,14 +15,11 @@ import {
   Loader2,
   Menu,
   Eye,
-  Image as ImageIcon,
-  Download,
 } from "lucide-react";
-import Pagination from "@/components/pagination/Pagination";
 import PageInfo from "@/components/pagination/PageInfo";
 import { Header } from "@/components/header/Header";
 import { CategorySidebar } from "@/components/sidebar/CategorySidebar";
-import { ArticlesResponse } from "@/types/articles";
+import { ArticleResponse, ArticlesResponse } from "@/types/articles";
 import SelectBox from "@/components/select/SelectBox";
 import { SELECT_OPTIONS } from "@/utils/options";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,8 @@ import { Badge } from "@/components/ui/badge";
 import SearchInput from "@/components/SearchInput";
 import { useSearch } from "@/hooks/useSearch";
 import FallbackThumbnail from "@/components/FallbackThumbnail";
+import Image from "next/image";
+import { PaginationWrapper } from "@/components/ui/pagination-wrapper";
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -173,7 +176,22 @@ export default function ArticlesPage() {
     }
   };
 
-  if (isLoading) {
+  const preprocessingThumbnail = (article: ArticleResponse["article"]) => {
+    if (article.thumbnail.includes("https://techblog.woowa.in")) {
+      return article.thumbnail.replace(
+        "https://techblog.woowa.in",
+        "https://techblog.woowahan.com"
+      );
+    } else if (
+      article.thumbnail === "" &&
+      article.source_name === "우아한형제들 기술블로그"
+    ) {
+      return "https://techblog.woowahan.com/wp-content/uploads/2023/02/2023-%EC%9A%B0%EC%95%84%ED%95%9C%ED%85%8C%ED%81%AC-%EB%A1%9C%EA%B3%A0-2-e1675772695839.png";
+    }
+    return article.thumbnail;
+  };
+
+  if (isLoading && !isPlaceholderData) {
     return (
       <div className="min-h-screen bg-background">
         <Header handleRefreshRSS={handleRefreshRSS} />
@@ -356,9 +374,11 @@ export default function ArticlesPage() {
                   >
                     {/* 썸네일 섹션 */}
                     <div className="relative aspect-video bg-muted overflow-hidden">
-                      {article.thumbnail ? (
-                        <img
-                          src={article.thumbnail}
+                      {article.thumbnail ||
+                      (article.thumbnail === "" &&
+                        article.source_name === "우아한형제들 기술블로그") ? (
+                        <Image
+                          src={preprocessingThumbnail(article)}
                           alt={article.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e) => {
