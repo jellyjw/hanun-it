@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye } from 'lucide-react';
-import Pagination from '@/components/pagination/Pagination';
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
@@ -18,6 +17,7 @@ import SearchInput from '@/components/SearchInput';
 import { useSearch } from '@/hooks/useSearch';
 import FallbackThumbnail from '@/components/FallbackThumbnail';
 import Image from 'next/image';
+import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -27,11 +27,11 @@ export default function ArticlesPage() {
   const [selectedCategory, setSelectedCategory] = useState(() => {
     return searchParams.get('category') || 'all';
   });
-  const [page, setPage] = useState(() => {
-    return parseInt(searchParams.get('page') || '1');
-  });
   const [itemsPerPage, setItemsPerPage] = useState(() => {
     return parseInt(searchParams.get('limit') || '20');
+  });
+  const [currentPage, setCurrentPage] = useState(() => {
+    return parseInt(searchParams.get('page') || '1');
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isExtractingThumbnails, setIsExtractingThumbnails] = useState(false);
@@ -66,32 +66,11 @@ export default function ArticlesPage() {
     [searchParams, router],
   );
 
-  // URL 파라미터 변경 시 상태 동기화
-  useEffect(() => {
-    const categoryFromURL = searchParams.get('category') || 'all';
-    const pageFromURL = parseInt(searchParams.get('page') || '1');
-    const limitFromURL = parseInt(searchParams.get('limit') || '20');
-    const searchFromURL = searchParams.get('search') || '';
-
-    if (categoryFromURL !== selectedCategory) {
-      setSelectedCategory(categoryFromURL);
-    }
-    if (pageFromURL !== page) {
-      setPage(pageFromURL);
-    }
-    if (limitFromURL !== itemsPerPage) {
-      setItemsPerPage(limitFromURL);
-    }
-    if (searchFromURL !== searchValue) {
-      updateSearchValue(searchFromURL);
-    }
-  }, [searchParams]);
-
   const { data, isLoading, error, refetch } = useQuery<ArticlesResponse>({
-    queryKey: ['articles', selectedCategory, page, itemsPerPage, debouncedSearchValue],
+    queryKey: ['articles', currentPage, selectedCategory, itemsPerPage, debouncedSearchValue],
     queryFn: async () => {
       const params = new URLSearchParams({
-        page: page.toString(),
+        page: currentPage.toString(),
         limit: itemsPerPage.toString(),
       });
 
@@ -126,93 +105,31 @@ export default function ArticlesPage() {
     }
   };
 
-  const handleMigrateViews = async () => {
-    try {
-      const response = await fetch('/api/articles/migrate-views', {
-        method: 'POST',
-      });
-      const result = await response.json();
-      if (result.success) {
-        alert(`${result.updated}개의 아티클 조회수를 초기화했습니다.`);
-        refetch();
-      } else {
-        alert('마이그레이션 실패: ' + result.error);
-      }
-    } catch {
-      alert('마이그레이션 중 오류가 발생했습니다.');
-    }
-  };
-
-  const handleExtractThumbnails = async () => {
-    if (isExtractingThumbnails) return;
-
-    setIsExtractingThumbnails(true);
-    try {
-      const response = await fetch('/api/articles/extract-thumbnails', {
-        method: 'POST',
-      });
-      const result = await response.json();
-      if (result.success) {
-        alert(`${result.extracted}개의 썸네일을 추출했습니다. (총 ${result.processed}개 처리)`);
-        refetch();
-      } else {
-        alert('썸네일 추출 실패: ' + result.error);
-      }
-    } catch {
-      alert('썸네일 추출 중 오류가 발생했습니다.');
-    } finally {
-      setIsExtractingThumbnails(false);
-    }
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    updateURL({
-      category: selectedCategory,
-      page: newPage,
-      limit: itemsPerPage,
-      search: debouncedSearchValue,
-    });
+  // 페이지 변경 핸들러 - URL 업데이트 제거
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    setPage(1);
-    updateURL({
-      category: category,
-      page: 1,
-      limit: itemsPerPage,
-      search: debouncedSearchValue,
-    });
+    setCurrentPage(1);
   };
 
   // 검색 처리 함수
   const handleSearch = useCallback(
     (value: string) => {
       updateSearchValue(value);
-      setPage(1); // 검색 시 첫 페이지로 이동
-      updateURL({
-        category: selectedCategory,
-        page: 1,
-        limit: itemsPerPage,
-        search: value,
-      });
+      setCurrentPage(1);
     },
-    [updateSearchValue, selectedCategory, itemsPerPage, updateURL],
+    [updateSearchValue],
   );
 
   // 페이지당 아이템 수 변경 처리
   const handleItemsPerPageChange = (value: string) => {
     const newItemsPerPage = Number(value);
     setItemsPerPage(newItemsPerPage);
-    setPage(1);
-    updateURL({
-      category: selectedCategory,
-      page: 1,
-      limit: newItemsPerPage,
-      search: debouncedSearchValue,
-    });
+    setCurrentPage(1);
   };
 
   const getCategoryTitle = () => {
@@ -330,27 +247,6 @@ export default function ArticlesPage() {
                       </div>
                     </div>
                     <div className="flex gap-2 items-center flex-wrap">
-                      {/* <Button
-                        onClick={handleExtractThumbnails}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                        disabled={isExtractingThumbnails}>
-                        {isExtractingThumbnails ? (
-                          <>
-                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                            썸네일 추출 중...
-                          </>
-                        ) : (
-                          <>
-                            <Download className="w-3 h-3 mr-1" />
-                            썸네일 추출
-                          </>
-                        )}
-                      </Button>
-                      <Button onClick={handleMigrateViews} variant="outline" size="sm" className="text-xs">
-                        조회수 초기화
-                      </Button> */}
                       <SelectBox
                         options={SELECT_OPTIONS.itemsPerPage}
                         value={itemsPerPage.toString()}
@@ -510,9 +406,10 @@ export default function ArticlesPage() {
 
             {data?.pagination && data.pagination.totalPages > 1 && (
               <div className="flex justify-center">
-                <Pagination
-                  currentPage={data.pagination.page}
-                  totalPages={data.pagination.totalPages}
+                <PaginationWrapper
+                  totalItems={data.pagination.total}
+                  itemsPerPage={itemsPerPage}
+                  initialPage={currentPage}
                   onPageChange={handlePageChange}
                 />
               </div>
