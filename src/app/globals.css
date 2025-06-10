@@ -266,3 +266,136 @@ body {
 .article-content i {
   @apply italic;
 }
+
+/* 코드 블럭 스타일 개선 */
+.article-content .code-block-wrapper {
+  @apply my-6 rounded-lg overflow-hidden shadow-sm;
+}
+
+.article-content .code-block {
+  @apply bg-gray-900 text-gray-100 p-4 overflow-x-auto text-sm font-mono leading-relaxed;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
+}
+
+.article-content .code-block code {
+  @apply bg-transparent p-0 text-gray-100;
+}
+
+.article-content .inline-code {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono border;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
+}
+
+/* 코드 블럭 스크롤바 스타일링 */
+.article-content .code-block::-webkit-scrollbar {
+  height: 8px;
+}
+
+.article-content .code-block::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+.article-content .code-block::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded;
+}
+
+.article-content .code-block::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* 다크모드에서 코드 블럭 헤더 */
+.dark .article-content .code-block-header {
+  @apply bg-gray-700 text-gray-300 border-gray-600;
+}
+
+.article-content .code-block-wrapper {
+  @apply my-6 rounded-lg overflow-hidden shadow-sm border border-gray-300 dark:border-gray-600;
+}
+
+.article-content .code-block-wrapper pre {
+  @apply bg-gray-900 dark:bg-gray-800 p-4 overflow-x-auto m-0;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+.article-content .code-block-wrapper code {
+  @apply text-gray-100 text-sm leading-relaxed block;
+  font-family: inherit;
+}
+
+.article-content .inline-code {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm border;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+/* 테이블 스타일링 */
+.article-content .table-wrapper {
+  @apply my-6 overflow-x-auto rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm;
+}
+
+.article-content table {
+  @apply min-w-full divide-y divide-gray-300 dark:divide-gray-600;
+}
+
+.article-content thead {
+  @apply bg-gray-50 dark:bg-gray-800;
+}
+
+.article-content tbody {
+  @apply bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.article-content tr {
+  @apply hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors;
+}
+
+.article-content th {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider;
+}
+
+.article-content td {
+  @apply px-6 py-4 text-sm text-gray-900 dark:text-gray-100;
+}
+
+/* 테이블 셀 내 긴 텍스트 처리 */
+.article-content td {
+  @apply break-words;
+}
+
+/* 반응형 테이블 스크롤바 */
+.article-content .table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.article-content .table-wrapper::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.article-content .table-wrapper::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded;
+}
+
+.article-content .table-wrapper::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* 기존 코드 블럭 스타일도 함께
+.article-content .code-block-wrapper {
+  @apply my-6 rounded-lg overflow-hidden shadow-sm border border-gray-300 dark:border-gray-600;
+}
+
+.article-content .code-block-wrapper pre {
+  @apply bg-gray-900 dark:bg-gray-800 p-4 overflow-x-auto m-0;
+  font-family:
+    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
+    monospace;
+}
+
+.article-content .code-block-wrapper code {
+  @apply text-gray-100 text-sm leading-relaxed block;
+  font-family: inherit;
+} */
+
+.article-content .inline-code {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm border;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
