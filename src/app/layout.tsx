@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Providers from './providers';
+import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
@@ -36,6 +37,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
           </div>
         </Providers>
+        <Toaster />
       </body>
     </html>
   );

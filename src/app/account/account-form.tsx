@@ -3,13 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { type User } from '@supabase/supabase-js';
 import Avatar from './avatar';
-('use client');
-import { useCallback, useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import { type User } from '@supabase/supabase-js';
-import Avatar from './avatar';
-
-// ...
+import { useToast } from '@/hooks/use-toast';
 
 export default function AccountForm({ user }: { user: User | null }) {
   const supabase = createClient();
@@ -18,7 +12,7 @@ export default function AccountForm({ user }: { user: User | null }) {
   const [username, setUsername] = useState<string | null>(null);
   const [website, setWebsite] = useState<string | null>(null);
   const [avatar_url, setAvatarUrl] = useState<string | null>(null);
-
+  const { toast } = useToast();
   const getProfile = useCallback(async () => {
     try {
       setLoading(true);
@@ -34,7 +28,10 @@ export default function AccountForm({ user }: { user: User | null }) {
       }
     } catch (error) {
       console.error('사용자 데이터 로드 오류:', error);
-      alert('사용자 데이터를 불러오는 중 오류가 발생했습니다!');
+      toast({
+        title: '사용자 데이터를 불러오는 중 오류가 발생했습니다!',
+        variant: 'error',
+      });
     } finally {
       setLoading(false);
     }
@@ -70,10 +67,16 @@ export default function AccountForm({ user }: { user: User | null }) {
       });
 
       if (error) throw error;
-      alert('프로필이 업데이트되었습니다!');
+      toast({
+        title: '프로필이 업데이트되었습니다!',
+        variant: 'success',
+      });
     } catch (error) {
       console.error('프로필 업데이트 오류:', error);
-      alert('프로필 업데이트 중 오류가 발생했습니다!');
+      toast({
+        title: '프로필 업데이트 중 오류가 발생했습니다!',
+        variant: 'error',
+      });
     } finally {
       setLoading(false);
     }

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { loginWithCredentials, signupWithCredentials } from '@/app/auth/login/actions';
+import { useToast } from '@/hooks/use-toast';
 
 interface LoginFormData {
   email: string;
@@ -46,6 +47,7 @@ export default function AuthForm() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { toast } = useToast();
 
   const loginForm = useForm<LoginFormData>({
     defaultValues: {
@@ -66,15 +68,28 @@ export default function AuthForm() {
 
   const onLoginSubmit = (data: LoginFormData) => {
     setError(null);
+
+    // 테스트용 즉시 토스트
+    toast({
+      title: '테스트 토스트',
+      description: '토스트가 정상적으로 작동합니다.',
+      variant: 'success',
+    });
+
     startTransition(async () => {
       try {
         const result = await loginWithCredentials(data);
         if (result.success) {
-          router.push('/');
+          toast({
+            title: '로그인 완료',
+            description: '로그인에 성공했습니다.',
+            variant: 'success',
+          });
+          router.push('/articles');
         } else {
           setError(result.error || '로그인에 실패했습니다.');
         }
-      } catch (error) {
+      } catch {
         setError('로그인 중 오류가 발생했습니다.');
       }
     });
@@ -87,13 +102,17 @@ export default function AuthForm() {
         const result = await signupWithCredentials(data);
         if (result.success) {
           setError(null);
-          alert('회원가입이 완료되었습니다! 이메일을 확인해주세요.');
+          toast({
+            title: '회원가입 완료',
+            description: '회원가입이 완료되었습니다! 이메일을 확인해주세요.',
+            variant: 'success',
+          });
           setIsLogin(true);
           signupForm.reset();
         } else {
           setError(result.error || '회원가입에 실패했습니다.');
         }
-      } catch (error) {
+      } catch {
         setError('회원가입 중 오류가 발생했습니다.');
       }
     });
@@ -204,8 +223,7 @@ export default function AuthForm() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-muted-foreground" />
                   ) : (
@@ -221,8 +239,7 @@ export default function AuthForm() {
             <Button
               type="submit"
               className="w-full transition-all duration-200"
-              disabled={isPending || !loginForm.formState.isValid}
-            >
+              disabled={isPending || !loginForm.formState.isValid}>
               {isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -279,8 +296,7 @@ export default function AuthForm() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                  onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? (
                     <EyeOff className="h-4 w-4 text-muted-foreground" />
                   ) : (
@@ -301,8 +317,7 @@ export default function AuthForm() {
                           : strengthInfo.color === 'bg-yellow-500'
                             ? 'text-yellow-500'
                             : 'text-green-500'
-                      }`}
-                    >
+                      }`}>
                       {strengthInfo.label}
                     </span>
                   </div>
@@ -343,8 +358,7 @@ export default function AuthForm() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                   {showConfirmPassword ? (
                     <EyeOff className="h-4 w-4 text-muted-foreground" />
                   ) : (
@@ -365,8 +379,7 @@ export default function AuthForm() {
             <Button
               type="submit"
               className="w-full transition-all duration-200"
-              disabled={isPending || !signupForm.formState.isValid}
-            >
+              disabled={isPending || !signupForm.formState.isValid}>
               {isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -384,8 +397,7 @@ export default function AuthForm() {
             variant="link"
             onClick={toggleMode}
             className="text-sm hover:text-primary transition-colors"
-            disabled={isPending}
-          >
+            disabled={isPending}>
             {isLogin ? '계정이 없으신가요? 회원가입' : '이미 계정이 있으신가요? 로그인'}
           </Button>
         </div>

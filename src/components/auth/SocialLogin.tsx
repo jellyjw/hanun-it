@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Github } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface SocialLoginProps {
   redirectTo?: string;
@@ -8,7 +9,7 @@ interface SocialLoginProps {
 
 export default function SocialLogin({ redirectTo = '/articles' }: SocialLoginProps) {
   const supabase = createClient();
-
+  const { toast } = useToast();
   const handleSocialLogin = async (provider: 'github' | 'google' | 'kakao') => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -20,11 +21,25 @@ export default function SocialLogin({ redirectTo = '/articles' }: SocialLoginPro
 
       if (error) {
         console.error(`${provider} 로그인 오류:`, error);
-        alert(`${provider} 로그인 중 오류가 발생했습니다.`);
+        toast({
+          title: '오류',
+          description: '문제가 발생했습니다.',
+          variant: 'error',
+        });
+      } else {
+        toast({
+          title: '성공',
+          description: '작업이 완료되었습니다.',
+          variant: 'success',
+        });
       }
     } catch (error) {
       console.error(`${provider} 로그인 오류:`, error);
-      alert(`${provider} 로그인 중 오류가 발생했습니다.`);
+      toast({
+        title: '오류',
+        description: '문제가 발생했습니다.',
+        variant: 'error',
+      });
     }
   };
 
