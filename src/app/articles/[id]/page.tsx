@@ -2,11 +2,11 @@
 
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { ArrowLeft, ExternalLink, Eye } from "lucide-react";
-import { ArticleResponse } from "@/types/articles/index";
-import { processArticleContent } from "@/utils/markdown";
-import { Button } from "@/components/ui/button";
+import { ArticleResponse } from "@/types/articles";
+import CommentSection from "@/components/comments/CommentSection";
+import { marked } from "marked";
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -32,6 +32,42 @@ export default function ArticleDetailPage() {
       return response.json();
     },
   });
+
+  const checkMarkdown = (text: string): boolean => {
+    if (!text || typeof text !== "string") {
+      return false;
+    }
+    if (text.length < 2) {
+      return false;
+    }
+    const lines = text.split("\n");
+    const hasMarkdownFeatures = lines.some((line) => {
+      line = line.trim();
+      return (
+        line.startsWith("#") || // 제목
+        line.startsWith("- ") || // 목록
+        line.startsWith("> ") || // 인용문
+        /!\[.*\]\(.*\)/.test(line) || // 이미지
+        /\[.*\]\(.*\)/.test(line) || // 링크
+        line.startsWith("```") || // 코드 블록
+        /\*\*.*\*\*/.test(line) || // 굵은 글씨
+        /_.*_/.test(line) // 기울임 글씨
+      );
+    });
+
+    return hasMarkdownFeatures;
+  };
+
+  const isImageRelative = (html: string): boolean => {
+    // HTML img 태그 매칭
+    const imageRegex = /<img[^>]+src="([^">]+)"/g;
+    const matches = [...html.matchAll(imageRegex)];
+
+    return matches.some((match) => {
+      const src = match[1];
+      return src.charAt(0) === "/";
+    });
+  };
 
   // 컴포넌트 마운트 시 조회수 증가
   useEffect(() => {
@@ -107,6 +143,27 @@ export default function ArticleDetailPage() {
   }
 
   const article = data.article;
+
+  const isMarkdown = checkMarkdown(article.content || "");
+  if (isMarkdown) {
+    const html = marked.parse(article.content || "");
+    article.content = html as string;
+  }
+
+  const hasRelativeImages = isImageRelative(article.content || "");
+  if (hasRelativeImages) {
+    const link = article.link;
+    const domain = link.split("/")[2];
+    article.content = article.content?.replace(
+      /src="([^"]+)"/g,
+      `src="https://${domain}$1"`
+    );
+  }
+
+  article.content = article.content?.replace(
+    /https:\/\/techblog\.woowa\.in/g,
+    "https://techblog.woowahan.com"
+  );
 
   return (
     <div className="container mx-auto p-8 max-w-4xl">
