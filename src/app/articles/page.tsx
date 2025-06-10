@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData, QueryFunctionContext } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye } from 'lucide-react';
-import Pagination from '@/components/pagination/Pagination';
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
@@ -18,6 +17,7 @@ import SearchInput from '@/components/SearchInput';
 import { useSearch } from '@/hooks/useSearch';
 import FallbackThumbnail from '@/components/FallbackThumbnail';
 import Image from 'next/image';
+import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -27,14 +27,13 @@ export default function ArticlesPage() {
   const [selectedCategory, setSelectedCategory] = useState(() => {
     return searchParams.get('category') || 'all';
   });
-  const [page, setPage] = useState(() => {
-    return parseInt(searchParams.get('page') || '1');
-  });
   const [itemsPerPage, setItemsPerPage] = useState(() => {
     return parseInt(searchParams.get('limit') || '20');
   });
+  const [currentPage, setCurrentPage] = useState(() => {
+    return parseInt(searchParams.get('page') || '1');
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isExtractingThumbnails, setIsExtractingThumbnails] = useState(false);
 
   // 검색 훅 사용 - 초기값을 URL에서 가져옴
   const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } = useSearch(
@@ -66,48 +65,48 @@ export default function ArticlesPage() {
     [searchParams, router],
   );
 
-  // URL 파라미터 변경 시 상태 동기화
+  // URL과 상태 동기화
   useEffect(() => {
-    const categoryFromURL = searchParams.get('category') || 'all';
-    const pageFromURL = parseInt(searchParams.get('page') || '1');
-    const limitFromURL = parseInt(searchParams.get('limit') || '20');
-    const searchFromURL = searchParams.get('search') || '';
+    updateURL({
+      page: currentPage,
+      category: selectedCategory,
+      limit: itemsPerPage,
+      search: debouncedSearchValue,
+    });
+  }, [currentPage, selectedCategory, itemsPerPage, debouncedSearchValue, updateURL]);
 
-    if (categoryFromURL !== selectedCategory) {
-      setSelectedCategory(categoryFromURL);
-    }
-    if (pageFromURL !== page) {
-      setPage(pageFromURL);
-    }
-    if (limitFromURL !== itemsPerPage) {
-      setItemsPerPage(limitFromURL);
-    }
-    if (searchFromURL !== searchValue) {
-      updateSearchValue(searchFromURL);
-    }
-  }, [searchParams]);
+  // TanStack Query 페이지네이션을 위한 쿼리 함수
+  const fetchArticles = useCallback(
+    async (context: QueryFunctionContext<readonly [string, number, string, number, string]>) => {
+      const [, page, category, limit, searchValue] = context.queryKey;
 
-  const { data, isLoading, error, refetch } = useQuery<ArticlesResponse>({
-    queryKey: ['articles', selectedCategory, page, itemsPerPage, debouncedSearchValue],
-    queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: itemsPerPage.toString(),
+        limit: limit.toString(),
       });
 
-      if (selectedCategory !== 'all') {
-        params.append('category', selectedCategory);
+      if (category !== 'all') {
+        params.append('category', category);
       }
 
-      // 검색어가 있으면 searchValue 파라미터 추가
-      if (debouncedSearchValue.trim()) {
-        params.append('searchValue', debouncedSearchValue);
+      if (searchValue.trim()) {
+        params.append('searchValue', searchValue);
       }
 
       const response = await fetch(`/api/articles?${params}`);
       if (!response.ok) throw new Error('Failed to fetch articles');
-      return response.json();
+      return response.json() as Promise<ArticlesResponse>;
     },
+    [],
+  );
+
+  // TanStack Query를 사용한 페이지네이션
+  const { data, isLoading, error, refetch, isPlaceholderData } = useQuery({
+    queryKey: ['articles', currentPage, selectedCategory, itemsPerPage, debouncedSearchValue] as const,
+    queryFn: fetchArticles,
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    gcTime: 10 * 60 * 1000, // 10분간 가비지 컬렉션 방지
   });
 
   const handleRefreshRSS = async () => {
@@ -126,93 +125,31 @@ export default function ArticlesPage() {
     }
   };
 
-  const handleMigrateViews = async () => {
-    try {
-      const response = await fetch('/api/articles/migrate-views', {
-        method: 'POST',
-      });
-      const result = await response.json();
-      if (result.success) {
-        alert(`${result.updated}개의 아티클 조회수를 초기화했습니다.`);
-        refetch();
-      } else {
-        alert('마이그레이션 실패: ' + result.error);
-      }
-    } catch {
-      alert('마이그레이션 중 오류가 발생했습니다.');
-    }
-  };
-
-  const handleExtractThumbnails = async () => {
-    if (isExtractingThumbnails) return;
-
-    setIsExtractingThumbnails(true);
-    try {
-      const response = await fetch('/api/articles/extract-thumbnails', {
-        method: 'POST',
-      });
-      const result = await response.json();
-      if (result.success) {
-        alert(`${result.extracted}개의 썸네일을 추출했습니다. (총 ${result.processed}개 처리)`);
-        refetch();
-      } else {
-        alert('썸네일 추출 실패: ' + result.error);
-      }
-    } catch {
-      alert('썸네일 추출 중 오류가 발생했습니다.');
-    } finally {
-      setIsExtractingThumbnails(false);
-    }
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    updateURL({
-      category: selectedCategory,
-      page: newPage,
-      limit: itemsPerPage,
-      search: debouncedSearchValue,
-    });
+  // 페이지 변경 핸들러
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    setPage(1);
-    updateURL({
-      category: category,
-      page: 1,
-      limit: itemsPerPage,
-      search: debouncedSearchValue,
-    });
+    setCurrentPage(1);
   };
 
   // 검색 처리 함수
   const handleSearch = useCallback(
     (value: string) => {
       updateSearchValue(value);
-      setPage(1); // 검색 시 첫 페이지로 이동
-      updateURL({
-        category: selectedCategory,
-        page: 1,
-        limit: itemsPerPage,
-        search: value,
-      });
+      setCurrentPage(1);
     },
-    [updateSearchValue, selectedCategory, itemsPerPage, updateURL],
+    [updateSearchValue],
   );
 
   // 페이지당 아이템 수 변경 처리
   const handleItemsPerPageChange = (value: string) => {
     const newItemsPerPage = Number(value);
     setItemsPerPage(newItemsPerPage);
-    setPage(1);
-    updateURL({
-      category: selectedCategory,
-      page: 1,
-      limit: newItemsPerPage,
-      search: debouncedSearchValue,
-    });
+    setCurrentPage(1);
   };
 
   const getCategoryTitle = () => {
@@ -232,7 +169,7 @@ export default function ArticlesPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !isPlaceholderData) {
     return (
       <div className="min-h-screen bg-background">
         <Header handleRefreshRSS={handleRefreshRSS} />
@@ -330,27 +267,6 @@ export default function ArticlesPage() {
                       </div>
                     </div>
                     <div className="flex gap-2 items-center flex-wrap">
-                      {/* <Button
-                        onClick={handleExtractThumbnails}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                        disabled={isExtractingThumbnails}>
-                        {isExtractingThumbnails ? (
-                          <>
-                            <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                            썸네일 추출 중...
-                          </>
-                        ) : (
-                          <>
-                            <Download className="w-3 h-3 mr-1" />
-                            썸네일 추출
-                          </>
-                        )}
-                      </Button>
-                      <Button onClick={handleMigrateViews} variant="outline" size="sm" className="text-xs">
-                        조회수 초기화
-                      </Button> */}
                       <SelectBox
                         options={SELECT_OPTIONS.itemsPerPage}
                         value={itemsPerPage.toString()}
@@ -378,8 +294,17 @@ export default function ArticlesPage() {
               </div>
             )}
 
+            {/* 로딩 상태 표시 (placeholderData 사용 시) */}
+            {isPlaceholderData && (
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-800 flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                새로운 데이터를 불러오는 중...
+              </div>
+            )}
+
             {/* 카드형 그리드 레이아웃 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div
+              className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${isPlaceholderData ? 'opacity-50' : ''}`}>
               {data?.articles && data.articles.length > 0 ? (
                 data.articles.map((article) => (
                   <Card
@@ -510,9 +435,10 @@ export default function ArticlesPage() {
 
             {data?.pagination && data.pagination.totalPages > 1 && (
               <div className="flex justify-center">
-                <Pagination
-                  currentPage={data.pagination.page}
-                  totalPages={data.pagination.totalPages}
+                <PaginationWrapper
+                  totalItems={data.pagination.total}
+                  itemsPerPage={itemsPerPage}
+                  initialPage={currentPage}
                   onPageChange={handlePageChange}
                 />
               </div>
