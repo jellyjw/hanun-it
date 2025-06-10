@@ -14,13 +14,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import SearchInput from '@/components/SearchInput';
 import { useSearch } from '@/hooks/useSearch';
 import FallbackThumbnail from '@/components/FallbackThumbnail';
-
+import { useToast } from '@/hooks/use-toast';
 export default function VideosPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const { toast } = useToast();
   // 검색 훅 사용
   const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } = useSearch('', 800);
 
@@ -45,9 +45,15 @@ export default function VideosPage() {
   const handleRefreshRSS = async () => {
     try {
       refetch();
-      alert('YouTube 영상을 새로고침했습니다.');
+      toast({
+        title: 'YouTube 영상을 새로고침했습니다.',
+        variant: 'default',
+      });
     } catch {
-      alert('YouTube 영상 새로고침 중 오류가 발생했습니다.');
+      toast({
+        title: 'YouTube 영상 새로고침 중 오류가 발생했습니다.',
+        variant: 'error',
+      });
     }
   };
 

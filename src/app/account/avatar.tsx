@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
-
+import { useToast } from '@/hooks/use-toast';
 export default function Avatar({
   uid,
   url,
@@ -17,7 +17,7 @@ export default function Avatar({
   const supabase = createClient();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(url);
   const [uploading, setUploading] = useState(false);
-
+  const { toast } = useToast();
   useEffect(() => {
     async function downloadImage(path: string) {
       try {
@@ -56,7 +56,11 @@ export default function Avatar({
 
       onUpload(filePath);
     } catch (error) {
-      alert('Error uploading avatar!');
+      toast({
+        title: '오류',
+        description: '문제가 발생했습니다.',
+        variant: 'error',
+      });
     } finally {
       setUploading(false);
     }
