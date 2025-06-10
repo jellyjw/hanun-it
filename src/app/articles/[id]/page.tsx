@@ -6,13 +6,14 @@ import { useEffect } from 'react';
 import { ArrowLeft, ExternalLink, Eye } from 'lucide-react';
 import { ArticleResponse } from '@/types/articles';
 import CommentSection from '@/components/comments/CommentSection';
+import { marked } from 'marked';
 
 export default function ArticleDetailPage() {
   const params = useParams();
   const router = useRouter();
   const articleId = params?.id as string;
 
-  const { data, isLoading, error } = useQuery<ArticleResponse>({
+  const { data, isLoading, error, refetch } = useQuery<ArticleResponse>({
     queryKey: ['article', articleId],
     queryFn: async () => {
       const response = await fetch(`/api/articles/${articleId}`);
@@ -32,12 +33,75 @@ export default function ArticleDetailPage() {
     },
   });
 
+  const checkMarkdown = (text: string): boolean => {
+    if (!text || typeof text !== 'string') {
+      return false;
+    }
+    if (text.length < 2) {
+      return false;
+    }
+    const lines = text.split('\n');
+    const hasMarkdownFeatures = lines.some((line) => {
+      line = line.trim();
+      return (
+        line.startsWith('#') || // 제목
+        line.startsWith('- ') || // 목록
+        line.startsWith('> ') || // 인용문
+        /!\[.*\]\(.*\)/.test(line) || // 이미지
+        /\[.*\]\(.*\)/.test(line) || // 링크
+        line.startsWith('```') || // 코드 블록
+        /\*\*.*\*\*/.test(line) || // 굵은 글씨
+        /_.*_/.test(line) // 기울임 글씨
+      );
+    });
+
+    return hasMarkdownFeatures;
+  };
+
+  const isImageRelative = (html: string): boolean => {
+    // HTML img 태그 매칭
+    const imageRegex = /<img[^>]+src="([^">]+)"/g;
+    const matches = [...html.matchAll(imageRegex)];
+
+    return matches.some((match) => {
+      const src = match[1];
+      return src.charAt(0) === '/';
+    });
+  };
+
   // 컴포넌트 마운트 시 조회수 증가
   useEffect(() => {
     if (articleId && data?.success) {
       incrementViewMutation.mutate(articleId);
     }
   }, [articleId, data?.success]);
+
+  const processedContent = useMemo(() => {
+    if (!data?.article?.content) return '';
+    return processArticleContent(data.article.content);
+  }, [data?.article?.content]);
+
+  const handleConvertMarkdown = async () => {
+    if (isLoading) return;
+
+    const confirmed = confirm('기존 마크다운 아티클들을 HTML로 변환하시겠습니까?');
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch('/api/articles/convert-markdown', {
+        method: 'POST',
+      });
+      const result = await response.json();
+      if (result.success) {
+        alert(result.message);
+        refetch();
+      } else {
+        alert('마크다운 변환 실패: ' + result.error);
+      }
+    } catch {
+      alert('마크다운 변환 중 오류가 발생했습니다.');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -73,6 +137,21 @@ export default function ArticleDetailPage() {
 
   const article = data.article;
 
+  const isMarkdown = checkMarkdown(article.content || '');
+  if (isMarkdown) {
+    const html = marked.parse(article.content || '');
+    article.content = html as string;
+  }
+
+  const hasRelativeImages = isImageRelative(article.content || '');
+  if (hasRelativeImages) {
+    const link = article.link;
+    const domain = link.split('/')[2];
+    article.content = article.content?.replace(/src="([^"]+)"/g, `src="https://${domain}$1"`);
+  }
+
+  article.content = article.content?.replace(/https:\/\/techblog\.woowa\.in/g, 'https://techblog.woowahan.com');
+
   return (
     <div className="container mx-auto p-8 max-w-4xl">
       {/* 헤더 */}
@@ -83,6 +162,9 @@ export default function ArticleDetailPage() {
           <ArrowLeft size={20} />
           목록으로 돌아가기
         </button>
+        <Button onClick={handleConvertMarkdown} variant="outline" size="sm" className="text-xs">
+          마크다운 변환
+        </Button>
 
         <div className="flex items-center gap-2 mb-2">
           <span
@@ -135,7 +217,7 @@ export default function ArticleDetailPage() {
       {/* 아티클 내용 */}
       <div className="prose prose-lg prose-gray max-w-none dark:prose-invert">
         {article.content ? (
-          <div className="article-content" dangerouslySetInnerHTML={{ __html: article.content }} />
+          <div className="article-content" dangerouslySetInnerHTML={{ __html: processedContent }} />
         ) : (
           <div className="text-gray-800 leading-relaxed">
             <p className="mb-4">{article.description}</p>
