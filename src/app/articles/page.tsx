@@ -7,7 +7,7 @@ import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye } from 'lucid
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
-import { ArticlesResponse } from '@/types/articles';
+import { ArticleResponse, ArticlesResponse } from '@/types/articles';
 import SelectBox from '@/components/select/SelectBox';
 import { SELECT_OPTIONS } from '@/utils/options';
 import { Button } from '@/components/ui/button';
@@ -179,6 +179,15 @@ export default function ArticlesPage() {
     }
   };
 
+  const preprocessingThumbnail = (article: ArticleResponse['article']) => {
+    if (article.thumbnail.includes('https://techblog.woowa.in')) {
+      return article.thumbnail.replace('https://techblog.woowa.in', 'https://techblog.woowahan.com');
+    } else if (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그') {
+      return 'https://techblog.woowahan.com/wp-content/uploads/2023/02/2023-%EC%9A%B0%EC%95%84%ED%95%9C%ED%85%8C%ED%81%AC-%EB%A1%9C%EA%B3%A0-2-e1675772695839.png';
+    }
+    return article.thumbnail;
+  };
+
   if (isLoading && !isPlaceholderData) {
     return (
       <div className="min-h-screen bg-background">
@@ -265,7 +274,8 @@ export default function ArticlesPage() {
                         <h1 className="text-2xl font-bold text-foreground mb-1">{getCategoryTitle()}</h1>
                         <p className="text-sm text-muted-foreground">
                           {debouncedSearchValue.trim()
-                            ? `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' 카테고리에서 ' : ''}검색된 결과입니다`
+                            ? // ? `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' 카테고리에서 ' : ''}검색된 결과입니다`
+                              `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' ' : ''} 검색 결과입니다.`
                             : selectedCategory === 'weekly'
                               ? '조회수가 높은 인기 아티클을 확인하세요'
                               : selectedCategory === 'domestic'
@@ -323,9 +333,10 @@ export default function ArticlesPage() {
                     onClick={() => router.push(`/articles/${article.id}`)}>
                     {/* 썸네일 섹션 */}
                     <div className="relative aspect-video bg-muted overflow-hidden">
-                      {article.thumbnail ? (
+                      {article.thumbnail ||
+                      (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그') ? (
                         <Image
-                          src={article.thumbnail}
+                          src={preprocessingThumbnail(article)}
                           alt={article.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
