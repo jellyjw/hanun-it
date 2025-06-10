@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData, QueryFunctionContext } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye } from 'lucide-react';
 import PageInfo from '@/components/pagination/PageInfo';
@@ -34,7 +34,6 @@ export default function ArticlesPage() {
     return parseInt(searchParams.get('page') || '1');
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isExtractingThumbnails, setIsExtractingThumbnails] = useState(false);
 
   // 검색 훅 사용 - 초기값을 URL에서 가져옴
   const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } = useSearch(
@@ -66,27 +65,48 @@ export default function ArticlesPage() {
     [searchParams, router],
   );
 
-  const { data, isLoading, error, refetch } = useQuery<ArticlesResponse>({
-    queryKey: ['articles', currentPage, selectedCategory, itemsPerPage, debouncedSearchValue],
-    queryFn: async () => {
+  // URL과 상태 동기화
+  useEffect(() => {
+    updateURL({
+      page: currentPage,
+      category: selectedCategory,
+      limit: itemsPerPage,
+      search: debouncedSearchValue,
+    });
+  }, [currentPage, selectedCategory, itemsPerPage, debouncedSearchValue, updateURL]);
+
+  // TanStack Query 페이지네이션을 위한 쿼리 함수
+  const fetchArticles = useCallback(
+    async (context: QueryFunctionContext<readonly [string, number, string, number, string]>) => {
+      const [, page, category, limit, searchValue] = context.queryKey;
+
       const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
+        page: page.toString(),
+        limit: limit.toString(),
       });
 
-      if (selectedCategory !== 'all') {
-        params.append('category', selectedCategory);
+      if (category !== 'all') {
+        params.append('category', category);
       }
 
-      // 검색어가 있으면 searchValue 파라미터 추가
-      if (debouncedSearchValue.trim()) {
-        params.append('searchValue', debouncedSearchValue);
+      if (searchValue.trim()) {
+        params.append('searchValue', searchValue);
       }
 
       const response = await fetch(`/api/articles?${params}`);
       if (!response.ok) throw new Error('Failed to fetch articles');
-      return response.json();
+      return response.json() as Promise<ArticlesResponse>;
     },
+    [],
+  );
+
+  // TanStack Query를 사용한 페이지네이션
+  const { data, isLoading, error, refetch, isPlaceholderData } = useQuery({
+    queryKey: ['articles', currentPage, selectedCategory, itemsPerPage, debouncedSearchValue] as const,
+    queryFn: fetchArticles,
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+    gcTime: 10 * 60 * 1000, // 10분간 가비지 컬렉션 방지
   });
 
   const handleRefreshRSS = async () => {
@@ -105,7 +125,7 @@ export default function ArticlesPage() {
     }
   };
 
-  // 페이지 변경 핸들러 - URL 업데이트 제거
+  // 페이지 변경 핸들러
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -149,7 +169,7 @@ export default function ArticlesPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !isPlaceholderData) {
     return (
       <div className="min-h-screen bg-background">
         <Header handleRefreshRSS={handleRefreshRSS} />
@@ -274,8 +294,17 @@ export default function ArticlesPage() {
               </div>
             )}
 
+            {/* 로딩 상태 표시 (placeholderData 사용 시) */}
+            {isPlaceholderData && (
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-800 flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                새로운 데이터를 불러오는 중...
+              </div>
+            )}
+
             {/* 카드형 그리드 레이아웃 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div
+              className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${isPlaceholderData ? 'opacity-50' : ''}`}>
               {data?.articles && data.articles.length > 0 ? (
                 data.articles.map((article) => (
                   <Card
