@@ -11,9 +11,12 @@
     "@typescript-eslint",
     "prettier"
   ],
-  "extends": ["next/core-web-vitals", "next/typescript"],
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript"
+  ],
   "rules": {
-    "no-unused-vars": "warn",
+    "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-explicit-any": "off",
     "unused-imports/no-unused-vars": "warn",
@@ -21,7 +24,11 @@
   },
   "settings": {
     "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx", ".js"]
+      "@typescript-eslint/parser": [
+        ".ts",
+        ".tsx",
+        ".js"
+      ]
     },
     "import/resolver": {
       "typescript": true,
