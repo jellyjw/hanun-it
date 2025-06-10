@@ -7,7 +7,7 @@ import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye } from 'lucid
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
-import { ArticlesResponse } from '@/types/articles';
+import { ArticleResponse, ArticlesResponse } from '@/types/articles';
 import SelectBox from '@/components/select/SelectBox';
 import { SELECT_OPTIONS } from '@/utils/options';
 import { Button } from '@/components/ui/button';
@@ -274,7 +274,8 @@ export default function ArticlesPage() {
                         <h1 className="text-2xl font-bold text-foreground mb-1">{getCategoryTitle()}</h1>
                         <p className="text-sm text-muted-foreground">
                           {debouncedSearchValue.trim()
-                            ? `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' 카테고리에서 ' : ''}검색된 결과입니다`
+                            ? // ? `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' 카테고리에서 ' : ''}검색된 결과입니다`
+                              `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' ' : ''} 검색 결과입니다.`
                             : selectedCategory === 'weekly'
                               ? '조회수가 높은 인기 아티클을 확인하세요'
                               : selectedCategory === 'domestic'
