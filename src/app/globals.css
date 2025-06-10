@@ -3,62 +3,121 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    'Pretendard Variable',
+    Pretendard,
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    Roboto,
+    'Helvetica Neue',
+    'Segoe UI',
+    'Apple SD Gothic Neo',
+    'Noto Sans KR',
+    'Malgun Gothic',
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    sans-serif;
 }
 
 @layer base {
   :root {
+    /* 퍼플 테마 색상 시스템 */
     --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 220.9 39.3% 11%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
+    --popover-foreground: 240 10% 3.9%;
+
+    /* 메인 퍼플 색상 (#924DBF 기준) */
+    --primary: 274 45% 52%;
+    --primary-foreground: 0 0% 98%;
+
+    /* 보조 퍼플 색상들 */
+    --secondary: 274 20% 95%;
+    --secondary-foreground: 274 45% 25%;
+    --muted: 274 15% 96%;
+    --muted-foreground: 240 5% 45%;
+    --accent: 274 25% 90%;
+    --accent-foreground: 274 45% 25%;
+
+    /* 시스템 색상 */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 224 71.4% 4.1%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --destructive-foreground: 0 0% 98%;
+    --border: 274 20% 90%;
+    --input: 274 20% 90%;
+    --ring: 274 45% 52%;
+
+    /* 차트 색상 (퍼플 계열) */
+    --chart-1: 274 45% 52%;
+    --chart-2: 294 45% 52%;
+    --chart-3: 254 45% 52%;
+    --chart-4: 284 45% 52%;
+    --chart-5: 264 45% 52%;
+
+    --radius: 0.75rem;
+
+    /* 커스텀 퍼플 그라데이션 색상 */
+    --purple-50: 274 100% 99%;
+    --purple-100: 274 85% 96%;
+    --purple-200: 274 75% 90%;
+    --purple-300: 274 65% 80%;
+    --purple-400: 274 55% 65%;
+    --purple-500: 274 45% 52%;
+    --purple-600: 274 45% 42%;
+    --purple-700: 274 45% 32%;
+    --purple-800: 274 45% 22%;
+    --purple-900: 274 45% 12%;
   }
+
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 220.9 39.3% 11%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
+    /* 다크모드 색상 시스템 */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    /* 다크모드 메인 퍼플 */
+    --primary: 274 45% 65%;
+    --primary-foreground: 240 10% 3.9%;
+
+    /* 다크모드 보조 색상 */
+    --secondary: 240 10% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 10% 15%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 10% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    /* 다크모드 시스템 색상 */
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 216 12.2% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 274 45% 65%;
+
+    /* 다크모드 차트 색상 */
+    --chart-1: 274 45% 65%;
+    --chart-2: 294 45% 65%;
+    --chart-3: 254 45% 65%;
+    --chart-4: 284 45% 65%;
+    --chart-5: 264 45% 65%;
+
+    /* 다크모드 커스텀 퍼플 색상 */
+    --purple-50: 274 45% 12%;
+    --purple-100: 274 45% 22%;
+    --purple-200: 274 45% 32%;
+    --purple-300: 274 45% 42%;
+    --purple-400: 274 45% 52%;
+    --purple-500: 274 45% 65%;
+    --purple-600: 274 55% 75%;
+    --purple-700: 274 65% 80%;
+    --purple-800: 274 75% 90%;
+    --purple-900: 274 85% 96%;
   }
 }
 
@@ -69,4 +128,274 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* 다크모드 스크롤바 스타일링 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* 다크모드 전환 애니메이션 */
+* {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* 아티클 콘텐츠 스타일링 */
+.article-content {
+  @apply text-gray-800 dark:text-gray-200 leading-relaxed;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  @apply font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4;
+}
+
+.article-content h1 {
+  @apply text-3xl;
+}
+
+.article-content h2 {
+  @apply text-2xl;
+}
+
+.article-content h3 {
+  @apply text-xl;
+}
+
+.article-content h4 {
+  @apply text-lg;
+}
+
+.article-content p {
+  @apply mb-4 text-base leading-7;
+}
+
+.article-content ul,
+.article-content ol {
+  @apply mb-4 pl-6;
+}
+
+.article-content li {
+  @apply mb-2;
+}
+
+.article-content ul li {
+  @apply list-disc;
+}
+
+.article-content ol li {
+  @apply list-decimal;
+}
+
+.article-content blockquote {
+  @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 my-4;
+}
+
+.article-content code {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono;
+}
+
+.article-content pre {
+  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto my-4;
+}
+
+.article-content pre code {
+  @apply bg-transparent p-0;
+}
+
+.article-content a {
+  @apply text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline;
+}
+
+.article-content img {
+  @apply max-w-full h-auto rounded-lg my-4 mx-auto;
+}
+
+.article-content table {
+  @apply w-full border-collapse border border-gray-300 dark:border-gray-600 my-4;
+}
+
+.article-content th,
+.article-content td {
+  @apply border border-gray-300 dark:border-gray-600 px-4 py-2 text-left;
+}
+
+.article-content th {
+  @apply bg-gray-100 dark:bg-gray-800 font-semibold;
+}
+
+.article-content hr {
+  @apply border-gray-300 dark:border-gray-600 my-8;
+}
+
+/* Medium 스타일 특화 */
+.article-content figure {
+  @apply my-6;
+}
+
+.article-content figcaption {
+  @apply text-sm text-gray-600 dark:text-gray-400 text-center mt-2 italic;
+}
+
+/* 강조 텍스트 */
+.article-content strong,
+.article-content b {
+  @apply font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.article-content em,
+.article-content i {
+  @apply italic;
+}
+
+/* 코드 블럭 스타일 개선 */
+.article-content .code-block-wrapper {
+  @apply my-6 rounded-lg overflow-hidden shadow-sm;
+}
+
+.article-content .code-block {
+  @apply bg-gray-900 text-gray-100 p-4 overflow-x-auto text-sm font-mono leading-relaxed;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
+}
+
+.article-content .code-block code {
+  @apply bg-transparent p-0 text-gray-100;
+}
+
+.article-content .inline-code {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono border;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
+}
+
+/* 코드 블럭 스크롤바 스타일링 */
+.article-content .code-block::-webkit-scrollbar {
+  height: 8px;
+}
+
+.article-content .code-block::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+.article-content .code-block::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 rounded;
+}
+
+.article-content .code-block::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
+}
+
+/* 다크모드에서 코드 블럭 헤더 */
+.dark .article-content .code-block-header {
+  @apply bg-gray-700 text-gray-300 border-gray-600;
+}
+
+.article-content .code-block-wrapper {
+  @apply my-6 rounded-lg overflow-hidden shadow-sm border border-gray-300 dark:border-gray-600;
+}
+
+.article-content .code-block-wrapper pre {
+  @apply bg-gray-900 dark:bg-gray-800 p-4 overflow-x-auto m-0;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+.article-content .code-block-wrapper code {
+  @apply text-gray-100 text-sm leading-relaxed block;
+  font-family: inherit;
+}
+
+.article-content .inline-code {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm border;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+/* 테이블 스타일링 */
+.article-content .table-wrapper {
+  @apply my-6 overflow-x-auto rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm;
+}
+
+.article-content table {
+  @apply min-w-full divide-y divide-gray-300 dark:divide-gray-600;
+}
+
+.article-content thead {
+  @apply bg-gray-50 dark:bg-gray-800;
+}
+
+.article-content tbody {
+  @apply bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.article-content tr {
+  @apply hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors;
+}
+
+.article-content th {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider;
+}
+
+.article-content td {
+  @apply px-6 py-4 text-sm text-gray-900 dark:text-gray-100;
+}
+
+/* 테이블 셀 내 긴 텍스트 처리 */
+.article-content td {
+  @apply break-words;
+}
+
+/* 반응형 테이블 스크롤바 */
+.article-content .table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.article-content .table-wrapper::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+.article-content .table-wrapper::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded;
+}
+
+.article-content .table-wrapper::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* 기존 코드 블럭 스타일도 함께
+.article-content .code-block-wrapper {
+  @apply my-6 rounded-lg overflow-hidden shadow-sm border border-gray-300 dark:border-gray-600;
+}
+
+.article-content .code-block-wrapper pre {
+  @apply bg-gray-900 dark:bg-gray-800 p-4 overflow-x-auto m-0;
+  font-family:
+    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
+    monospace;
+}
+
+.article-content .code-block-wrapper code {
+  @apply text-gray-100 text-sm leading-relaxed block;
+  font-family: inherit;
+} */
+
+.article-content .inline-code {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm border;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
