@@ -153,6 +153,8 @@ export async function GET(request: NextRequest) {
         limit,
         total: Math.min(searchData.pageInfo.totalResults, 1000), // YouTube API 제한
         totalPages: Math.ceil(Math.min(searchData.pageInfo.totalResults, 1000) / limit),
+        hasNext: page < Math.ceil(Math.min(searchData.pageInfo.totalResults, 1000) / limit),
+        hasPrev: page > 1,
       },
     };
 

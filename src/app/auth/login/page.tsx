@@ -1,20 +1,19 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import SocialLogin from '@/components/auth/SocialLogin';
 import AuthForm from '@/components/auth/AuthForm';
+import { Suspense } from 'react';
 
 export default function LoginPage() {
-  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const errorParam = searchParams.get('error');
-    if (errorParam === 'auth_failed') {
-      setError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
-    }
-  }, [searchParams]);
+  // useEffect(() => {
+  //   const errorParam = searchParams.get('error');
+  //   if (errorParam === 'auth_failed') {
+  //     setError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+  //   }
+  // }, [searchParams]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
