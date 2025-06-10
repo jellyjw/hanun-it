@@ -18,14 +18,15 @@ import { useSearch } from '@/hooks/useSearch';
 import FallbackThumbnail from '@/components/FallbackThumbnail';
 import Image from 'next/image';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ArticlesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  const { toast } = useToast();
   // URL 파라미터에서 초기값 설정
   const [selectedCategory, setSelectedCategory] = useState(() => {
-    return searchParams.get('category') || 'all';
+    return searchParams.get('category') || 'domestic';
   });
   const [itemsPerPage, setItemsPerPage] = useState(() => {
     return parseInt(searchParams.get('limit') || '20');
@@ -67,6 +68,11 @@ export default function ArticlesPage() {
 
   // URL과 상태 동기화
   useEffect(() => {
+    toast({
+      title: 'URL 업데이트',
+      description: 'URL이 업데이트되었습니다.',
+      variant: 'success',
+    });
     updateURL({
       page: currentPage,
       category: selectedCategory,
@@ -115,13 +121,17 @@ export default function ArticlesPage() {
       const result = await response.json();
       if (result.success) {
         console.log(result, 'result');
-        alert(
-          `${result.articles}개의 새로운 아티클을 수집했습니다. (썸네일 ${result.thumbnailsExtracted || 0}개 추출)`,
-        );
+        toast({
+          title: `${result.articles}개의 새로운 아티클을 수집했습니다. (썸네일 ${result.thumbnailsExtracted || 0}개 추출)`,
+          variant: 'success',
+        });
         refetch();
       }
     } catch {
-      alert('RSS 수집 중 오류가 발생했습니다.');
+      toast({
+        title: 'RSS 수집 중 오류가 발생했습니다.',
+        variant: 'error',
+      });
     }
   };
 
