@@ -26,7 +26,7 @@ export default function ArticlesPage() {
   const { toast } = useToast();
   // URL 파라미터에서 초기값 설정
   const [selectedCategory, setSelectedCategory] = useState(() => {
-    return searchParams.get('category') || 'all';
+    return searchParams.get('category') || 'domestic';
   });
   const [itemsPerPage, setItemsPerPage] = useState(() => {
     return parseInt(searchParams.get('limit') || '20');

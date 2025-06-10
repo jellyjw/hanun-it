@@ -28,7 +28,7 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
           </div>
 
           {/* 네비게이션 */}
-          <nav className="hidden md:flex items-center space-x-6">
+          {/* <nav className="hidden md:flex items-center space-x-6">
             <Link
               href="/articles"
               className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
@@ -53,7 +53,7 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
             >
               카테고리
             </Link>
-          </nav>
+          </nav> */}
 
           {/* 액션 버튼들 */}
           <div className="flex items-center space-x-3">
@@ -62,8 +62,7 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="hidden sm:flex items-center space-x-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200"
-                >
+                  className="hidden sm:flex items-center space-x-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200">
                   <User className="w-4 h-4" />
                   <span>로그인</span>
                 </Button>
@@ -78,8 +77,7 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
               onClick={handleRefreshRSS}
               variant="outline"
               size="sm"
-              className="hidden sm:flex items-center space-x-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200"
-            >
+              className="hidden sm:flex items-center space-x-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200">
               <RefreshCw className="w-4 h-4" />
               <span>새로고침</span>
             </Button>
@@ -95,15 +93,13 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
           <div className="flex items-center justify-around">
             <Link
               href="/articles"
-              className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors"
-            >
+              className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors">
               <Code2 className="w-4 h-4" />
               <span>아티클</span>
             </Link>
             <Link
               href="/videos"
-              className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors"
-            >
+              className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors">
               <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-sm flex items-center justify-center">
                 <div className="w-2 h-2 bg-white rounded-full"></div>
               </div>
@@ -111,15 +107,13 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
             </Link>
             <Link
               href="/trending"
-              className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors"
-            >
+              className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors">
               <Zap className="w-4 h-4" />
               <span>트렌딩</span>
             </Link>
             <Link
               href="/categories"
-              className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors"
-            >
+              className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors">
               <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
                 <div className="w-1.5 h-1.5 bg-current rounded-sm"></div>
                 <div className="w-1.5 h-1.5 bg-current rounded-sm"></div>

@@ -6,7 +6,7 @@ export const SELECT_OPTIONS = {
     { label: '100개씩 보기', value: '100' },
   ],
   categories: [
-    { label: '전체 아티클', value: 'all' },
+    // { label: '전체 아티클', value: 'all' },
     { label: '국내 아티클', value: 'domestic' },
     { label: '해외 아티클', value: 'foreign' },
     { label: '주간 인기', value: 'weekly' },
