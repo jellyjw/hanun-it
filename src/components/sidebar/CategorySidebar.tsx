@@ -45,16 +45,16 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
   });
 
   const articleCategories = [
-    {
-      id: 'all',
-      label: '전체 아티클',
-      icon: FileText,
-      count: stats?.total || 0,
-      description: '',
-      type: 'article' as const,
-      badgeText: 'All',
-      badgeVariant: 'secondary' as const,
-    },
+    // {
+    //   id: 'all',
+    //   label: '전체 아티클',
+    //   icon: FileText,
+    //   count: stats?.total || 0,
+    //   description: '',
+    //   type: 'article' as const,
+    //   badgeText: 'All',
+    //   badgeVariant: 'secondary' as const,
+    // },
     {
       id: 'domestic',
       label: '국내 아티클',
