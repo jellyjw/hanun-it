@@ -2,11 +2,13 @@
 
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ArrowLeft, ExternalLink, Eye } from 'lucide-react';
 import { ArticleResponse } from '@/types/articles';
 import CommentSection from '@/components/comments/CommentSection';
 import { marked } from 'marked';
+import { processArticleContent } from '@/utils/markdown';
+import { Button } from '@/components/ui/button';
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -162,9 +164,9 @@ export default function ArticleDetailPage() {
           <ArrowLeft size={20} />
           목록으로 돌아가기
         </button>
-        <Button onClick={handleConvertMarkdown} variant="outline" size="sm" className="text-xs">
+        {/* <Button onClick={handleConvertMarkdown} variant="outline" size="sm" className="text-xs">
           마크다운 변환
-        </Button>
+        </Button> */}
 
         <div className="flex items-center gap-2 mb-2">
           <span

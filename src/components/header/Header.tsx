@@ -18,7 +18,7 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
         <div className="flex h-16 items-center justify-between">
           {/* 로고 및 브랜드 */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-purple">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl">
               <Code2 className="w-6 h-6 text-black dark:text-white" />
             </div>
             <div className="flex flex-col">
@@ -105,7 +105,7 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
               </div>
               <span>YouTube</span>
             </Link>
-            <Link
+            {/* <Link
               href="/trending"
               className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors">
               <Zap className="w-4 h-4" />
@@ -121,7 +121,7 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
                 <div className="w-1.5 h-1.5 bg-current rounded-sm"></div>
               </div>
               <span>카테고리</span>
-            </Link>
+            </Link> */}
           </div>
         </nav>
       </div>

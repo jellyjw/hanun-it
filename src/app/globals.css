@@ -274,9 +274,7 @@ body {
 
 .article-content .code-block {
   @apply bg-gray-900 text-gray-100 p-4 overflow-x-auto text-sm font-mono leading-relaxed;
-  font-family:
-    "SF Mono", "Monaco", "Inconsolata", "Fira Code", "Droid Sans Mono",
-    monospace;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
 }
 
 .article-content .code-block code {
@@ -285,9 +283,7 @@ body {
 
 .article-content .inline-code {
   @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono border;
-  font-family:
-    "SF Mono", "Monaco", "Inconsolata", "Fira Code", "Droid Sans Mono",
-    monospace;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
 }
 
 /* 코드 블럭 스크롤바 스타일링 */
@@ -318,9 +314,7 @@ body {
 
 .article-content .code-block-wrapper pre {
   @apply bg-gray-900 dark:bg-gray-800 p-4 overflow-x-auto m-0;
-  font-family:
-    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
-    monospace;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
 
 .article-content .code-block-wrapper code {
@@ -330,9 +324,7 @@ body {
 
 .article-content .inline-code {
   @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm border;
-  font-family:
-    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
-    monospace;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
 
 /* 테이블 스타일링 */
@@ -386,7 +378,7 @@ body {
   @apply bg-gray-400 dark:bg-gray-500;
 }
 
-/* 기존 코드 블럭 스타일도 함께 */
+/* 기존 코드 블럭 스타일도 함께
 .article-content .code-block-wrapper {
   @apply my-6 rounded-lg overflow-hidden shadow-sm border border-gray-300 dark:border-gray-600;
 }
@@ -401,11 +393,9 @@ body {
 .article-content .code-block-wrapper code {
   @apply text-gray-100 text-sm leading-relaxed block;
   font-family: inherit;
-}
+} */
 
 .article-content .inline-code {
   @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm border;
-  font-family:
-    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
-    monospace;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
