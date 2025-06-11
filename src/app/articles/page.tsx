@@ -29,7 +29,7 @@ export default function ArticlesPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('domestic');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -51,15 +51,21 @@ export default function ArticlesPage() {
   }> => {
     const params = new URLSearchParams({
       page: page.toString(),
-      search: searchValue,
+      searchValue: searchValue,
     });
+
+    // 카테고리 파라미터 추가
+    if (selectedCategory !== 'all') {
+      params.append('category', selectedCategory);
+    }
+
     const response = await fetch(`/api/articles?${params}`);
     return await response.json();
   };
 
   // TanStack Query를 사용한 페이지네이션
   const { data, isLoading, error, refetch, isPlaceholderData } = useQuery({
-    queryKey: ['articles', page] as const,
+    queryKey: ['articles', page, searchValue, selectedCategory] as const,
     queryFn: () => fetchArticles(page),
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
@@ -73,7 +79,7 @@ export default function ArticlesPage() {
         queryFn: () => fetchArticles(page + 1),
       });
     }
-  }, [data, isPlaceholderData, page, queryClient]);
+  }, [data, isPlaceholderData, page, queryClient, selectedCategory]);
 
   const handleRefreshRSS = async () => {
     try {
