@@ -7,11 +7,49 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const isDomestic = searchParams.get('domestic');
     const searchValue = searchParams.get('searchValue');
+    const sort = searchParams.get('sort') || 'popular'; // popular, latest, comments
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
 
     const supabase = await createClient();
+
+    // 최대 조회수 조회 (HOT 뱃지용)
+    let maxViewCountQuery = supabase
+      .from('articles')
+      .select('view_count')
+      .order('view_count', { ascending: false })
+      .limit(1);
+
+    // 검색어가 있는 경우 검색 조건 추가
+    if (searchValue && searchValue.trim()) {
+      maxViewCountQuery = maxViewCountQuery.or(
+        `title.ilike.%${searchValue}%,description.ilike.%${searchValue}%,source_name.ilike.%${searchValue}%`,
+      );
+    }
+
+    // 필터 적용
+    if (category && category !== 'all') {
+      if (category === 'domestic') {
+        maxViewCountQuery = maxViewCountQuery.eq('is_domestic', true);
+      } else if (category === 'foreign') {
+        maxViewCountQuery = maxViewCountQuery.eq('is_domestic', false);
+      } else if (category === 'weekly') {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        maxViewCountQuery = maxViewCountQuery.gte('pub_date', sevenDaysAgo.toISOString());
+      } else {
+        maxViewCountQuery = maxViewCountQuery.eq('category', category);
+      }
+    }
+
+    // 기존 domestic 파라미터 지원 (하위 호환성)
+    if (isDomestic !== null && category !== 'domestic' && category !== 'foreign') {
+      maxViewCountQuery = maxViewCountQuery.eq('is_domestic', isDomestic === 'true');
+    }
+
+    const { data: maxViewData } = await maxViewCountQuery;
+    const maxViewCount = maxViewData?.[0]?.view_count || 0;
 
     // 먼저 총 개수를 조회
     let countQuery = supabase.from('articles').select('*', { count: 'exact', head: true });
@@ -59,14 +97,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (category === 'weekly') {
-      dataQuery = dataQuery
-        .order('view_count', { ascending: false, nullsFirst: false })
-        .order('pub_date', { ascending: false });
-    } else {
-      dataQuery = dataQuery.order('pub_date', { ascending: false });
-    }
-
     // 필터 적용
     if (category && category !== 'all') {
       if (category === 'domestic') {
@@ -87,19 +117,105 @@ export async function GET(request: NextRequest) {
       dataQuery = dataQuery.eq('is_domestic', isDomestic === 'true');
     }
 
-    dataQuery = dataQuery.range(offset, offset + limit - 1);
-
+    // 데이터 조회
     const { data: articles, error } = await dataQuery;
 
     if (error) {
       throw error;
     }
 
+    // 댓글 수 조회 (댓글순 정렬을 위해)
+    let articlesWithCommentCount = articles || [];
+
+    if (sort === 'comments') {
+      // 모든 아티클의 댓글 수를 조회
+      const articleIds = (articles || []).map((article) => article.id);
+
+      if (articleIds.length > 0) {
+        const { data: commentCounts } = await supabase
+          .from('comments')
+          .select('article_id')
+          .in('article_id', articleIds);
+
+        // 댓글 수를 계산하여 아티클에 추가
+        const commentCountMap = new Map();
+        (commentCounts || []).forEach((comment) => {
+          const count = commentCountMap.get(comment.article_id) || 0;
+          commentCountMap.set(comment.article_id, count + 1);
+        });
+
+        articlesWithCommentCount = (articles || []).map((article) => ({
+          ...article,
+          comment_count: commentCountMap.get(article.id) || 0,
+        }));
+      }
+    }
+
+    // 정렬 로직
+    let sortedArticles;
+
+    if (sort === 'latest') {
+      // 최신순: 발행일 기준
+      sortedArticles = articlesWithCommentCount.sort((a, b) => {
+        return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
+      });
+    } else if (sort === 'comments') {
+      // 댓글순: 댓글 수 > 조회수 > 최신순
+      sortedArticles = articlesWithCommentCount.sort((a, b) => {
+        const aComments = a.comment_count || 0;
+        const bComments = b.comment_count || 0;
+
+        if (aComments !== bComments) return bComments - aComments;
+
+        const aViews = a.view_count || 0;
+        const bViews = b.view_count || 0;
+
+        if (aViews !== bViews) return bViews - aViews;
+
+        return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
+      });
+    } else {
+      // 인기순 (기본값): 썸네일 유무 > 조회수 > 최신순 또는 주간 인기 로직
+      if (category === 'weekly') {
+        // 주간 인기는 조회수 우선
+        sortedArticles = articlesWithCommentCount.sort((a, b) => {
+          const aViews = a.view_count || 0;
+          const bViews = b.view_count || 0;
+
+          if (aViews !== bViews) return bViews - aViews;
+
+          return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
+        });
+      } else {
+        // 다른 카테고리들은 썸네일 유무 > 조회수 > 최신순으로 정렬
+        sortedArticles = articlesWithCommentCount.sort((a, b) => {
+          // 1. 썸네일 유무로 먼저 정렬 (썸네일 있는 것이 우선)
+          const aHasThumbnail = a.thumbnail && a.thumbnail.trim() !== '';
+          const bHasThumbnail = b.thumbnail && b.thumbnail.trim() !== '';
+
+          if (aHasThumbnail && !bHasThumbnail) return -1;
+          if (!aHasThumbnail && bHasThumbnail) return 1;
+
+          // 2. 조회수로 정렬 (높은 것이 우선)
+          const aViews = a.view_count || 0;
+          const bViews = b.view_count || 0;
+
+          if (aViews !== bViews) return bViews - aViews;
+
+          // 3. 날짜로 정렬 (최신이 우선)
+          return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
+        });
+      }
+    }
+
+    // 페이지네이션 적용
+    const paginatedArticles = sortedArticles.slice(offset, offset + limit);
+
     const totalPages = Math.ceil((count || 0) / limit);
 
     return NextResponse.json({
       success: true,
-      articles,
+      articles: paginatedArticles,
       pagination: {
         page,
         limit,
@@ -109,6 +225,8 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1,
       },
       searchValue,
+      sort,
+      maxViewCount, // HOT 뱃지 판단을 위한 최대 조회수 추가
     });
   } catch (error) {
     console.error('아티클 조회 중 오류:', error);

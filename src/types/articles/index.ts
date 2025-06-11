@@ -11,6 +11,7 @@ export interface Article {
   thumbnail: string;
   summary: string;
   view_count?: number;
+  comment_count?: number;
   is_translated?: boolean;
   original_article_id?: string;
   original_language?: string;
