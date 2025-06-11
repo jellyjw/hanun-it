@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, keepPreviousData, QueryFunctionContext, useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye } from 'lucide-react';
+import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye, MessageCircle } from 'lucide-react';
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
@@ -30,6 +30,7 @@ export default function ArticlesPage() {
   const [search, setSearch] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [selectedCategory, setSelectedCategory] = useState('domestic');
+  const [sortBy, setSortBy] = useState('popular');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -53,6 +54,7 @@ export default function ArticlesPage() {
     const params = new URLSearchParams({
       page: page.toString(),
       searchValue: searchValue,
+      sort: sortBy,
     });
 
     // 카테고리 파라미터 추가
@@ -66,7 +68,7 @@ export default function ArticlesPage() {
 
   // TanStack Query를 사용한 페이지네이션
   const { data, isLoading, error, refetch, isPlaceholderData } = useQuery({
-    queryKey: ['articles', page, searchValue, selectedCategory] as const,
+    queryKey: ['articles', page, searchValue, selectedCategory, sortBy] as const,
     queryFn: () => fetchArticles(page),
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
@@ -80,7 +82,7 @@ export default function ArticlesPage() {
         queryFn: () => fetchArticles(page + 1),
       });
     }
-  }, [data, isPlaceholderData, page, queryClient, selectedCategory]);
+  }, [data, isPlaceholderData, page, queryClient, selectedCategory, sortBy]);
 
   const handleRefreshRSS = async () => {
     try {
@@ -113,6 +115,11 @@ export default function ArticlesPage() {
     setPage(1);
   };
 
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+    setPage(1);
+  };
+
   // 검색 처리 함수
   const handleSearch = useCallback(
     (value: string) => {
@@ -130,19 +137,22 @@ export default function ArticlesPage() {
   };
 
   const getCategoryTitle = () => {
+    const sortLabel = SELECT_OPTIONS.sortBy.find((option) => option.value === sortBy)?.label || '인기순';
+
     if (debouncedSearchValue.trim()) {
       return `"${debouncedSearchValue}" 검색 결과`;
     }
-    switch (selectedCategory) {
-      case 'domestic':
-        return '국내 아티클';
-      case 'foreign':
-        return '해외 아티클';
-      case 'weekly':
-        return '주간 인기 아티클';
-      default:
-        return '전체 아티클';
-    }
+
+    const baseTitle =
+      selectedCategory === 'weekly'
+        ? '주간 인기 아티클'
+        : selectedCategory === 'domestic'
+          ? '국내 아티클'
+          : selectedCategory === 'foreign'
+            ? '해외 아티클'
+            : '전체 아티클';
+
+    return `${baseTitle}`;
   };
 
   const preprocessingThumbnail = (article: ArticleResponse['article']) => {
@@ -266,6 +276,7 @@ export default function ArticlesPage() {
                           value={itemsPerPage.toString()}
                           onChange={handleItemsPerPageChange}
                         />
+                        <SelectBox options={SELECT_OPTIONS.sortBy} value={sortBy} onChange={handleSortChange} />
                       </div>
                     </div>
 
@@ -393,6 +404,15 @@ export default function ArticlesPage() {
                             <Eye className="w-3 h-3" />
                             <span>{(article.view_count || 0).toLocaleString()}</span>
                           </div>
+                          {article.comment_count !== undefined && article.comment_count > 0 && (
+                            <>
+                              <span>•</span>
+                              <div className="flex items-center gap-1">
+                                <MessageCircle className="w-3 h-3" />
+                                <span>{article.comment_count.toLocaleString()}</span>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         <CardDescription className="text-xs mb-3 line-clamp-2 min-h-[2rem]">
