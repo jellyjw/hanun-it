@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, keepPreviousData, QueryFunctionContext, useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye } from 'lucide-react';
+import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye, MessageCircle } from 'lucide-react';
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
@@ -30,6 +30,7 @@ export default function ArticlesPage() {
   const [search, setSearch] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [selectedCategory, setSelectedCategory] = useState('domestic');
+  const [sortBy, setSortBy] = useState('popular');
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -48,10 +49,12 @@ export default function ArticlesPage() {
       hasNext: boolean;
       hasPrev: boolean;
     };
+    maxViewCount?: number;
   }> => {
     const params = new URLSearchParams({
       page: page.toString(),
       searchValue: searchValue,
+      sort: sortBy,
     });
 
     // 카테고리 파라미터 추가
@@ -65,7 +68,7 @@ export default function ArticlesPage() {
 
   // TanStack Query를 사용한 페이지네이션
   const { data, isLoading, error, refetch, isPlaceholderData } = useQuery({
-    queryKey: ['articles', page, searchValue, selectedCategory] as const,
+    queryKey: ['articles', page, searchValue, selectedCategory, sortBy] as const,
     queryFn: () => fetchArticles(page),
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
@@ -79,7 +82,7 @@ export default function ArticlesPage() {
         queryFn: () => fetchArticles(page + 1),
       });
     }
-  }, [data, isPlaceholderData, page, queryClient, selectedCategory]);
+  }, [data, isPlaceholderData, page, queryClient, selectedCategory, sortBy]);
 
   const handleRefreshRSS = async () => {
     try {
@@ -112,6 +115,11 @@ export default function ArticlesPage() {
     setPage(1);
   };
 
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+    setPage(1);
+  };
+
   // 검색 처리 함수
   const handleSearch = useCallback(
     (value: string) => {
@@ -129,19 +137,22 @@ export default function ArticlesPage() {
   };
 
   const getCategoryTitle = () => {
+    const sortLabel = SELECT_OPTIONS.sortBy.find((option) => option.value === sortBy)?.label || '인기순';
+
     if (debouncedSearchValue.trim()) {
       return `"${debouncedSearchValue}" 검색 결과`;
     }
-    switch (selectedCategory) {
-      case 'domestic':
-        return '국내 아티클';
-      case 'foreign':
-        return '해외 아티클';
-      case 'weekly':
-        return '주간 인기 아티클';
-      default:
-        return '전체 아티클';
-    }
+
+    const baseTitle =
+      selectedCategory === 'weekly'
+        ? '주간 인기 아티클'
+        : selectedCategory === 'domestic'
+          ? '국내 아티클'
+          : selectedCategory === 'foreign'
+            ? '해외 아티클'
+            : '전체 아티클';
+
+    return `${baseTitle}`;
   };
 
   const preprocessingThumbnail = (article: ArticleResponse['article']) => {
@@ -252,7 +263,7 @@ export default function ArticlesPage() {
                               : selectedCategory === 'weekly'
                                 ? '조회수가 높은 인기 아티클을 확인하세요'
                                 : selectedCategory === 'domestic'
-                                  ? '한국 기업 및 개발자들의 기술 블로그'
+                                  ? '국내 기술 블로그 및 미디어'
                                   : selectedCategory === 'foreign'
                                     ? '해외 기술 블로그 및 미디어'
                                     : '모든 카테고리의 아티클을 한 곳에서'}
@@ -265,6 +276,7 @@ export default function ArticlesPage() {
                           value={itemsPerPage.toString()}
                           onChange={handleItemsPerPageChange}
                         />
+                        <SelectBox options={SELECT_OPTIONS.sortBy} value={sortBy} onChange={handleSortChange} />
                       </div>
                     </div>
 
@@ -349,23 +361,34 @@ export default function ArticlesPage() {
                           />
                         )}
 
-                        {/* 국내/해외 배지 */}
-                        <Badge
-                          className={`absolute top-2 right-2 ${
-                            article.is_domestic ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'
-                          } text-white border-0`}>
-                          {article.is_domestic ? (
-                            <>
-                              <MapPin className="w-3 h-3 mr-1" />
-                              국내
-                            </>
-                          ) : (
-                            <>
-                              <Globe className="w-3 h-3 mr-1" />
-                              해외
-                            </>
+                        {/* 국내/해외 배지와 HOT 배지 */}
+                        <div className="absolute top-2 right-2 flex gap-1">
+                          {/* HOT 뱃지 - 조회수가 최대인 아티클에만 표시 */}
+                          {data?.maxViewCount && article.view_count === data.maxViewCount && article.view_count > 0 && (
+                            <Badge variant="hot" size="sm" showIcon={true}>
+                              HOT
+                            </Badge>
                           )}
-                        </Badge>
+
+                          {/* 국내/해외 배지 */}
+                          <Badge
+                            variant={article.is_domestic ? 'success-medium' : 'info-medium'}
+                            size="sm"
+                            showIcon={false}
+                            className="border-0">
+                            {article.is_domestic ? (
+                              <>
+                                <MapPin className="w-3 h-3 mr-1" />
+                                국내
+                              </>
+                            ) : (
+                              <>
+                                <Globe className="w-3 h-3 mr-1" />
+                                해외
+                              </>
+                            )}
+                          </Badge>
+                        </div>
                       </div>
 
                       {/* 콘텐츠 섹션 */}
@@ -381,6 +404,15 @@ export default function ArticlesPage() {
                             <Eye className="w-3 h-3" />
                             <span>{(article.view_count || 0).toLocaleString()}</span>
                           </div>
+                          {article.comment_count !== undefined && article.comment_count > 0 && (
+                            <>
+                              <span>•</span>
+                              <div className="flex items-center gap-1">
+                                <MessageCircle className="w-3 h-3" />
+                                <span>{article.comment_count.toLocaleString()}</span>
+                              </div>
+                            </>
+                          )}
                         </div>
 
                         <CardDescription className="text-xs mb-3 line-clamp-2 min-h-[2rem]">

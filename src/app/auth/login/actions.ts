@@ -22,7 +22,7 @@ export async function login(formData: FormData) {
     redirect('/error');
   }
 
-  revalidatePath('/', 'layout');
+  revalidatePath('/articles', 'layout');
   redirect('/');
 }
 
@@ -43,7 +43,7 @@ export async function signup(formData: FormData) {
     redirect('/error');
   }
 
-  revalidatePath('/', 'layout');
+  revalidatePath('/articles', 'layout');
   redirect('/');
 }
 
@@ -57,7 +57,7 @@ export async function loginWithCredentials(data: { email: string; password: stri
     return { success: false, error: error.message };
   }
 
-  revalidatePath('/', 'layout');
+  revalidatePath('/articles', 'layout');
   return { success: true };
 }
 
@@ -77,6 +77,6 @@ export async function signupWithCredentials(data: { email: string; password: str
     return { success: false, error: error.message };
   }
 
-  revalidatePath('/', 'layout');
+  revalidatePath('/articles', 'layout');
   return { success: true };
 }

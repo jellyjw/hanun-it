@@ -9,6 +9,7 @@ import CommentSection from '@/components/comments/CommentSection';
 import { marked } from 'marked';
 import { processArticleContent } from '@/utils/markdown';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -169,12 +170,9 @@ export default function ArticleDetailPage() {
         </Button> */}
 
         <div className="flex items-center gap-2 mb-2">
-          <span
-            className={`px-2 py-1 text-xs rounded ${
-              article.is_domestic ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-            }`}>
+          <Badge variant={article.is_domestic ? 'success-medium' : 'info-medium'} showIcon={false} size="sm">
             {article.is_domestic ? '국내' : '해외'}
-          </span>
+          </Badge>
           <span className="text-sm text-gray-500">{article.source_name}</span>
           <span className="text-sm text-gray-500">•</span>
           <span className="text-sm text-gray-500">
