@@ -263,7 +263,7 @@ export default function ArticlesPage() {
                               : selectedCategory === 'weekly'
                                 ? '조회수가 높은 인기 아티클을 확인하세요'
                                 : selectedCategory === 'domestic'
-                                  ? '한국 기업 및 개발자들의 기술 블로그'
+                                  ? '국내 기술 블로그 및 미디어'
                                   : selectedCategory === 'foreign'
                                     ? '해외 기술 블로그 및 미디어'
                                     : '모든 카테고리의 아티클을 한 곳에서'}

@@ -22,6 +22,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/articles',
+        permanent: true, // 301 리디렉션 (SEO에 좋음)
+      },
+    ];
+  },
 };
 
 export default nextConfig;
