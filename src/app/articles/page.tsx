@@ -48,6 +48,7 @@ export default function ArticlesPage() {
       hasNext: boolean;
       hasPrev: boolean;
     };
+    maxViewCount?: number;
   }> => {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -349,23 +350,34 @@ export default function ArticlesPage() {
                           />
                         )}
 
-                        {/* 국내/해외 배지 */}
-                        <Badge
-                          className={`absolute top-2 right-2 ${
-                            article.is_domestic ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'
-                          } text-white border-0`}>
-                          {article.is_domestic ? (
-                            <>
-                              <MapPin className="w-3 h-3 mr-1" />
-                              국내
-                            </>
-                          ) : (
-                            <>
-                              <Globe className="w-3 h-3 mr-1" />
-                              해외
-                            </>
+                        {/* 국내/해외 배지와 HOT 배지 */}
+                        <div className="absolute top-2 right-2 flex gap-1">
+                          {/* HOT 뱃지 - 조회수가 최대인 아티클에만 표시 */}
+                          {data?.maxViewCount && article.view_count === data.maxViewCount && article.view_count > 0 && (
+                            <Badge variant="hot" size="sm" showIcon={true}>
+                              HOT
+                            </Badge>
                           )}
-                        </Badge>
+
+                          {/* 국내/해외 배지 */}
+                          <Badge
+                            variant={article.is_domestic ? 'success-medium' : 'info-medium'}
+                            size="sm"
+                            showIcon={false}
+                            className="border-0">
+                            {article.is_domestic ? (
+                              <>
+                                <MapPin className="w-3 h-3 mr-1" />
+                                국내
+                              </>
+                            ) : (
+                              <>
+                                <Globe className="w-3 h-3 mr-1" />
+                                해외
+                              </>
+                            )}
+                          </Badge>
+                        </div>
                       </div>
 
                       {/* 콘텐츠 섹션 */}
