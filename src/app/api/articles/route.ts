@@ -59,7 +59,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 정렬 기준 설정
     if (category === 'weekly') {
       // 주간 인기: 조회수 내림차순, 그 다음 발행일 내림차순
       dataQuery = dataQuery
