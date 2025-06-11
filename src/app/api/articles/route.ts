@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const isDomestic = searchParams.get('domestic');
     const searchValue = searchParams.get('searchValue');
+    const sort = searchParams.get('sort') || 'popular'; // popular, latest, comments
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
@@ -123,11 +124,49 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
-    // 정렬 로직 - 썸네일이 있고 HOT한 아티클을 우선적으로 표시
+    // 댓글 수 조회 (댓글순 정렬을 위해)
+    let articlesWithCommentCount = articles || [];
+
+    if (sort === 'comments') {
+      // 모든 아티클의 댓글 수를 조회
+      const articleIds = (articles || []).map((article) => article.id);
+
+      if (articleIds.length > 0) {
+        const { data: commentCounts } = await supabase
+          .from('comments')
+          .select('article_id')
+          .in('article_id', articleIds);
+
+        // 댓글 수를 계산하여 아티클에 추가
+        const commentCountMap = new Map();
+        (commentCounts || []).forEach((comment) => {
+          const count = commentCountMap.get(comment.article_id) || 0;
+          commentCountMap.set(comment.article_id, count + 1);
+        });
+
+        articlesWithCommentCount = (articles || []).map((article) => ({
+          ...article,
+          comment_count: commentCountMap.get(article.id) || 0,
+        }));
+      }
+    }
+
+    // 정렬 로직
     let sortedArticles;
-    if (category === 'weekly') {
-      // 주간 인기는 기존 로직 유지 (조회수 우선)
-      sortedArticles = (articles || []).sort((a, b) => {
+
+    if (sort === 'latest') {
+      // 최신순: 발행일 기준
+      sortedArticles = articlesWithCommentCount.sort((a, b) => {
+        return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
+      });
+    } else if (sort === 'comments') {
+      // 댓글순: 댓글 수 > 조회수 > 최신순
+      sortedArticles = articlesWithCommentCount.sort((a, b) => {
+        const aComments = a.comment_count || 0;
+        const bComments = b.comment_count || 0;
+
+        if (aComments !== bComments) return bComments - aComments;
+
         const aViews = a.view_count || 0;
         const bViews = b.view_count || 0;
 
@@ -136,24 +175,37 @@ export async function GET(request: NextRequest) {
         return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
       });
     } else {
-      // 다른 카테고리들은 썸네일 유무 > 조회수 > 최신순으로 정렬
-      sortedArticles = (articles || []).sort((a, b) => {
-        // 1. 썸네일 유무로 먼저 정렬 (썸네일 있는 것이 우선)
-        const aHasThumbnail = a.thumbnail && a.thumbnail.trim() !== '';
-        const bHasThumbnail = b.thumbnail && b.thumbnail.trim() !== '';
+      // 인기순 (기본값): 썸네일 유무 > 조회수 > 최신순 또는 주간 인기 로직
+      if (category === 'weekly') {
+        // 주간 인기는 조회수 우선
+        sortedArticles = articlesWithCommentCount.sort((a, b) => {
+          const aViews = a.view_count || 0;
+          const bViews = b.view_count || 0;
 
-        if (aHasThumbnail && !bHasThumbnail) return -1;
-        if (!aHasThumbnail && bHasThumbnail) return 1;
+          if (aViews !== bViews) return bViews - aViews;
 
-        // 2. 조회수로 정렬 (높은 것이 우선)
-        const aViews = a.view_count || 0;
-        const bViews = b.view_count || 0;
+          return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
+        });
+      } else {
+        // 다른 카테고리들은 썸네일 유무 > 조회수 > 최신순으로 정렬
+        sortedArticles = articlesWithCommentCount.sort((a, b) => {
+          // 1. 썸네일 유무로 먼저 정렬 (썸네일 있는 것이 우선)
+          const aHasThumbnail = a.thumbnail && a.thumbnail.trim() !== '';
+          const bHasThumbnail = b.thumbnail && b.thumbnail.trim() !== '';
 
-        if (aViews !== bViews) return bViews - aViews;
+          if (aHasThumbnail && !bHasThumbnail) return -1;
+          if (!aHasThumbnail && bHasThumbnail) return 1;
 
-        // 3. 날짜로 정렬 (최신이 우선)
-        return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
-      });
+          // 2. 조회수로 정렬 (높은 것이 우선)
+          const aViews = a.view_count || 0;
+          const bViews = b.view_count || 0;
+
+          if (aViews !== bViews) return bViews - aViews;
+
+          // 3. 날짜로 정렬 (최신이 우선)
+          return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
+        });
+      }
     }
 
     // 페이지네이션 적용
@@ -173,6 +225,7 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1,
       },
       searchValue,
+      sort,
       maxViewCount, // HOT 뱃지 판단을 위한 최대 조회수 추가
     });
   } catch (error) {
