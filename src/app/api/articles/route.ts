@@ -60,12 +60,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (category === 'weekly') {
-      // 주간 인기: 조회수 내림차순, 그 다음 발행일 내림차순
       dataQuery = dataQuery
         .order('view_count', { ascending: false, nullsFirst: false })
         .order('pub_date', { ascending: false });
     } else {
-      // 기본: 발행일 내림차순
       dataQuery = dataQuery.order('pub_date', { ascending: false });
     }
 
