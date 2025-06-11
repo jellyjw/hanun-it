@@ -60,7 +60,7 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
       label: '국내 아티클',
       icon: MapPin,
       count: stats?.domestic || 0,
-      description: '한국 기술 블로그 및 미디어',
+      description: '국내 기술 블로그 및 미디어',
       type: 'article' as const,
       badgeText: 'KR',
       badgeVariant: 'default' as const,
