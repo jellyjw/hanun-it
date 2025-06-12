@@ -7,7 +7,7 @@ import { ArrowLeft, ExternalLink, Eye } from 'lucide-react';
 import { ArticleResponse } from '@/types/articles';
 import CommentSection from '@/components/comments/CommentSection';
 import { marked } from 'marked';
-import { processArticleContent } from '@/utils/markdown';
+import { processArticleContent, detectContentType } from '@/utils/markdown';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -81,6 +81,18 @@ export default function ArticleDetailPage() {
 
   const processedContent = useMemo(() => {
     if (!data?.article?.content) return '';
+
+    // 디버깅: 원본 콘텐츠 형태 확인
+    console.log('원본 콘텐츠:', data.article.content.substring(0, 500));
+    console.log('콘텐츠 타입:', detectContentType(data.article.content));
+
+    // 이미 HTML로 저장된 경우 그대로 반환
+    const contentType = detectContentType(data.article.content);
+    if (contentType === 'html') {
+      return data.article.content;
+    }
+
+    // 마크다운인 경우에만 변환
     return processArticleContent(data.article.content);
   }, [data?.article?.content]);
 
@@ -139,12 +151,6 @@ export default function ArticleDetailPage() {
   }
 
   const article = data.article;
-
-  const isMarkdown = checkMarkdown(article.content || '');
-  if (isMarkdown) {
-    const html = marked.parse(article.content || '');
-    article.content = html as string;
-  }
 
   const hasRelativeImages = isImageRelative(article.content || '');
   if (hasRelativeImages) {

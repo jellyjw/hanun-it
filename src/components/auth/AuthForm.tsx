@@ -69,13 +69,6 @@ export default function AuthForm() {
   const onLoginSubmit = (data: LoginFormData) => {
     setError(null);
 
-    // 테스트용 즉시 토스트
-    toast({
-      title: '테스트 토스트',
-      description: '토스트가 정상적으로 작동합니다.',
-      variant: 'success',
-    });
-
     startTransition(async () => {
       try {
         const result = await loginWithCredentials(data);

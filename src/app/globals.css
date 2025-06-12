@@ -210,16 +210,206 @@ body {
   @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 my-4;
 }
 
-.article-content code {
+/* 인라인 코드 스타일 */
+.article-content .inline-code {
   @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono;
 }
 
+/* 코드 블록 스타일 - highlight.js와 함께 사용 */
 .article-content pre {
-  @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto my-4;
+  @apply bg-gray-50 dark:bg-gray-900 rounded-lg overflow-x-auto my-6 border border-gray-200 dark:border-gray-700;
+  padding: 1.5rem;
 }
 
 .article-content pre code {
-  @apply bg-transparent p-0;
+  @apply bg-transparent text-sm leading-relaxed;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+}
+
+/* Highlight.js 테마 - GitHub 스타일 */
+.hljs {
+  display: block;
+  overflow-x: auto;
+  color: #333;
+  background: transparent;
+}
+
+.dark .hljs {
+  color: #c9d1d9;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: #998;
+  font-style: italic;
+}
+
+.dark .hljs-comment,
+.dark .hljs-quote {
+  color: #8b949e;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #333;
+  font-weight: bold;
+}
+
+.dark .hljs-keyword,
+.dark .hljs-selector-tag,
+.dark .hljs-subst {
+  color: #ff7b72;
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr {
+  color: #008080;
+}
+
+.dark .hljs-number,
+.dark .hljs-literal,
+.dark .hljs-variable,
+.dark .hljs-template-variable,
+.dark .hljs-tag .hljs-attr {
+  color: #79c0ff;
+}
+
+.hljs-string,
+.hljs-doctag {
+  color: #d14;
+}
+
+.dark .hljs-string,
+.dark .hljs-doctag {
+  color: #a5d6ff;
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-selector-id {
+  color: #900;
+  font-weight: bold;
+}
+
+.dark .hljs-title,
+.dark .hljs-section,
+.dark .hljs-selector-id {
+  color: #d2a8ff;
+}
+
+.hljs-subst {
+  font-weight: normal;
+}
+
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #458;
+  font-weight: bold;
+}
+
+.dark .hljs-type,
+.dark .hljs-class .hljs-title {
+  color: #ffa657;
+}
+
+.hljs-tag,
+.hljs-name,
+.hljs-attribute {
+  color: #000080;
+  font-weight: normal;
+}
+
+.dark .hljs-tag,
+.dark .hljs-name,
+.dark .hljs-attribute {
+  color: #7ee787;
+}
+
+.hljs-regexp,
+.hljs-link {
+  color: #009926;
+}
+
+.dark .hljs-regexp,
+.dark .hljs-link {
+  color: #a5d6ff;
+}
+
+.hljs-symbol,
+.hljs-bullet {
+  color: #990073;
+}
+
+.dark .hljs-symbol,
+.dark .hljs-bullet {
+  color: #ffa657;
+}
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: #0086b3;
+}
+
+.dark .hljs-built_in,
+.dark .hljs-builtin-name {
+  color: #79c0ff;
+}
+
+.hljs-meta {
+  color: #999;
+  font-weight: bold;
+}
+
+.dark .hljs-meta {
+  color: #8b949e;
+}
+
+.hljs-deletion {
+  background: #fdd;
+}
+
+.dark .hljs-deletion {
+  background: #8b0000;
+}
+
+.hljs-addition {
+  background: #dfd;
+}
+
+.dark .hljs-addition {
+  background: #006400;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+/* 코드 블록 스크롤바 스타일링 */
+.article-content pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.article-content pre::-webkit-scrollbar-track {
+  @apply bg-gray-200 dark:bg-gray-700;
+}
+
+.article-content pre::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 dark:bg-gray-500 rounded;
+}
+
+.article-content pre::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500 dark:bg-gray-400;
 }
 
 .article-content a {
@@ -265,66 +455,6 @@ body {
 .article-content em,
 .article-content i {
   @apply italic;
-}
-
-/* 코드 블럭 스타일 개선 */
-.article-content .code-block-wrapper {
-  @apply my-6 rounded-lg overflow-hidden shadow-sm;
-}
-
-.article-content .code-block {
-  @apply bg-gray-900 text-gray-100 p-4 overflow-x-auto text-sm font-mono leading-relaxed;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
-}
-
-.article-content .code-block code {
-  @apply bg-transparent p-0 text-gray-100;
-}
-
-.article-content .inline-code {
-  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono border;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', monospace;
-}
-
-/* 코드 블럭 스크롤바 스타일링 */
-.article-content .code-block::-webkit-scrollbar {
-  height: 8px;
-}
-
-.article-content .code-block::-webkit-scrollbar-track {
-  @apply bg-gray-800;
-}
-
-.article-content .code-block::-webkit-scrollbar-thumb {
-  @apply bg-gray-600 rounded;
-}
-
-.article-content .code-block::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
-}
-
-/* 다크모드에서 코드 블럭 헤더 */
-.dark .article-content .code-block-header {
-  @apply bg-gray-700 text-gray-300 border-gray-600;
-}
-
-.article-content .code-block-wrapper {
-  @apply my-6 rounded-lg overflow-hidden shadow-sm border border-gray-300 dark:border-gray-600;
-}
-
-.article-content .code-block-wrapper pre {
-  @apply bg-gray-900 dark:bg-gray-800 p-4 overflow-x-auto m-0;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-}
-
-.article-content .code-block-wrapper code {
-  @apply text-gray-100 text-sm leading-relaxed block;
-  font-family: inherit;
-}
-
-.article-content .inline-code {
-  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm border;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
 
 /* 테이블 스타일링 */
@@ -376,26 +506,4 @@ body {
 
 .article-content .table-wrapper::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400 dark:bg-gray-500;
-}
-
-/* 기존 코드 블럭 스타일도 함께
-.article-content .code-block-wrapper {
-  @apply my-6 rounded-lg overflow-hidden shadow-sm border border-gray-300 dark:border-gray-600;
-}
-
-.article-content .code-block-wrapper pre {
-  @apply bg-gray-900 dark:bg-gray-800 p-4 overflow-x-auto m-0;
-  font-family:
-    "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New",
-    monospace;
-}
-
-.article-content .code-block-wrapper code {
-  @apply text-gray-100 text-sm leading-relaxed block;
-  font-family: inherit;
-} */
-
-.article-content .inline-code {
-  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm border;
-  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 }
