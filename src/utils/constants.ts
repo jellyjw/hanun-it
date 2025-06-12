@@ -12,6 +12,12 @@ export const RSS_SOURCES = [
     category: 'tech',
   },
   {
+    name: '우아한형제들 기술블로그',
+    url: 'https://techblog.woowahan.com/author/tech_root/feed/',
+    isDomestic: true,
+    category: 'tech',
+  },
+  {
     name: '직방',
     url: 'https://medium.com/feed/zigbang',
     isDomestic: true,
