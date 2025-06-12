@@ -1,5 +1,4 @@
 export const RSS_SOURCES = [
-  // 국내 개발 블로그 & 테크 미디어
   {
     name: '네이버 D2',
     url: 'https://d2.naver.com/d2.atom',
