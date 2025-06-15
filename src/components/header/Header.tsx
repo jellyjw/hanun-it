@@ -18,13 +18,15 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
         <div className="flex h-16 items-center justify-between">
           {/* 로고 및 브랜드 */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl">
-              <Code2 className="w-6 h-6 text-black dark:text-white" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-xl font-bold text-foreground">한눈IT</h1>
-              <p className="text-xs text-muted-foreground">국내, 해외의 IT 최신 아티클을 한눈에</p>
-            </div>
+            <Link href="/" className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl">
+                <Code2 className="w-6 h-6 text-black dark:text-white" />
+              </div>
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-foreground">한눈IT</h1>
+                <p className="text-xs text-muted-foreground">국내, 해외의 IT 최신 아티클을 한눈에</p>
+              </div>
+            </Link>
           </div>
 
           {/* 네비게이션 */}
