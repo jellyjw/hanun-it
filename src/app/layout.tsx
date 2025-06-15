@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import Providers from './providers';
 import { Toaster } from '@/components/ui/toaster';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
@@ -39,6 +40,7 @@ export default function RootLayout({
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             <main className="flex-1">{children}</main>
+            <Footer />
           </div>
         </Providers>
         <Toaster />

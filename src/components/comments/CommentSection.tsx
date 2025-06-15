@@ -77,7 +77,7 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
             <Textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              placeholder="댓글을 작성해주세요..."
+              placeholder="댓글을 작성해주세요."
               className="min-h-[100px] resize-none"
               disabled={isSubmitting}
             />
