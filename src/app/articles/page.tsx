@@ -271,11 +271,11 @@ export default function ArticlesPage() {
                         </div>
                       </div>
                       <div className="flex gap-2 items-center flex-wrap">
-                        <SelectBox
+                        {/* <SelectBox
                           options={SELECT_OPTIONS.itemsPerPage}
                           value={itemsPerPage.toString()}
                           onChange={handleItemsPerPageChange}
-                        />
+                        /> */}
                         <SelectBox options={SELECT_OPTIONS.sortBy} value={sortBy} onChange={handleSortChange} />
                       </div>
                     </div>
