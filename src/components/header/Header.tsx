@@ -1,6 +1,6 @@
 'use client';
 
-import { RefreshCw, Code2, Zap, User } from 'lucide-react';
+import { RefreshCw, Code2, Zap, User, ImageIcon } from 'lucide-react';
 // import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -8,9 +8,10 @@ import { useAuth } from '@/hooks/useAuth';
 
 interface HeaderProps {
   handleRefreshRSS: () => Promise<void>;
+  handleExtractThumbnails?: () => Promise<void>;
 }
 
-export function Header({ handleRefreshRSS }: HeaderProps) {
+export function Header({ handleRefreshRSS, handleExtractThumbnails }: HeaderProps) {
   const { isAuthenticated, isAdmin, signOut } = useAuth();
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -78,14 +79,27 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
 
             {/* 관리자만 새로고침 버튼 표시 */}
             {isAdmin && (
-              <Button
-                onClick={handleRefreshRSS}
-                variant="outline"
-                size="sm"
-                className="hidden sm:flex items-center space-x-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200">
-                <RefreshCw className="w-4 h-4" />
-                <span>새로고침</span>
-              </Button>
+              <>
+                <Button
+                  onClick={handleRefreshRSS}
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:flex items-center space-x-2 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200">
+                  <RefreshCw className="w-4 h-4" />
+                  <span>새로고침</span>
+                </Button>
+
+                {handleExtractThumbnails && (
+                  <Button
+                    onClick={handleExtractThumbnails}
+                    variant="outline"
+                    size="sm"
+                    className="hidden sm:flex items-center space-x-2 border-orange-200 dark:border-orange-800 hover:bg-orange-50 dark:hover:bg-orange-950 hover:border-orange-300 dark:hover:border-orange-700 transition-all duration-200">
+                    <ImageIcon className="w-4 h-4" />
+                    <span>썸네일</span>
+                  </Button>
+                )}
+              </>
             )}
 
             {/* <ThemeToggle /> */}
@@ -114,12 +128,23 @@ export function Header({ handleRefreshRSS }: HeaderProps) {
 
             {/* 모바일에서도 관리자만 새로고침 버튼 표시 */}
             {isAdmin && (
-              <button
-                onClick={handleRefreshRSS}
-                className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors">
-                <RefreshCw className="w-4 h-4" />
-                <span>새로고침</span>
-              </button>
+              <>
+                <button
+                  onClick={handleRefreshRSS}
+                  className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors">
+                  <RefreshCw className="w-4 h-4" />
+                  <span>새로고침</span>
+                </button>
+
+                {handleExtractThumbnails && (
+                  <button
+                    onClick={handleExtractThumbnails}
+                    className="flex flex-col items-center space-y-1 text-xs font-medium text-foreground/80 hover:text-foreground transition-colors">
+                    <ImageIcon className="w-4 h-4" />
+                    <span>썸네일</span>
+                  </button>
+                )}
+              </>
             )}
             {/* <Link
               href="/trending"

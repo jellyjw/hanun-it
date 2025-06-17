@@ -20,6 +20,7 @@ import Image from 'next/image';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import { useToast } from '@/hooks/use-toast';
 import { Suspense } from 'react';
+import { ArticlesSkeleton } from '@/components/skeleton/ArticlesSkeleton';
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -94,11 +95,43 @@ export default function ArticlesPage() {
           title: `${result.articles}개의 새로운 아티클을 수집했습니다. (썸네일 ${result.thumbnailsExtracted || 0}개 추출)`,
           variant: 'success',
         });
-        // refetch();
+        refetch();
       }
     } catch {
       toast({
         title: 'RSS 수집 중 오류가 발생했습니다.',
+        variant: 'error',
+      });
+    }
+  };
+
+  const handleExtractThumbnails = async () => {
+    try {
+      toast({
+        title: '기존 아티클의 썸네일을 추출하고 있습니다...',
+        variant: 'default',
+      });
+
+      const response = await fetch('/api/articles/extract-thumbnails', {
+        method: 'POST',
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        toast({
+          title: `${result.processed}개 아티클 중 ${result.extracted}개의 썸네일을 추출했습니다.`,
+          variant: 'success',
+        });
+        refetch();
+      } else {
+        toast({
+          title: result.error || '썸네일 추출 중 오류가 발생했습니다.',
+          variant: 'error',
+        });
+      }
+    } catch {
+      toast({
+        title: '썸네일 추출 중 오류가 발생했습니다.',
         variant: 'error',
       });
     }
@@ -166,29 +199,15 @@ export default function ArticlesPage() {
 
   if (isLoading && !isPlaceholderData) {
     return (
-      <Suspense fallback={<div>Loading...</div>}>
-        <div className="min-h-screen bg-background">
-          <Header handleRefreshRSS={handleRefreshRSS} />
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex gap-6">
-              <CategorySidebar
-                selectedCategory={selectedCategory}
-                onCategoryChange={handleCategoryChange}
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-              />
-              <div className="flex-1">
-                <div className="flex items-center justify-center min-h-[400px]">
-                  <div className="flex flex-col items-center space-y-4">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                    <p className="text-muted-foreground">아티클을 불러오는 중...</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Suspense>
+      <ArticlesSkeleton
+        handleRefreshRSS={handleRefreshRSS}
+        handleExtractThumbnails={handleExtractThumbnails}
+        selectedCategory={selectedCategory}
+        handleCategoryChange={handleCategoryChange}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        itemsPerPage={itemsPerPage}
+      />
     );
   }
 
@@ -196,7 +215,7 @@ export default function ArticlesPage() {
     return (
       <Suspense fallback={<div>Loading...</div>}>
         <div className="min-h-screen bg-background">
-          <Header handleRefreshRSS={handleRefreshRSS} />
+          <Header handleRefreshRSS={handleRefreshRSS} handleExtractThumbnails={handleExtractThumbnails} />
           <div className="container mx-auto px-4 py-8">
             <div className="flex gap-6">
               <CategorySidebar
@@ -230,7 +249,7 @@ export default function ArticlesPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div className="min-h-screen bg-background">
-        <Header handleRefreshRSS={handleRefreshRSS} />
+        <Header handleRefreshRSS={handleRefreshRSS} handleExtractThumbnails={handleExtractThumbnails} />
 
         <div className="container mx-auto px-4 py-8">
           <div className="flex gap-6">
@@ -325,6 +344,8 @@ export default function ArticlesPage() {
                             alt={article.title}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                            loading="lazy"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               const parent = target.parentElement;

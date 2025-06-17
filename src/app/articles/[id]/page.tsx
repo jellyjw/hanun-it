@@ -10,6 +10,7 @@ import { marked } from 'marked';
 import { processArticleContent, detectContentType } from '@/utils/markdown';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ArticleSkeleton } from '@/components/skeleton/ArticleSkeleton';
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -119,21 +120,7 @@ export default function ArticleDetailPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto p-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded mb-4"></div>
-          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded mb-8"></div>
-          <div className="space-y-3">
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <ArticleSkeleton />;
   }
 
   if (error || !data?.success) {
