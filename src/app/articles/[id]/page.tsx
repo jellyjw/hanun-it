@@ -82,11 +82,9 @@ export default function ArticleDetailPage() {
   const processedContent = useMemo(() => {
     if (!data?.article?.content) return '';
 
-    // 디버깅: 원본 콘텐츠 형태 확인
     console.log('원본 콘텐츠:', data.article.content.substring(0, 500));
     console.log('콘텐츠 타입:', detectContentType(data.article.content));
 
-    // 이미 HTML로 저장된 경우 그대로 반환
     const contentType = detectContentType(data.article.content);
     if (contentType === 'html') {
       return data.article.content;
