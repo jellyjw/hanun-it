@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Suspense } from 'react';
 import { ArticlesSkeleton } from '@/components/skeleton/ArticlesSkeleton';
 
-export default function ArticlesPage() {
+function ArticlesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -288,44 +288,8 @@ export default function ArticlesPage() {
 
   if (error) {
     return (
-      <Suspense fallback={<div>Loading...</div>}>
-        <div className="min-h-screen bg-background">
-          <Header handleRefreshRSS={handleRefreshRSS} handleExtractThumbnails={handleExtractThumbnails} />
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex gap-6">
-              <CategorySidebar
-                selectedCategory={selectedCategory}
-                onCategoryChange={handleCategoryChange}
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-              />
-              <div className="flex-1">
-                <div className="flex items-center justify-center min-h-[400px]">
-                  <Card className="w-full max-w-md">
-                    <CardHeader className="text-center">
-                      <CardTitle className="text-destructive">오류가 발생했습니다</CardTitle>
-                      <CardDescription>아티클을 불러올 수 없습니다.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <Button onClick={() => refetch()} variant="outline">
-                        다시 시도
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Suspense>
-    );
-  }
-
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
       <div className="min-h-screen bg-background">
         <Header handleRefreshRSS={handleRefreshRSS} handleExtractThumbnails={handleExtractThumbnails} />
-
         <div className="container mx-auto px-4 py-8">
           <div className="flex gap-6">
             <CategorySidebar
@@ -334,106 +298,135 @@ export default function ArticlesPage() {
               isOpen={isSidebarOpen}
               onClose={() => setIsSidebarOpen(false)}
             />
-            <div className="flex-1 space-y-6">
-              {/* 검색 입력 섹션 */}
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap gap-4 items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="md:hidden"
-                          onClick={() => setIsSidebarOpen(true)}>
-                          <Menu className="w-4 h-4" />
-                        </Button>
-                        <div>
-                          <h1 className="text-2xl font-bold text-foreground mb-1">{getCategoryTitle()}</h1>
-                          <p className="text-sm text-muted-foreground">
-                            {debouncedSearchValue.trim()
-                              ? // ? `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' 카테고리에서 ' : ''}검색된 결과입니다`
-                                `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' ' : ''} 검색 결과입니다.`
-                              : selectedCategory === 'weekly'
-                                ? '조회수가 높은 인기 아티클을 확인하세요'
-                                : selectedCategory === 'domestic'
-                                  ? '국내 기술 블로그 및 미디어'
-                                  : selectedCategory === 'foreign'
-                                    ? '해외 기술 블로그 및 미디어'
-                                    : '모든 카테고리의 아티클을 한 곳에서'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex gap-2 items-center flex-wrap">
-                        {/* <SelectBox
-                          options={SELECT_OPTIONS.itemsPerPage}
-                          value={itemsPerPage.toString()}
-                          onChange={handleItemsPerPageChange}
-                        /> */}
-                        <SelectBox options={SELECT_OPTIONS.sortBy} value={sortBy} onChange={handleSortChange} />
+            <div className="flex-1">
+              <div className="flex items-center justify-center min-h-[400px]">
+                <Card className="w-full max-w-md">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-destructive">오류가 발생했습니다</CardTitle>
+                    <CardDescription>아티클을 불러올 수 없습니다.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <Button onClick={() => refetch()} variant="outline">
+                      다시 시도
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header handleRefreshRSS={handleRefreshRSS} handleExtractThumbnails={handleExtractThumbnails} />
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex gap-6">
+          <CategorySidebar
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+          />
+          <div className="flex-1 space-y-6">
+            {/* 검색 입력 섹션 */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-4 items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Button variant="outline" size="sm" className="md:hidden" onClick={() => setIsSidebarOpen(true)}>
+                        <Menu className="w-4 h-4" />
+                      </Button>
+                      <div>
+                        <h1 className="text-2xl font-bold text-foreground mb-1">{getCategoryTitle()}</h1>
+                        <p className="text-sm text-muted-foreground">
+                          {debouncedSearchValue.trim()
+                            ? // ? `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' 카테고리에서 ' : ''}검색된 결과입니다`
+                              `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' ' : ''} 검색 결과입니다.`
+                            : selectedCategory === 'weekly'
+                              ? '조회수가 높은 인기 아티클을 확인하세요'
+                              : selectedCategory === 'domestic'
+                                ? '국내 기술 블로그 및 미디어'
+                                : selectedCategory === 'foreign'
+                                  ? '해외 기술 블로그 및 미디어'
+                                  : '모든 카테고리의 아티클을 한 곳에서'}
+                        </p>
                       </div>
                     </div>
-
-                    {/* 검색 입력 */}
-                    <div className="w-full">
-                      <SearchInput onSearch={handleSearch} isSearching={isSearching} initialValue={searchValue} />
+                    <div className="flex gap-2 items-center flex-wrap">
+                      {/* <SelectBox
+                        options={SELECT_OPTIONS.itemsPerPage}
+                        value={itemsPerPage.toString()}
+                        onChange={handleItemsPerPageChange}
+                      /> */}
+                      <SelectBox options={SELECT_OPTIONS.sortBy} value={sortBy} onChange={handleSortChange} />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
 
-              {data?.pagination && (
-                <div>
-                  <PageInfo
-                    currentPage={data.pagination.page}
-                    totalPages={data.pagination.totalPages}
-                    totalItems={data.pagination.total}
-                    itemsPerPage={data.pagination.limit}
-                  />
+                  {/* 검색 입력 */}
+                  <div className="w-full">
+                    <SearchInput onSearch={handleSearch} isSearching={isSearching} initialValue={searchValue} />
+                  </div>
                 </div>
-              )}
+              </CardContent>
+            </Card>
 
-              {/* 로딩 상태 표시 (placeholderData 사용 시) */}
-              {isPlaceholderData && (
-                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-800 flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  새로운 데이터를 불러오는 중...
-                </div>
-              )}
+            {data?.pagination && (
+              <div>
+                <PageInfo
+                  currentPage={data.pagination.page}
+                  totalPages={data.pagination.totalPages}
+                  totalItems={data.pagination.total}
+                  itemsPerPage={data.pagination.limit}
+                />
+              </div>
+            )}
 
-              {/* 카드형 그리드 레이아웃 */}
-              <div
-                className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${isPlaceholderData ? 'opacity-50' : ''}`}>
-                {data?.articles && data.articles.length > 0 ? (
-                  data.articles.map((article) => (
-                    <Card
-                      key={article.id}
-                      className="group transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 overflow-hidden flex flex-col"
-                      onClick={() => router.push(`/articles/${article.id}`)}>
-                      {/* 썸네일 섹션 */}
-                      <div className="relative aspect-video bg-muted overflow-hidden">
-                        {article.thumbnail ||
-                        (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그') ? (
-                          <Image
-                            src={preprocessingThumbnail(article)}
-                            alt={article.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                            loading="lazy"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              const parent = target.parentElement;
-                              if (parent) {
-                                // 이미지 로드 실패 시 FallbackThumbnail로 교체
-                                const fallbackDiv = document.createElement('div');
-                                fallbackDiv.className = 'w-full h-full';
-                                parent.innerHTML = '';
-                                parent.appendChild(fallbackDiv);
+            {/* 로딩 상태 표시 (placeholderData 사용 시) */}
+            {isPlaceholderData && (
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-800 flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                새로운 데이터를 불러오는 중...
+              </div>
+            )}
 
-                                // React 컴포넌트를 동적으로 렌더링하기 위해
-                                // 여기서는 간단한 HTML로 대체
-                                parent.innerHTML = `
+            {/* 카드형 그리드 레이아웃 */}
+            <div
+              className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${isPlaceholderData ? 'opacity-50' : ''}`}>
+              {data?.articles && data.articles.length > 0 ? (
+                data.articles.map((article) => (
+                  <Card
+                    key={article.id}
+                    className="group transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 overflow-hidden flex flex-col"
+                    onClick={() => router.push(`/articles/${article.id}`)}>
+                    {/* 썸네일 섹션 */}
+                    <div className="relative aspect-video bg-muted overflow-hidden">
+                      {article.thumbnail ||
+                      (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그') ? (
+                        <Image
+                          src={preprocessingThumbnail(article)}
+                          alt={article.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                          loading="lazy"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            const parent = target.parentElement;
+                            if (parent) {
+                              // 이미지 로드 실패 시 FallbackThumbnail로 교체
+                              const fallbackDiv = document.createElement('div');
+                              fallbackDiv.className = 'w-full h-full';
+                              parent.innerHTML = '';
+                              parent.appendChild(fallbackDiv);
+
+                              // React 컴포넌트를 동적으로 렌더링하기 위해
+                              // 여기서는 간단한 HTML로 대체
+                              parent.innerHTML = `
                                 <div class="w-full h-full bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 flex items-center justify-center">
                                   <div class="text-white text-center">
                                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2">
@@ -445,133 +438,140 @@ export default function ArticlesPage() {
                                   </div>
                                 </div>
                               `;
-                              }
-                            }}
-                          />
-                        ) : (
-                          <FallbackThumbnail
-                            title={article.title}
-                            category={undefined}
-                            sourceName={article.source_name}
-                            isDomestic={article.is_domestic}
-                          />
+                            }
+                          }}
+                        />
+                      ) : (
+                        <FallbackThumbnail
+                          title={article.title}
+                          category={undefined}
+                          sourceName={article.source_name}
+                          isDomestic={article.is_domestic}
+                        />
+                      )}
+
+                      {/* 국내/해외 배지와 HOT 배지 */}
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        {/* HOT 뱃지 - 조회수가 최대인 아티클에만 표시 */}
+                        {data?.maxViewCount && article.view_count === data.maxViewCount && article.view_count > 0 && (
+                          <Badge variant="hot" size="sm" showIcon={true}>
+                            HOT
+                          </Badge>
                         )}
 
-                        {/* 국내/해외 배지와 HOT 배지 */}
-                        <div className="absolute top-2 right-2 flex gap-1">
-                          {/* HOT 뱃지 - 조회수가 최대인 아티클에만 표시 */}
-                          {data?.maxViewCount && article.view_count === data.maxViewCount && article.view_count > 0 && (
-                            <Badge variant="hot" size="sm" showIcon={true}>
-                              HOT
-                            </Badge>
-                          )}
-
-                          {/* 국내/해외 배지 */}
-                          <Badge
-                            variant={article.is_domestic ? 'success-medium' : 'info-medium'}
-                            size="sm"
-                            showIcon={false}
-                            className="border-0">
-                            {article.is_domestic ? (
-                              <>
-                                <MapPin className="w-3 h-3 mr-1" />
-                                국내
-                              </>
-                            ) : (
-                              <>
-                                <Globe className="w-3 h-3 mr-1" />
-                                해외
-                              </>
-                            )}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      {/* 콘텐츠 섹션 */}
-                      <CardContent className="p-4 flex-1">
-                        <CardTitle className="text-sm font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight min-h-[2.1875rem]">
-                          {article.title}
-                        </CardTitle>
-
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                          <span className="font-medium text-foreground truncate">{article.source_name}</span>
-                          <span>•</span>
-                          <div className="flex items-center gap-1">
-                            <Eye className="w-3 h-3" />
-                            <span>{(article.view_count || 0).toLocaleString()}</span>
-                          </div>
-                          {article.comment_count !== undefined && article.comment_count > 0 && (
+                        {/* 국내/해외 배지 */}
+                        <Badge
+                          variant={article.is_domestic ? 'success-medium' : 'info-medium'}
+                          size="sm"
+                          showIcon={false}
+                          className="border-0">
+                          {article.is_domestic ? (
                             <>
-                              <span>•</span>
-                              <div className="flex items-center gap-1">
-                                <MessageCircle className="w-3 h-3" />
-                                <span>{article.comment_count.toLocaleString()}</span>
-                              </div>
+                              <MapPin className="w-3 h-3 mr-1" />
+                              국내
+                            </>
+                          ) : (
+                            <>
+                              <Globe className="w-3 h-3 mr-1" />
+                              해외
                             </>
                           )}
-                        </div>
+                        </Badge>
+                      </div>
+                    </div>
 
-                        <CardDescription className="text-xs mb-3 line-clamp-2 min-h-[2rem]">
-                          {article.description}
-                        </CardDescription>
+                    {/* 콘텐츠 섹션 */}
+                    <CardContent className="p-4 flex-1">
+                      <CardTitle className="text-sm font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight min-h-[2.1875rem]">
+                        {article.title}
+                      </CardTitle>
 
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            <span>
-                              {new Date(article.pub_date).toLocaleDateString('ko-KR', {
-                                month: 'short',
-                                day: 'numeric',
-                              })}
-                            </span>
-                          </div>
-                          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                        <span className="font-medium text-foreground truncate">{article.source_name}</span>
+                        <span>•</span>
+                        <div className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          <span>{(article.view_count || 0).toLocaleString()}</span>
                         </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="col-span-full">
-                    <Card className="text-center py-12">
-                      <CardContent>
-                        <div className="flex flex-col items-center space-y-4">
-                          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                            <Globe className="w-8 h-8 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <p className="text-lg font-medium text-muted-foreground mb-2">
-                              {debouncedSearchValue.trim() ? '검색 결과가 없습니다' : '아티클이 없습니다'}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {debouncedSearchValue.trim()
-                                ? '다른 검색어를 시도해보거나 카테고리를 변경해보세요'
-                                : '다른 카테고리를 선택하거나 RSS를 새로고침해보세요'}
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                )}
-              </div>
+                        {article.comment_count !== undefined && article.comment_count > 0 && (
+                          <>
+                            <span>•</span>
+                            <div className="flex items-center gap-1">
+                              <MessageCircle className="w-3 h-3" />
+                              <span>{article.comment_count.toLocaleString()}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
 
-              {data?.pagination && data.pagination.totalPages > 1 && (
-                <div className="flex justify-center">
-                  <PaginationWrapper
-                    totalItems={data.pagination.total}
-                    itemsPerPage={itemsPerPage}
-                    initialPage={page}
-                    onPageChange={handlePageChange}
-                  />
+                      <CardDescription className="text-xs mb-3 line-clamp-2 min-h-[2rem]">
+                        {article.description}
+                      </CardDescription>
+
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          <span>
+                            {new Date(article.pub_date).toLocaleDateString('ko-KR', {
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </span>
+                        </div>
+                        <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-full">
+                  <Card className="text-center py-12">
+                    <CardContent>
+                      <div className="flex flex-col items-center space-y-4">
+                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                          <Globe className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-lg font-medium text-muted-foreground mb-2">
+                            {debouncedSearchValue.trim() ? '검색 결과가 없습니다' : '아티클이 없습니다'}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {debouncedSearchValue.trim()
+                              ? '다른 검색어를 시도해보거나 카테고리를 변경해보세요'
+                              : '다른 카테고리를 선택하거나 RSS를 새로고침해보세요'}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
             </div>
-            {/* <div className="w-64">
-            <WeeklyPopularSidebar />
-          </div> */}
+
+            {data?.pagination && data.pagination.totalPages > 1 && (
+              <div className="flex justify-center">
+                <PaginationWrapper
+                  totalItems={data.pagination.total}
+                  itemsPerPage={itemsPerPage}
+                  initialPage={page}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
           </div>
+          {/* <div className="w-64">
+          <WeeklyPopularSidebar />
+        </div> */}
         </div>
       </div>
+    </div>
+  );
+}
+
+export default function ArticlesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ArticlesPageContent />
     </Suspense>
   );
 }
