@@ -3,6 +3,7 @@ import './globals.css';
 import Providers from './providers';
 import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/Footer';
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata: Metadata = {
   title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
@@ -44,6 +45,7 @@ export default function RootLayout({
           </div>
         </Providers>
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
