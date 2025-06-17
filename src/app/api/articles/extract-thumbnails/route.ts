@@ -4,7 +4,11 @@ import { createClient } from '@/utils/supabase/server';
 // 썸네일 추출 함수
 async function extractThumbnail(url: string): Promise<string | null> {
   try {
-    const response = await fetch('/api/extract-thumbnail', {
+    // 내부 API 호출을 위한 절대 URL 구성
+    const host = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:7007';
+    const apiUrl = `${host}/api/extract-thumbnail`;
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

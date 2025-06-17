@@ -10,12 +10,17 @@ interface SocialLoginProps {
 export default function SocialLogin({ redirectTo = '/articles' }: SocialLoginProps) {
   const supabase = createClient();
   const { toast } = useToast();
+
   const handleSocialLogin = async (provider: 'github' | 'google' | 'kakao') => {
     try {
+      // 환경에 따른 리다이렉트 URL 설정
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+      console.log('baseUrl', baseUrl);
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?redirect=${redirectTo}`,
+          redirectTo: `${baseUrl}/auth/callback?redirect=${redirectTo}`,
         },
       });
 

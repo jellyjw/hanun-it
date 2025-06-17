@@ -26,7 +26,6 @@ export default function ArticleDetailPage() {
     },
   });
 
-  // 조회수 증가 뮤테이션
   const incrementViewMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await fetch(`/api/articles/${id}/view`, {
