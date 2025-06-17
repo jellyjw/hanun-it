@@ -24,19 +24,91 @@ import { ArticlesSkeleton } from '@/components/skeleton/ArticlesSkeleton';
 
 export default function ArticlesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
+  // URL 파라미터에서 초기값 가져오기
+  const initialPage = parseInt(searchParams.get('page') || '1');
+  const initialSearch = searchParams.get('search') || '';
+  const initialCategory = searchParams.get('category') || 'domestic';
+  const initialSort = searchParams.get('sort') || 'popular';
+
+  const [page, setPage] = useState(initialPage);
+  const [search, setSearch] = useState(initialSearch);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const [selectedCategory, setSelectedCategory] = useState('domestic');
-  const [sortBy, setSortBy] = useState('popular');
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [sortBy, setSortBy] = useState(initialSort);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // 검색 훅 사용 - 초기값을 URL에서 가져옴
-  const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } = useSearch(search || '', 800);
+  const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } = useSearch(initialSearch, 800);
+
+  // URL 업데이트 함수
+  const updateURL = useCallback(
+    (newParams: { page?: number; search?: string; category?: string; sort?: string }) => {
+      const params = new URLSearchParams(searchParams);
+
+      if (newParams.page !== undefined) {
+        if (newParams.page === 1) {
+          params.delete('page');
+        } else {
+          params.set('page', newParams.page.toString());
+        }
+      }
+
+      if (newParams.search !== undefined) {
+        if (newParams.search === '') {
+          params.delete('search');
+        } else {
+          params.set('search', newParams.search);
+        }
+      }
+
+      if (newParams.category !== undefined) {
+        if (newParams.category === 'domestic') {
+          params.delete('category');
+        } else {
+          params.set('category', newParams.category);
+        }
+      }
+
+      if (newParams.sort !== undefined) {
+        if (newParams.sort === 'popular') {
+          params.delete('sort');
+        } else {
+          params.set('sort', newParams.sort);
+        }
+      }
+
+      const newURL = params.toString() ? `?${params.toString()}` : '';
+      router.push(`/articles${newURL}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  // URL 파라미터 변경 시 상태 업데이트 (무한 루프 방지)
+  useEffect(() => {
+    const urlPage = parseInt(searchParams.get('page') || '1');
+    const urlSearch = searchParams.get('search') || '';
+    const urlCategory = searchParams.get('category') || 'domestic';
+    const urlSort = searchParams.get('sort') || 'popular';
+
+    if (urlPage !== page) setPage(urlPage);
+    if (urlSearch !== searchValue) updateSearchValue(urlSearch);
+    if (urlCategory !== selectedCategory) setSelectedCategory(urlCategory);
+    if (urlSort !== sortBy) setSortBy(urlSort);
+  }, [searchParams.toString()]);
+
+  // debouncedSearchValue 변경 시 URL 업데이트
+  useEffect(() => {
+    const currentSearchParam = searchParams.get('search') || '';
+    if (debouncedSearchValue !== currentSearchParam) {
+      updateURL({ search: debouncedSearchValue, page: 1 });
+      setPage(1);
+    }
+  }, [debouncedSearchValue]);
 
   const fetchArticles = async (
     page = 0,
@@ -54,7 +126,7 @@ export default function ArticlesPage() {
   }> => {
     const params = new URLSearchParams({
       page: page.toString(),
-      searchValue: searchValue,
+      searchValue: debouncedSearchValue,
       sort: sortBy,
     });
 
@@ -69,7 +141,7 @@ export default function ArticlesPage() {
 
   // TanStack Query를 사용한 페이지네이션
   const { data, isLoading, error, refetch, isPlaceholderData } = useQuery({
-    queryKey: ['articles', page, searchValue, selectedCategory, sortBy] as const,
+    queryKey: ['articles', page, debouncedSearchValue, selectedCategory, sortBy] as const,
     queryFn: () => fetchArticles(page),
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
@@ -138,26 +210,29 @@ export default function ArticlesPage() {
   };
 
   // 페이지 변경 핸들러
-  const handlePageChange = (page: number) => {
-    setPage(page);
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    updateURL({ page: newPage });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     setPage(1);
+    updateURL({ category, page: 1 });
   };
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
     setPage(1);
+    updateURL({ sort: value, page: 1 });
   };
 
   // 검색 처리 함수
   const handleSearch = useCallback(
     (value: string) => {
       updateSearchValue(value);
-      setPage(1);
+      // 페이지는 debouncedSearchValue 변경 시 URL을 통해 업데이트됨
     },
     [updateSearchValue],
   );
