@@ -124,9 +124,9 @@ export default function ArticleDetailPage() {
     return (
       <div className="container mx-auto p-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">오류가 발생했습니다</h1>
-          <p className="text-gray-600 mb-4">아티클을 불러올 수 없습니다.</p>
-          <button onClick={() => router.back()} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          <h1 className="mb-4 text-2xl font-bold text-red-600">오류가 발생했습니다</h1>
+          <p className="mb-4 text-gray-600">아티클을 불러올 수 없습니다.</p>
+          <button onClick={() => router.back()} className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">
             돌아가기
           </button>
         </div>
@@ -146,12 +146,13 @@ export default function ArticleDetailPage() {
   article.content = article.content?.replace(/https:\/\/techblog\.woowa\.in/g, 'https://techblog.woowahan.com');
 
   return (
-    <div className="container mx-auto p-8 max-w-4xl">
+    <div className="container mx-auto max-w-4xl p-8">
       {/* 헤더 */}
       <div className="mb-6">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4">
+          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-800"
+        >
           <ArrowLeft size={20} />
           목록으로 돌아가기
         </button>
@@ -159,7 +160,7 @@ export default function ArticleDetailPage() {
           마크다운 변환
         </Button> */}
 
-        <div className="flex items-center gap-2 mb-2">
+        <div className="mb-2 flex items-center gap-2">
           <Badge variant={article.is_domestic ? 'success-medium' : 'info-medium'} showIcon={false} size="sm">
             {article.is_domestic ? '국내' : '해외'}
           </Badge>
@@ -183,20 +184,21 @@ export default function ArticleDetailPage() {
           )}
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">{article.title}</h1>
+        <h1 className="mb-4 text-3xl font-bold text-gray-900">{article.title}</h1>
 
         {/* 원문 링크 */}
-        <div className="bg-gray-50 border rounded-lg p-4 mb-6">
+        <div className="mb-6 rounded-lg border bg-gray-50 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">원문 출처</p>
+              <p className="mb-1 text-sm text-gray-600">원문 출처</p>
               <p className="font-medium text-gray-900">{article.source_name}</p>
             </div>
             <a
               href={article.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors text-sm">
+              className="flex items-center gap-2 rounded bg-blue-500 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-600"
+            >
               <ExternalLink size={12} />
               원문 보기
             </a>
@@ -205,13 +207,13 @@ export default function ArticleDetailPage() {
       </div>
 
       {/* 아티클 내용 */}
-      <div className="prose prose-lg prose-gray max-w-none dark:prose-invert">
+      <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
         {article.content ? (
           <div className="article-content" dangerouslySetInnerHTML={{ __html: processedContent }} />
         ) : (
-          <div className="text-gray-800 leading-relaxed">
+          <div className="leading-relaxed text-gray-800">
             <p className="mb-4">{article.description}</p>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
               <p className="text-yellow-800">
                 이 아티클의 전체 내용을 확인하시려면{' '}
                 <a href={article.link} className="text-blue-600" target="_blank" rel="noopener noreferrer">
@@ -227,8 +229,8 @@ export default function ArticleDetailPage() {
       <CommentSection articleId={articleId} />
 
       {/* 하단 액션 */}
-      <div className="mt-8 pt-6 border-t border-gray-200">
-        <div className="flex justify-between items-center">
+      <div className="mt-8 border-t border-gray-200 pt-6">
+        <div className="flex items-center justify-between">
           <button onClick={() => router.back()} className="text-gray-600 hover:text-gray-800">
             ← 목록으로 돌아가기
           </button>
@@ -236,7 +238,8 @@ export default function ArticleDetailPage() {
             href={article.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800">
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+          >
             원문에서 계속 읽기
             <ExternalLink size={16} />
           </a>

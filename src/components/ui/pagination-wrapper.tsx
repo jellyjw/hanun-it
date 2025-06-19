@@ -77,7 +77,8 @@ export const PaginationControls: React.FC<PaginationControlsProps> = ({
                 onClick={() => goToPage(page)}
                 isActive={currentPage === page}
                 size={size}
-                className="cursor-pointer">
+                className="cursor-pointer"
+              >
                 {page}
               </PaginationLink>
             )}
@@ -159,7 +160,7 @@ export const PaginationInfo: React.FC<PaginationInfoProps> = ({
   const displayEnd = Math.min(endIndex + 1, totalItems);
 
   return (
-    <div className={cn('text-sm text-muted-foreground', className)}>
+    <div className={cn('text-muted-foreground text-sm', className)}>
       {totalItems > 0 ? (
         <>
           총 {totalItems.toLocaleString()}개 중 {displayStart.toLocaleString()}-{displayEnd.toLocaleString()}개 표시

@@ -116,32 +116,35 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
 
     return (
       <Card
-        className={`group cursor-pointer transition-all duration-300 hover:shadow-md hover:-translate-y-[2px] overflow-hidden border ${
+        className={`group cursor-pointer overflow-hidden border transition-all duration-300 hover:-translate-y-[2px] hover:shadow-md ${
           isSelected
-            ? 'bg-gray-50 border-gray-300 shadow-sm'
-            : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50/50'
+            ? 'border-gray-300 bg-gray-50 shadow-sm'
+            : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50'
         }`}
-        onClick={() => handleCategoryClick(category.id, category.type)}>
+        onClick={() => handleCategoryClick(category.id, category.type)}
+      >
         <CardContent className="px-3 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div
-                className={`p-2 rounded-lg transition-all duration-300 ${
+                className={`rounded-lg p-2 transition-all duration-300 ${
                   isSelected
-                    ? 'bg-blue-100 border border-blue-200'
-                    : 'bg-gray-100 group-hover:bg-blue-50 border border-gray-200 group-hover:border-blue-200'
-                }`}>
+                    ? 'border border-blue-200 bg-blue-100'
+                    : 'border border-gray-200 bg-gray-100 group-hover:border-blue-200 group-hover:bg-blue-50'
+                }`}
+              >
                 <Icon
-                  className={`w-4 h-4 transition-colors duration-300 ${
+                  className={`h-4 w-4 transition-colors duration-300 ${
                     isSelected ? 'text-blue-600' : 'text-gray-600 group-hover:text-blue-500'
                   }`}
                 />
               </div>
               <div className="flex flex-col">
                 <h3
-                  className={`font-medium text-sm transition-colors duration-300 ${
+                  className={`text-sm font-medium transition-colors duration-300 ${
                     isSelected ? 'text-gray-900' : 'text-gray-700 group-hover:text-gray-900'
-                  }`}>
+                  }`}
+                >
                   {category.label}
                 </h3>
                 <span className="text-xs text-gray-500">{category.description}</span>
@@ -169,7 +172,7 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
 
   const CategorySection = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="space-y-3">
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide px-2">{title}</h2>
+      <h2 className="px-2 text-sm font-semibold uppercase tracking-wide text-gray-500">{title}</h2>
       <div className="space-y-2">{children}</div>
     </div>
   );
@@ -177,21 +180,17 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
   return (
     <>
       {/* 모바일 오버레이 */}
-      {isOpen && onClose && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={onClose} />}
+      {isOpen && onClose && <div className="fixed inset-0 z-40 bg-black/50 md:hidden" onClick={onClose} />}
 
       {/* 사이드바 */}
       <div
-        className={`
-        fixed flex flex-col gap-6 md:static top-0 left-0 h-full md:h-auto w-64 bg-white z-50 md:z-auto
-        transform transition-transform duration-300 ease-in-out md:transform-none
-        ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        p-4 overflow-y-auto border-r border-gray-200
-      `}>
+        className={`fixed left-0 top-0 z-50 flex h-full w-64 transform flex-col gap-6 bg-white transition-transform duration-300 ease-in-out md:static md:z-auto md:h-auto md:transform-none ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} overflow-y-auto border-r border-gray-200 p-4`}
+      >
         {/* 모바일 닫기 버튼 */}
         {onClose && (
-          <div className="flex justify-end md:hidden mb-4">
+          <div className="mb-4 flex justify-end md:hidden">
             <Button variant="ghost" size="sm" onClick={onClose} className="p-2">
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         )}

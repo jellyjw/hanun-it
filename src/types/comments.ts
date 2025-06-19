@@ -1,4 +1,4 @@
-import { Pagination } from "./articles";
+import { Pagination } from './articles';
 
 export interface Comment {
   id: string;

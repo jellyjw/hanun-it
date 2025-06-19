@@ -15,7 +15,7 @@ const ToastViewport = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Viewport
     ref={ref}
-    className={cn('fixed top-4 right-4 z-[100] flex max-h-screen w-full flex-col gap-2 md:max-w-[420px]', className)}
+    className={cn('fixed right-4 top-4 z-[100] flex max-h-screen w-full flex-col gap-2 md:max-w-[420px]', className)}
     {...props}
   />
 ));
@@ -55,7 +55,7 @@ const ToastAction = React.forwardRef<
   <ToastPrimitives.Action
     ref={ref}
     className={cn(
-      'inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50',
+      'hover:bg-secondary focus:ring-ring inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors focus:outline-none focus:ring-1 disabled:pointer-events-none disabled:opacity-50',
       className,
     )}
     {...props}
@@ -74,7 +74,8 @@ const ToastClose = React.forwardRef<
       className,
     )}
     toast-close=""
-    {...props}>
+    {...props}
+  >
     <X className="h-4 w-4" />
   </ToastPrimitives.Close>
 ));

@@ -197,25 +197,25 @@ export default function FallbackThumbnail({
 
   return (
     <div
-      className={`relative w-full h-full bg-gradient-to-br ${style.gradient} flex flex-col items-center justify-center p-4 ${className}`}
+      className={`relative h-full w-full bg-gradient-to-br ${style.gradient} flex flex-col items-center justify-center p-4 ${className}`}
     >
       {/* 배경 패턴 */}
       <div className="absolute inset-0 opacity-10">
-        <div className="w-full h-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.3),transparent_50%)]" />
+        <div className="h-full w-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.3),transparent_50%)]" />
       </div>
 
       {/* 아이콘 */}
-      <Icon className="w-8 h-8 mb-2 text-white/80" />
+      <Icon className="mb-2 h-8 w-8 text-white/80" />
 
       {/* 키워드 텍스트 */}
       <div className={`text-center ${style.textColor}`}>
-        <div className="text-lg font-bold tracking-tight leading-tight">{keyword}</div>
-        {isDomestic && <div className="text-xs opacity-75 mt-1">🇰🇷 국내</div>}
-        {!isDomestic && <div className="text-xs opacity-75 mt-1">🌍 해외</div>}
+        <div className="text-lg font-bold leading-tight tracking-tight">{keyword}</div>
+        {isDomestic && <div className="mt-1 text-xs opacity-75">🇰🇷 국내</div>}
+        {!isDomestic && <div className="mt-1 text-xs opacity-75">🌍 해외</div>}
       </div>
 
       {/* 소스명 */}
-      <div className="absolute bottom-2 left-2 text-xs text-white/60 truncate max-w-[80%]">{sourceName}</div>
+      <div className="absolute bottom-2 left-2 max-w-[80%] truncate text-xs text-white/60">{sourceName}</div>
     </div>
   );
 }

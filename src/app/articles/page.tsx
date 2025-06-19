@@ -45,6 +45,8 @@ function ArticlesPageContent() {
   // 검색 훅 사용 - 초기값을 URL에서 가져옴
   const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } = useSearch(initialSearch, 800);
 
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+
   // URL 업데이트 함수
   const updateURL = useCallback(
     (newParams: { page?: number; search?: string; category?: string; sort?: string }) => {
@@ -299,7 +301,7 @@ function ArticlesPageContent() {
               onClose={() => setIsSidebarOpen(false)}
             />
             <div className="flex-1">
-              <div className="flex items-center justify-center min-h-[400px]">
+              <div className="flex min-h-[400px] items-center justify-center">
                 <Card className="w-full max-w-md">
                   <CardHeader className="text-center">
                     <CardTitle className="text-destructive">오류가 발생했습니다</CardTitle>
@@ -336,14 +338,14 @@ function ArticlesPageContent() {
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-4">
-                  <div className="flex flex-wrap gap-4 items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <Button variant="outline" size="sm" className="md:hidden" onClick={() => setIsSidebarOpen(true)}>
-                        <Menu className="w-4 h-4" />
+                        <Menu className="h-4 w-4" />
                       </Button>
                       <div>
-                        <h1 className="text-2xl font-bold text-foreground mb-1">{getCategoryTitle()}</h1>
-                        <p className="text-sm text-muted-foreground">
+                        <h1 className="mb-1 text-2xl font-bold text-foreground">{getCategoryTitle()}</h1>
+                        <p className="text-muted-foreground text-sm">
                           {debouncedSearchValue.trim()
                             ? // ? `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' 카테고리에서 ' : ''}검색된 결과입니다`
                               `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' ' : ''} 검색 결과입니다.`
@@ -357,7 +359,7 @@ function ArticlesPageContent() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-2 items-center flex-wrap">
+                    <div className="flex flex-wrap items-center gap-2">
                       {/* <SelectBox
                         options={SELECT_OPTIONS.itemsPerPage}
                         value={itemsPerPage.toString()}
@@ -388,57 +390,35 @@ function ArticlesPageContent() {
 
             {/* 로딩 상태 표시 (placeholderData 사용 시) */}
             {isPlaceholderData && (
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-800 flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+                <Loader2 className="h-4 w-4 animate-spin" />
                 새로운 데이터를 불러오는 중...
               </div>
             )}
 
             {/* 카드형 그리드 레이아웃 */}
             <div
-              className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${isPlaceholderData ? 'opacity-50' : ''}`}>
+              className={`grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${isPlaceholderData ? 'opacity-50' : ''}`}>
               {data?.articles && data.articles.length > 0 ? (
                 data.articles.map((article) => (
                   <Card
                     key={article.id}
-                    className="group transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 overflow-hidden flex flex-col"
+                    className="group flex cursor-pointer flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                     onClick={() => router.push(`/articles/${article.id}`)}>
                     {/* 썸네일 섹션 */}
-                    <div className="relative aspect-video bg-muted overflow-hidden">
-                      {article.thumbnail ||
-                      (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그') ? (
+                    <div className="bg-muted relative aspect-video overflow-hidden">
+                      {(article.thumbnail ||
+                        (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그')) &&
+                      !failedImages.has(article.id) ? (
                         <Image
                           src={preprocessingThumbnail(article)}
                           alt={article.title}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                           loading="lazy"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            const parent = target.parentElement;
-                            if (parent) {
-                              // 이미지 로드 실패 시 FallbackThumbnail로 교체
-                              const fallbackDiv = document.createElement('div');
-                              fallbackDiv.className = 'w-full h-full';
-                              parent.innerHTML = '';
-                              parent.appendChild(fallbackDiv);
-
-                              // React 컴포넌트를 동적으로 렌더링하기 위해
-                              // 여기서는 간단한 HTML로 대체
-                              parent.innerHTML = `
-                                <div class="w-full h-full bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 flex items-center justify-center">
-                                  <div class="text-white text-center">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2">
-                                      <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-                                      <circle cx="9" cy="9" r="2"/>
-                                      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-                                    </svg>
-                                    <div class="text-sm font-semibold">${article.source_name}</div>
-                                  </div>
-                                </div>
-                              `;
-                            }
+                          onError={() => {
+                            setFailedImages((prev) => new Set(prev).add(article.id));
                           }}
                         />
                       ) : (
@@ -451,7 +431,7 @@ function ArticlesPageContent() {
                       )}
 
                       {/* 국내/해외 배지와 HOT 배지 */}
-                      <div className="absolute top-2 right-2 flex gap-1">
+                      <div className="absolute right-2 top-2 flex gap-1">
                         {/* HOT 뱃지 - 조회수가 최대인 아티클에만 표시 */}
                         {data?.maxViewCount && article.view_count === data.maxViewCount && article.view_count > 0 && (
                           <Badge variant="hot" size="sm" showIcon={true}>
@@ -467,12 +447,12 @@ function ArticlesPageContent() {
                           className="border-0">
                           {article.is_domestic ? (
                             <>
-                              <MapPin className="w-3 h-3 mr-1" />
+                              <MapPin className="mr-1 h-3 w-3" />
                               국내
                             </>
                           ) : (
                             <>
-                              <Globe className="w-3 h-3 mr-1" />
+                              <Globe className="mr-1 h-3 w-3" />
                               해외
                             </>
                           )}
@@ -481,36 +461,36 @@ function ArticlesPageContent() {
                     </div>
 
                     {/* 콘텐츠 섹션 */}
-                    <CardContent className="p-4 flex-1">
-                      <CardTitle className="text-sm font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight min-h-[2.1875rem]">
+                    <CardContent className="flex-1 p-4">
+                      <CardTitle className="group-hover:text-primary mb-2 line-clamp-2 min-h-[2.1875rem] text-sm font-semibold leading-tight transition-colors">
                         {article.title}
                       </CardTitle>
 
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                        <span className="font-medium text-foreground truncate">{article.source_name}</span>
+                      <div className="text-muted-foreground mb-2 flex items-center gap-2 text-xs">
+                        <span className="truncate font-medium text-foreground">{article.source_name}</span>
                         <span>•</span>
                         <div className="flex items-center gap-1">
-                          <Eye className="w-3 h-3" />
+                          <Eye className="h-3 w-3" />
                           <span>{(article.view_count || 0).toLocaleString()}</span>
                         </div>
                         {article.comment_count !== undefined && article.comment_count > 0 && (
                           <>
                             <span>•</span>
                             <div className="flex items-center gap-1">
-                              <MessageCircle className="w-3 h-3" />
+                              <MessageCircle className="h-3 w-3" />
                               <span>{article.comment_count.toLocaleString()}</span>
                             </div>
                           </>
                         )}
                       </div>
 
-                      <CardDescription className="text-xs mb-3 line-clamp-2 min-h-[2rem]">
+                      <CardDescription className="mb-3 line-clamp-2 min-h-[2rem] text-xs">
                         {article.description}
                       </CardDescription>
 
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="text-muted-foreground flex items-center justify-between text-xs">
                         <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
+                          <Calendar className="h-3 w-3" />
                           <span>
                             {new Date(article.pub_date).toLocaleDateString('ko-KR', {
                               month: 'short',
@@ -518,24 +498,24 @@ function ArticlesPageContent() {
                             })}
                           </span>
                         </div>
-                        <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                       </div>
                     </CardContent>
                   </Card>
                 ))
               ) : (
                 <div className="col-span-full">
-                  <Card className="text-center py-12">
+                  <Card className="py-12 text-center">
                     <CardContent>
                       <div className="flex flex-col items-center space-y-4">
-                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                          <Globe className="w-8 h-8 text-muted-foreground" />
+                        <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-full">
+                          <Globe className="text-muted-foreground h-8 w-8" />
                         </div>
                         <div>
-                          <p className="text-lg font-medium text-muted-foreground mb-2">
+                          <p className="text-muted-foreground mb-2 text-lg font-medium">
                             {debouncedSearchValue.trim() ? '검색 결과가 없습니다' : '아티클이 없습니다'}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             {debouncedSearchValue.trim()
                               ? '다른 검색어를 시도해보거나 카테고리를 변경해보세요'
                               : '다른 카테고리를 선택하거나 RSS를 새로고침해보세요'}
