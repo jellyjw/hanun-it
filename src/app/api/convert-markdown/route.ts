@@ -1,7 +1,7 @@
 // src/app/api/articles/convert-markdown/route.ts
-import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
-import { detectContentType, processArticleContent } from "@/utils/markdown";
+import { NextResponse } from 'next/server';
+import { createClient } from '@/utils/supabase/server';
+import { detectContentType, processArticleContent } from '@/utils/markdown';
 
 export async function POST() {
   try {
@@ -9,9 +9,9 @@ export async function POST() {
 
     // 모든 아티클 조회 (배치로 처리)
     const { data: articles, error } = await supabase
-      .from("articles")
-      .select("id, content, title")
-      .not("content", "is", null)
+      .from('articles')
+      .select('id, content, title')
+      .not('content', 'is', null)
       .limit(100); // 한 번에 100개씩 처리
 
     if (error) throw error;
@@ -23,14 +23,14 @@ export async function POST() {
       try {
         const contentType = detectContentType(article.content);
 
-        if (contentType === "markdown") {
+        if (contentType === 'markdown') {
           console.log(`마크다운 변환 중: ${article.title}`);
           const convertedContent = processArticleContent(article.content);
 
           const { error: updateError } = await supabase
-            .from("articles")
+            .from('articles')
             .update({ content: convertedContent })
-            .eq("id", article.id);
+            .eq('id', article.id);
 
           if (!updateError) {
             convertedCount++;
@@ -57,10 +57,7 @@ export async function POST() {
       total: articles?.length || 0,
     });
   } catch (error) {
-    console.error("마크다운 변환 중 오류:", error);
-    return NextResponse.json(
-      { success: false, error: "마크다운 변환 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    console.error('마크다운 변환 중 오류:', error);
+    return NextResponse.json({ success: false, error: '마크다운 변환 중 오류가 발생했습니다.' }, { status: 500 });
   }
 }

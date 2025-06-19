@@ -115,7 +115,8 @@ export default function AccountForm({ user }: { user: User | null }) {
         <button
           className="button primary block"
           onClick={() => updateProfile({ fullname, username, website, avatar_url })}
-          disabled={loading}>
+          disabled={loading}
+        >
           {loading ? 'Loading ...' : 'Update'}
         </button>
       </div>
