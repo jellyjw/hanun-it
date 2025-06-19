@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Globe, MapPin, TrendingUp, FileText, X, Youtube, LucideIcon } from 'lucide-react';
+import { Globe, MapPin, TrendingUp, FileText, X, Youtube, LucideIcon, Newspaper } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -76,6 +76,16 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
       badgeVariant: 'outline' as const,
     },
     {
+      id: 'it-news',
+      label: 'IT 뉴스',
+      icon: Newspaper,
+      count: 0, // TODO: Add API to get IT news count
+      description: '최신 IT 뉴스 및 동향',
+      type: 'article' as const,
+      badgeText: 'News',
+      badgeVariant: 'default' as const,
+    },
+    {
       id: 'weekly',
       label: '주간 인기',
       icon: TrendingUp,
@@ -121,8 +131,7 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
             ? 'border-gray-300 bg-gray-50 shadow-sm'
             : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50'
         }`}
-        onClick={() => handleCategoryClick(category.id, category.type)}
-      >
+        onClick={() => handleCategoryClick(category.id, category.type)}>
         <CardContent className="px-3 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -131,8 +140,7 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
                   isSelected
                     ? 'border border-blue-200 bg-blue-100'
                     : 'border border-gray-200 bg-gray-100 group-hover:border-blue-200 group-hover:bg-blue-50'
-                }`}
-              >
+                }`}>
                 <Icon
                   className={`h-4 w-4 transition-colors duration-300 ${
                     isSelected ? 'text-blue-600' : 'text-gray-600 group-hover:text-blue-500'
@@ -143,8 +151,7 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
                 <h3
                   className={`text-sm font-medium transition-colors duration-300 ${
                     isSelected ? 'text-gray-900' : 'text-gray-700 group-hover:text-gray-900'
-                  }`}
-                >
+                  }`}>
                   {category.label}
                 </h3>
                 <span className="text-xs text-gray-500">{category.description}</span>
@@ -184,8 +191,7 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
 
       {/* 사이드바 */}
       <div
-        className={`fixed left-0 top-0 z-50 flex h-full w-64 transform flex-col gap-6 bg-white transition-transform duration-300 ease-in-out md:static md:z-auto md:h-auto md:transform-none ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} overflow-y-auto border-r border-gray-200 p-4`}
-      >
+        className={`fixed left-0 top-0 z-50 flex h-full w-64 transform flex-col gap-6 bg-white transition-transform duration-300 ease-in-out md:static md:z-auto md:h-auto md:transform-none ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} overflow-y-auto border-r border-gray-200 p-4`}>
         {/* 모바일 닫기 버튼 */}
         {onClose && (
           <div className="mb-4 flex justify-end md:hidden">
