@@ -5,6 +5,7 @@ import { RefreshCw, Code2, Zap, User, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import Image from 'next/image';
 
 interface HeaderProps {
   handleRefreshRSS: () => Promise<void>;
@@ -20,9 +21,10 @@ export function Header({ handleRefreshRSS, handleExtractThumbnails }: HeaderProp
           {/* 로고 및 브랜드 */}
           <div className="flex items-center space-x-3">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl">
+              {/* <div className="flex items-center justify-center w-10 h-10 rounded-xl">
                 <Code2 className="w-6 h-6 text-black dark:text-white" />
-              </div>
+              </div> */}
+              <Image src="/logo/code.png" alt="한눈IT" width={40} height={40} />
               <div className="flex flex-col">
                 <h1 className="text-xl font-bold text-foreground">한눈IT</h1>
                 <p className="text-xs text-muted-foreground">국내, 해외의 IT 최신 아티클을 한눈에</p>
