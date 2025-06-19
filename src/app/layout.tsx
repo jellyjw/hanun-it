@@ -4,6 +4,9 @@ import Providers from './providers';
 import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/Footer';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { StagewiseToolbar } from '@stagewise/toolbar-next';
+import { ReactPlugin } from '@stagewise-plugins/react';
 
 export const metadata: Metadata = {
   title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
@@ -46,6 +49,12 @@ export default function RootLayout({
         </Providers>
         <Toaster />
         <Analytics />
+        <StagewiseToolbar
+          config={{
+            plugins: [ReactPlugin],
+          }}
+        />
+        <SpeedInsights />
       </body>
     </html>
   );
