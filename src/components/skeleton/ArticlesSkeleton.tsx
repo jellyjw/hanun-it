@@ -80,6 +80,7 @@ const SkeletonGrid = ({ count = 12 }: { count?: number }) => (
 interface ArticlesSkeletonProps {
   handleRefreshRSS: () => Promise<void>;
   handleExtractThumbnails: () => Promise<void>;
+  handleRefreshITNews: () => Promise<void>;
   selectedCategory: string;
   handleCategoryChange: (category: string) => void;
   isSidebarOpen: boolean;
@@ -90,6 +91,7 @@ interface ArticlesSkeletonProps {
 export const ArticlesSkeleton = ({
   handleRefreshRSS,
   handleExtractThumbnails,
+  handleRefreshITNews,
   selectedCategory,
   handleCategoryChange,
   isSidebarOpen,
@@ -99,7 +101,11 @@ export const ArticlesSkeleton = ({
   return (
     <Suspense fallback={<SkeletonSearch />}>
       <div className="min-h-screen bg-background">
-        <Header handleRefreshRSS={handleRefreshRSS} handleExtractThumbnails={handleExtractThumbnails} />
+        <Header
+          handleRefreshRSS={handleRefreshRSS}
+          handleExtractThumbnails={handleExtractThumbnails}
+          handleRefreshITNews={handleRefreshITNews}
+        />
         <div className="container mx-auto px-4 py-8">
           <div className="flex gap-6">
             <CategorySidebar

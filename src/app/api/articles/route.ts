@@ -38,6 +38,10 @@ export async function GET(request: NextRequest) {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         maxViewCountQuery = maxViewCountQuery.gte('pub_date', sevenDaysAgo.toISOString());
+      } else if (category === 'it-news') {
+        // IT 뉴스의 경우 it_news 테이블에서 조회하므로 별도 처리
+        const response = await fetch(`${request.url.replace('/api/articles', '/api/it-news')}`);
+        return response;
       } else {
         maxViewCountQuery = maxViewCountQuery.eq('category', category);
       }
@@ -71,6 +75,9 @@ export async function GET(request: NextRequest) {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         countQuery = countQuery.gte('pub_date', sevenDaysAgo.toISOString());
+      } else if (category === 'it-news') {
+        // IT 뉴스는 이미 위에서 처리됨
+        return NextResponse.json({ success: false, error: 'IT 뉴스는 별도 API에서 처리됩니다.' }, { status: 400 });
       } else {
         countQuery = countQuery.eq('category', category);
       }
@@ -107,6 +114,9 @@ export async function GET(request: NextRequest) {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         dataQuery = dataQuery.gte('pub_date', sevenDaysAgo.toISOString());
+      } else if (category === 'it-news') {
+        // IT 뉴스는 이미 위에서 처리됨
+        return NextResponse.json({ success: false, error: 'IT 뉴스는 별도 API에서 처리됩니다.' }, { status: 400 });
       } else {
         dataQuery = dataQuery.eq('category', category);
       }
