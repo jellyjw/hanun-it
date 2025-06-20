@@ -63,7 +63,7 @@ export function Header({ handleRefreshRSS, handleExtractThumbnails, handleRefres
 
           {/* 액션 버튼들 */}
           <div className="flex items-center space-x-3">
-            {!isAuthenticated ? (
+            {/* {!isAuthenticated ? (
               <Link href="/auth/login">
                 <Button
                   variant="outline"
@@ -78,7 +78,7 @@ export function Header({ handleRefreshRSS, handleExtractThumbnails, handleRefres
                 <User className="h-4 w-4" />
                 <span>로그아웃</span>
               </Button>
-            )}
+            )} */}
 
             {/* 관리자만 새로고침 버튼 표시 */}
             {isAdmin && (
