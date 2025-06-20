@@ -96,16 +96,16 @@ export default function VideosPage() {
               onClose={() => setIsSidebarOpen(false)}
             />
             <div className="flex-1">
-              <div className="flex items-center justify-center min-h-[500px]">
+              <div className="flex min-h-[500px] items-center justify-center">
                 <div className="flex flex-col items-center space-y-6">
                   <div className="relative">
-                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center">
-                      <Loader2 className="w-8 h-8 animate-spin text-white" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-red-500 to-orange-500">
+                      <Loader2 className="h-8 w-8 animate-spin text-white" />
                     </div>
-                    <div className="absolute -inset-1 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl blur opacity-25"></div>
+                    <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-red-500 to-orange-500 opacity-25 blur"></div>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <p className="mb-2 text-lg font-medium text-slate-700 dark:text-slate-300">
                       YouTube 영상을 불러오는 중입니다
                     </p>
                     <p className="text-sm text-slate-500 dark:text-slate-400">잠시만 기다려주세요...</p>
@@ -132,21 +132,21 @@ export default function VideosPage() {
               onClose={() => setIsSidebarOpen(false)}
             />
             <div className="flex-1">
-              <div className="flex items-center justify-center min-h-[500px]">
-                <Card className="w-full max-w-md border-0 shadow-xl bg-white/80 backdrop-blur-sm">
-                  <CardHeader className="text-center pb-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Youtube className="w-8 h-8 text-white" />
+              <div className="flex min-h-[500px] items-center justify-center">
+                <Card className="w-full max-w-md border-0 bg-white/80 shadow-xl backdrop-blur-sm">
+                  <CardHeader className="pb-4 text-center">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-red-500 to-orange-500">
+                      <Youtube className="h-8 w-8 text-white" />
                     </div>
                     <CardTitle className="text-xl font-bold text-slate-800">문제가 발생했습니다</CardTitle>
                     <CardDescription className="text-slate-600">
                       YouTube 영상을 불러올 수 없습니다. API 키를 확인해주세요.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="text-center pt-0">
+                  <CardContent className="pt-0 text-center">
                     <Button
                       onClick={() => refetch()}
-                      className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                      className="border-0 bg-gradient-to-r from-red-500 to-orange-500 shadow-lg transition-all duration-300 hover:from-red-600 hover:to-orange-600 hover:shadow-xl">
                       다시 시도
                     </Button>
                   </CardContent>
@@ -177,14 +177,14 @@ export default function VideosPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-4">
-                  <div className="flex flex-wrap gap-4 items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <Button variant="outline" size="sm" className="md:hidden" onClick={() => setIsSidebarOpen(true)}>
-                        <Menu className="w-4 h-4" />
+                        <Menu className="h-4 w-4" />
                       </Button>
                       <div>
-                        <h1 className="text-2xl font-bold text-foreground mb-1">YouTube</h1>
-                        <p className="text-sm text-muted-foreground">모든 카테고리의 유튜브 영상을 한 곳에서</p>
+                        <h1 className="mb-1 text-2xl font-bold text-foreground">YouTube</h1>
+                        <p className="text-muted-foreground text-sm">모든 카테고리의 유튜브 영상을 한 곳에서</p>
                       </div>
                     </div>
                   </div>
@@ -208,21 +208,21 @@ export default function VideosPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data?.videos && data.videos.length > 0 ? (
                 data.videos.map((video, index) => (
                   <Card
                     key={video.id}
-                    className="group transition-all duration-300 cursor-pointer hover:shadow-lg hover:-translate-y-1 overflow-hidden flex flex-col"
+                    className="group flex cursor-pointer flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                     onClick={() => openVideo(video.videoId)}>
                     {/* 썸네일 섹션 */}
-                    <div className="relative aspect-video bg-muted overflow-hidden">
+                    <div className="bg-muted relative aspect-video overflow-hidden">
                       {video.thumbnail ? (
                         <Image
                           src={video.thumbnail}
                           alt={video.title}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
                             const parent = target.parentElement;
@@ -261,27 +261,27 @@ export default function VideosPage() {
                     </div>
 
                     {/* 콘텐츠 섹션 */}
-                    <CardContent className="p-4 flex-1">
-                      <CardTitle className="text-sm font-semibold mb-2 line-clamp-2 group-hover:text-primary transition-colors leading-tight min-h-[2.1875rem]">
+                    <CardContent className="flex-1 p-4">
+                      <CardTitle className="group-hover:text-primary mb-2 line-clamp-2 min-h-[2.1875rem] text-sm font-semibold leading-tight transition-colors">
                         {video.title}
                       </CardTitle>
 
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                        <span className="font-medium text-foreground truncate">{video.channelTitle}</span>
+                      <div className="text-muted-foreground mb-2 flex items-center gap-2 text-xs">
+                        <span className="truncate font-medium text-foreground">{video.channelTitle}</span>
                         <span>•</span>
                         <div className="flex items-center gap-1">
-                          <Eye className="w-3 h-3" />
+                          <Eye className="h-3 w-3" />
                           <span>{(video.viewCount || 0).toLocaleString()}</span>
                         </div>
                       </div>
 
-                      <CardDescription className="text-xs mb-3 line-clamp-2 min-h-[2rem]">
+                      <CardDescription className="mb-3 line-clamp-2 min-h-[2rem] text-xs">
                         {video.description}
                       </CardDescription>
 
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <div className="text-muted-foreground flex items-center justify-between text-xs">
                         <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
+                          <Calendar className="h-3 w-3" />
                           <span>
                             {new Date(video.publishedAt).toLocaleDateString('ko-KR', {
                               month: 'short',
@@ -289,24 +289,24 @@ export default function VideosPage() {
                             })}
                           </span>
                         </div>
-                        <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                       </div>
                     </CardContent>
                   </Card>
                 ))
               ) : (
                 <div className="col-span-full">
-                  <Card className="text-center py-12">
+                  <Card className="py-12 text-center">
                     <CardContent>
                       <div className="flex flex-col items-center space-y-4">
-                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                          <Youtube className="w-8 h-8 text-muted-foreground" />
+                        <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-full">
+                          <Youtube className="text-muted-foreground h-8 w-8" />
                         </div>
                         <div>
-                          <p className="text-lg font-medium text-muted-foreground mb-2">
+                          <p className="text-muted-foreground mb-2 text-lg font-medium">
                             {debouncedSearchValue.trim() ? '검색 결과가 없습니다' : '아티클이 없습니다'}
                           </p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             {debouncedSearchValue.trim()
                               ? '다른 검색어를 시도해보거나 카테고리를 변경해보세요'
                               : '다른 카테고리를 선택하거나 RSS를 새로고침해보세요'}

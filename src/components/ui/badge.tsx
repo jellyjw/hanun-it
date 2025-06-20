@@ -49,11 +49,11 @@ const badgeVariants = cva(
 );
 
 const getIcon = (variant: string) => {
-  if (variant?.includes('info')) return <Info className="w-3 h-3 mr-1.5" />;
-  if (variant?.includes('success')) return <CheckCircle className="w-3 h-3 mr-1.5" />;
-  if (variant?.includes('warning')) return <AlertTriangle className="w-3 h-3 mr-1.5" />;
-  if (variant?.includes('destructive')) return <AlertCircle className="w-3 h-3 mr-1.5" />;
-  if (variant === 'hot') return <Flame className="w-3 h-3 mr-1.5" />;
+  if (variant?.includes('info')) return <Info className="mr-1.5 h-3 w-3" />;
+  if (variant?.includes('success')) return <CheckCircle className="mr-1.5 h-3 w-3" />;
+  if (variant?.includes('warning')) return <AlertTriangle className="mr-1.5 h-3 w-3" />;
+  if (variant?.includes('destructive')) return <AlertCircle className="mr-1.5 h-3 w-3" />;
+  if (variant === 'hot') return <Flame className="mr-1.5 h-3 w-3" />;
   return null;
 };
 

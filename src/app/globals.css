@@ -140,7 +140,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  @apply rounded-full bg-gray-300 dark:bg-gray-600;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -157,7 +157,7 @@ body {
 
 /* 아티클 콘텐츠 스타일링 */
 .article-content {
-  @apply text-gray-800 dark:text-gray-200 leading-relaxed;
+  @apply leading-relaxed text-gray-800 dark:text-gray-200;
 }
 
 .article-content h1,
@@ -166,7 +166,7 @@ body {
 .article-content h4,
 .article-content h5,
 .article-content h6 {
-  @apply font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4;
+  @apply mb-4 mt-8 font-bold text-gray-900 dark:text-gray-100;
 }
 
 .article-content h1 {
@@ -207,17 +207,17 @@ body {
 }
 
 .article-content blockquote {
-  @apply border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 my-4;
+  @apply my-4 border-l-4 border-gray-300 pl-4 italic text-gray-600 dark:border-gray-600 dark:text-gray-400;
 }
 
 /* 인라인 코드 스타일 */
 .article-content .inline-code {
-  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono;
+  @apply rounded bg-gray-100 px-2 py-1 font-mono text-sm text-gray-800 dark:bg-gray-800 dark:text-gray-200;
 }
 
 /* 코드 블록 스타일 - highlight.js와 함께 사용 */
 .article-content pre {
-  @apply bg-gray-50 dark:bg-gray-900 rounded-lg overflow-x-auto my-6 border border-gray-200 dark:border-gray-700;
+  @apply my-6 overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900;
   padding: 1.5rem;
 }
 
@@ -405,7 +405,7 @@ body {
 }
 
 .article-content pre::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 dark:bg-gray-500 rounded;
+  @apply rounded bg-gray-400 dark:bg-gray-500;
 }
 
 .article-content pre::-webkit-scrollbar-thumb:hover {
@@ -413,28 +413,28 @@ body {
 }
 
 .article-content a {
-  @apply text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline;
+  @apply text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300;
 }
 
 .article-content img {
-  @apply max-w-full h-auto rounded-lg my-4 mx-auto;
+  @apply mx-auto my-4 h-auto max-w-full rounded-lg;
 }
 
 .article-content table {
-  @apply w-full border-collapse border border-gray-300 dark:border-gray-600 my-4;
+  @apply my-4 w-full border-collapse border border-gray-300 dark:border-gray-600;
 }
 
 .article-content th,
 .article-content td {
-  @apply border border-gray-300 dark:border-gray-600 px-4 py-2 text-left;
+  @apply border border-gray-300 px-4 py-2 text-left dark:border-gray-600;
 }
 
 .article-content th {
-  @apply bg-gray-100 dark:bg-gray-800 font-semibold;
+  @apply bg-gray-100 font-semibold dark:bg-gray-800;
 }
 
 .article-content hr {
-  @apply border-gray-300 dark:border-gray-600 my-8;
+  @apply my-8 border-gray-300 dark:border-gray-600;
 }
 
 /* Medium 스타일 특화 */
@@ -443,7 +443,7 @@ body {
 }
 
 .article-content figcaption {
-  @apply text-sm text-gray-600 dark:text-gray-400 text-center mt-2 italic;
+  @apply mt-2 text-center text-sm italic text-gray-600 dark:text-gray-400;
 }
 
 /* 강조 텍스트 */
@@ -459,7 +459,7 @@ body {
 
 /* 테이블 스타일링 */
 .article-content .table-wrapper {
-  @apply my-6 overflow-x-auto rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm;
+  @apply my-6 overflow-x-auto rounded-lg border border-gray-300 shadow-sm dark:border-gray-600;
 }
 
 .article-content table {
@@ -471,15 +471,15 @@ body {
 }
 
 .article-content tbody {
-  @apply bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700;
+  @apply divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900;
 }
 
 .article-content tr {
-  @apply hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors;
+  @apply transition-colors hover:bg-gray-50 dark:hover:bg-gray-800;
 }
 
 .article-content th {
-  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider;
+  @apply px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400;
 }
 
 .article-content td {
@@ -501,7 +501,7 @@ body {
 }
 
 .article-content .table-wrapper::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-600 rounded;
+  @apply rounded bg-gray-300 dark:bg-gray-600;
 }
 
 .article-content .table-wrapper::-webkit-scrollbar-thumb:hover {
