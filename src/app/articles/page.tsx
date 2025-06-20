@@ -32,7 +32,7 @@ function ArticlesPageContent() {
   const initialPage = parseInt(searchParams.get('page') || '1');
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || 'domestic';
-  const initialSort = searchParams.get('sort') || 'popular';
+  const initialSort = searchParams.get('sort') || (initialCategory === 'it-news' ? 'latest' : 'popular');
 
   const [page, setPage] = useState(initialPage);
   const [search, setSearch] = useState(initialSearch);
@@ -268,11 +268,22 @@ function ArticlesPageContent() {
     console.log('🔄 카테고리 변경:', { from: selectedCategory, to: category });
     setSelectedCategory(category);
     setPage(1);
-    updateURL({ category, page: 1 });
+
+    // IT 뉴스 카테고리 선택 시 기본 정렬을 최신순으로 설정
+    if (category === 'it-news' && sortBy !== 'latest') {
+      setSortBy('latest');
+      updateURL({ category, page: 1, sort: 'latest' });
+    } else {
+      updateURL({ category, page: 1 });
+    }
 
     // 카테고리 변경 시 강제 refetch (특히 IT 뉴스의 경우)
     setTimeout(() => {
       console.log('🔄 강제 refetch 실행');
+      // 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: category === 'it-news' ? ['it-news'] : ['articles'],
+      });
       refetch();
     }, 100);
   };
