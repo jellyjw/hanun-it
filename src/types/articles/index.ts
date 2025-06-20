@@ -28,6 +28,7 @@ export interface ArticlesResponse {
 export interface ArticleResponse {
   success: boolean;
   article: Article;
+  type?: 'article' | 'it-news' | 'translated';
 }
 
 export interface YoutubeVideo {

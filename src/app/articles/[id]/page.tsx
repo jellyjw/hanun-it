@@ -151,8 +151,7 @@ export default function ArticleDetailPage() {
       <div className="mb-6">
         <button
           onClick={() => router.back()}
-          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-800"
-        >
+          className="mb-4 flex items-center gap-2 text-gray-600 hover:text-gray-800">
           <ArrowLeft size={20} />
           목록으로 돌아가기
         </button>
@@ -197,8 +196,7 @@ export default function ArticleDetailPage() {
               href={article.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded bg-blue-500 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-600"
-            >
+              className="flex items-center gap-2 rounded bg-blue-500 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-600">
               <ExternalLink size={12} />
               원문 보기
             </a>
@@ -238,8 +236,7 @@ export default function ArticleDetailPage() {
             href={article.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
-          >
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800">
             원문에서 계속 읽기
             <ExternalLink size={16} />
           </a>
