@@ -85,11 +85,11 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
         {[...Array(3)].map((_, i) => (
           <div key={i} className="animate-pulse">
             <div className="flex items-start space-x-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+              <div className="h-10 w-10 rounded-full bg-gray-200"></div>
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-24"></div>
-                <div className="h-4 bg-gray-200 rounded w-full"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 w-24 rounded bg-gray-200"></div>
+                <div className="h-4 w-full rounded bg-gray-200"></div>
+                <div className="h-4 w-3/4 rounded bg-gray-200"></div>
               </div>
             </div>
           </div>
@@ -100,8 +100,8 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
 
   if (comments.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500 text-sm">
-        <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+      <div className="py-8 text-center text-sm text-gray-500">
+        <MessageCircle className="mx-auto mb-4 h-12 w-12 opacity-50" />
         <p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</p>
       </div>
     );
@@ -118,19 +118,19 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
             {/* 사용자 아바타 */}
             <div className="flex-shrink-0">
               {comment.user_profile?.avatar_url ? (
-                <img src={comment.user_profile.avatar_url} alt="프로필" className="w-10 h-10 rounded-full" />
+                <img src={comment.user_profile.avatar_url} alt="프로필" className="h-10 w-10 rounded-full" />
               ) : (
-                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-600" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
+                  <User className="h-5 w-5 text-gray-600" />
                 </div>
               )}
             </div>
 
             {/* 댓글 내용 */}
-            <div className="flex-1 min-w-0">
-              <div className="bg-gray-50 rounded-lg p-4">
+            <div className="min-w-0 flex-1">
+              <div className="rounded-lg bg-gray-50 p-4">
                 {/* 사용자 정보 */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="font-medium text-gray-900">
                       {comment.user_profile?.full_name ||
@@ -148,15 +148,17 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
                         onClick={() => handleEditStart(comment)}
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0">
-                        <Edit className="w-4 h-4" />
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         onClick={() => handleDelete(comment.id)}
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700">
-                        <Trash2 className="w-4 h-4" />
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   )}
@@ -175,22 +177,24 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
                         onClick={handleEditCancel}
                         variant="outline"
                         size="sm"
-                        className="flex items-center gap-1">
-                        <X className="w-4 h-4" />
+                        className="flex items-center gap-1"
+                      >
+                        <X className="h-4 w-4" />
                         취소
                       </Button>
                       <Button
                         onClick={() => handleEditSave(comment.id)}
                         size="sm"
                         disabled={!editContent.trim()}
-                        className="flex items-center gap-1">
-                        <Save className="w-4 h-4" />
+                        className="flex items-center gap-1"
+                      >
+                        <Save className="h-4 w-4" />
                         저장
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-gray-800 whitespace-pre-wrap">{comment.content}</p>
+                  <p className="whitespace-pre-wrap text-gray-800">{comment.content}</p>
                 )}
               </div>
             </div>

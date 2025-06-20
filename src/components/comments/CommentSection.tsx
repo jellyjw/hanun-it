@@ -65,8 +65,8 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
 
   return (
     <div className="mt-8 border-t pt-8">
-      <div className="flex items-center gap-2 mb-6">
-        <MessageCircle className="w-5 h-5" />
+      <div className="mb-6 flex items-center gap-2">
+        <MessageCircle className="h-5 w-5" />
         <h3 className="text-xl font-semibold">댓글 ({commentsData?.pagination.total || 0})</h3>
       </div>
 
@@ -83,16 +83,16 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
             />
             <div className="flex justify-end">
               <Button type="submit" disabled={!newComment.trim() || isSubmitting} className="flex items-center gap-2">
-                <Send className="w-4 h-4" />
+                <Send className="h-4 w-4" />
                 {isSubmitting ? '작성 중...' : '댓글 작성'}
               </Button>
             </div>
           </div>
         </form>
       ) : (
-        <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="mb-8 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
           <div className="flex items-center gap-2 text-yellow-800">
-            <AlertCircle className="w-5 h-5" />
+            <AlertCircle className="h-5 w-5" />
             <p>
               댓글을 작성하려면{' '}
               <a href="/auth/login" className="text-blue-600 hover:underline">

@@ -149,10 +149,10 @@ export default function AuthForm() {
   const strengthInfo = getPasswordStrengthLabel(passwordStrength);
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-lg">
+    <Card className="mx-auto w-full max-w-md shadow-lg">
       <CardHeader className="space-y-1 text-center">
-        <div className="flex items-center justify-center w-12 h-12 mx-auto bg-primary/10 rounded-full mb-4">
-          <User className="w-6 h-6 text-primary" />
+        <div className="bg-primary/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+          <User className="text-primary h-6 w-6" />
         </div>
         <CardTitle className="text-2xl font-bold">{isLogin ? '로그인' : '회원가입'}</CardTitle>
         <CardDescription>
@@ -162,8 +162,8 @@ export default function AuthForm() {
 
       <CardContent>
         {error && (
-          <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md mb-6 text-sm flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-destructive flex-shrink-0" />
+          <div className="bg-destructive/10 border-destructive/20 text-destructive mb-6 flex items-center gap-2 rounded-md border px-4 py-3 text-sm">
+            <div className="bg-destructive h-4 w-4 flex-shrink-0 rounded-full" />
             {error}
           </div>
         )}
@@ -173,7 +173,7 @@ export default function AuthForm() {
             <div className="space-y-2">
               <Label htmlFor="email">이메일</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
                 <Input
                   id="email"
                   type="email"
@@ -190,14 +190,14 @@ export default function AuthForm() {
                 )}
               </div>
               {loginForm.formState.errors.email && (
-                <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>
+                <p className="text-destructive text-sm">{loginForm.formState.errors.email.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">비밀번호</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -216,26 +216,28 @@ export default function AuthForm() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}>
+                  onClick={() => setShowPassword(!showPassword)}
+                >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    <EyeOff className="text-muted-foreground h-4 w-4" />
                   ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <Eye className="text-muted-foreground h-4 w-4" />
                   )}
                 </Button>
               </div>
               {loginForm.formState.errors.password && (
-                <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>
+                <p className="text-destructive text-sm">{loginForm.formState.errors.password.message}</p>
               )}
             </div>
 
             <Button
               type="submit"
               className="w-full transition-all duration-200"
-              disabled={isPending || !loginForm.formState.isValid}>
+              disabled={isPending || !loginForm.formState.isValid}
+            >
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   로그인 중...
                 </>
               ) : (
@@ -248,7 +250,7 @@ export default function AuthForm() {
             <div className="space-y-2">
               <Label htmlFor="signup-email">이메일</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
                 <Input
                   id="signup-email"
                   type="email"
@@ -265,14 +267,14 @@ export default function AuthForm() {
                 )}
               </div>
               {signupForm.formState.errors.email && (
-                <p className="text-sm text-destructive">{signupForm.formState.errors.email.message}</p>
+                <p className="text-destructive text-sm">{signupForm.formState.errors.email.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="signup-password">비밀번호</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
                 <Input
                   id="signup-password"
                   type={showPassword ? 'text' : 'password'}
@@ -289,11 +291,12 @@ export default function AuthForm() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}>
+                  onClick={() => setShowPassword(!showPassword)}
+                >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    <EyeOff className="text-muted-foreground h-4 w-4" />
                   ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <Eye className="text-muted-foreground h-4 w-4" />
                   )}
                 </Button>
               </div>
@@ -310,11 +313,12 @@ export default function AuthForm() {
                           : strengthInfo.color === 'bg-yellow-500'
                             ? 'text-yellow-500'
                             : 'text-green-500'
-                      }`}>
+                      }`}
+                    >
                       {strengthInfo.label}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="h-2 w-full rounded-full bg-gray-200">
                     <div
                       className={`h-2 rounded-full transition-all duration-300 ${strengthInfo.color}`}
                       style={{ width: `${(passwordStrength / 6) * 100}%` }}
@@ -324,14 +328,14 @@ export default function AuthForm() {
               )}
 
               {signupForm.formState.errors.password && (
-                <p className="text-sm text-destructive">{signupForm.formState.errors.password.message}</p>
+                <p className="text-destructive text-sm">{signupForm.formState.errors.password.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">비밀번호 확인</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="text-muted-foreground absolute left-3 top-3 h-4 w-4" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -351,11 +355,12 @@ export default function AuthForm() {
                   variant="ghost"
                   size="sm"
                   className="absolute right-1 top-1 h-8 w-8 p-0 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
                   {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    <EyeOff className="text-muted-foreground h-4 w-4" />
                   ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <Eye className="text-muted-foreground h-4 w-4" />
                   )}
                 </Button>
                 {!signupForm.formState.errors.confirmPassword &&
@@ -365,17 +370,18 @@ export default function AuthForm() {
                   )}
               </div>
               {signupForm.formState.errors.confirmPassword && (
-                <p className="text-sm text-destructive">{signupForm.formState.errors.confirmPassword.message}</p>
+                <p className="text-destructive text-sm">{signupForm.formState.errors.confirmPassword.message}</p>
               )}
             </div>
 
             <Button
               type="submit"
               className="w-full transition-all duration-200"
-              disabled={isPending || !signupForm.formState.isValid}>
+              disabled={isPending || !signupForm.formState.isValid}
+            >
               {isPending ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   회원가입 중...
                 </>
               ) : (
@@ -389,8 +395,9 @@ export default function AuthForm() {
           <Button
             variant="link"
             onClick={toggleMode}
-            className="text-sm hover:text-primary transition-colors"
-            disabled={isPending}>
+            className="hover:text-primary text-sm transition-colors"
+            disabled={isPending}
+          >
             {isLogin ? '계정이 없으신가요? 회원가입' : '이미 계정이 있으신가요? 로그인'}
           </Button>
         </div>

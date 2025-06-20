@@ -37,24 +37,24 @@ export default function SearchInput({
   return (
     <div className="relative w-full">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+        <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform" />
         <input
           {...register('query')}
           type="text"
           placeholder={placeholder}
-          className="w-full pl-10 pr-12 py-3 border border-input rounded-lg bg-background focus:ring-2 focus:ring-ring focus:border-transparent outline-none transition-all duration-200 text-sm"
+          className="border-input focus:ring-ring w-full rounded-lg border bg-background py-3 pl-10 pr-12 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2"
         />
         {query && (
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-10 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground absolute right-10 top-1/2 -translate-y-1/2 transform transition-colors hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
         )}
         {isSearching && (
-          <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-primary h-4 w-4 animate-spin" />
+          <Loader2 className="text-primary absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform animate-spin" />
         )}
       </div>
     </div>
