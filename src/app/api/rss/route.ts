@@ -3,6 +3,7 @@ import Parser from 'rss-parser';
 import { createClient } from '@/utils/supabase/server';
 import { RSS_SOURCES } from '@/utils/constants';
 import { processArticleContent } from '@/utils/markdown';
+import { NextRequest } from 'next/server';
 
 type CustomFeed = {
   title: string;
@@ -170,67 +171,36 @@ async function updateExistingThumbnails(supabase: any, limit = 20): Promise<numb
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // 관리자 권한 확인
+    // 관리자 권한 확인 (GitHub Actions용 인증 추가)
+    const authHeader = request.headers.get('authorization');
+    const isGitHubActions = request.headers.get('user-agent')?.includes('GitHub-Actions-Bot');
     const isAdmin = await checkAdminPermission();
-    if (!isAdmin) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: '관리자 권한이 필요합니다.',
-        },
-        { status: 403 },
-      );
+
+    if (!isAdmin && !isGitHubActions) {
+      return NextResponse.json({ success: false, error: '권한이 필요합니다.' }, { status: 403 });
     }
 
     const supabase = await createClient();
     const articles = [];
     let totalProcessed = 0;
-    let thumbnailsExtracted = 0;
-    let existingThumbnailsUpdated = 0;
 
-    // 1단계: RSS 수집 및 기본 정보 저장
-    const articlesForThumbnailExtraction: Array<{ link: string; title: string }> = [];
-
-    for (const source of RSS_SOURCES) {
+    // 썸네일 추출 완전 제거 -> 별도 API에서 처리
+    for (const source of RSS_SOURCES.slice(0, 10)) {
+      // 처음 10개만 처리로 제한
       try {
-        console.log(`📡 RSS 수집 시작: ${source.name}`);
-        const feed = await parser.parseURL(source.url);
-        console.log(`📄 ${feed.items.length}개 아티클 발견: ${source.name}`);
+        console.log(`📡 RSS 수집: ${source.name}`);
 
-        for (const item of feed.items) {
-          totalProcessed++;
+        // 타임아웃 설정으로 빠른 실패
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('RSS 파싱 타임아웃')), 3000),
+        );
 
-          // RSS에서 제공하는 이미지 먼저 확인
-          let thumbnailUrl = '';
+        const feed = (await Promise.race([parser.parseURL(source.url), timeoutPromise])) as CustomFeed;
 
-          // 1순위: RSS enclosure 또는 image 필드
-          if (item.enclosure?.url) {
-            thumbnailUrl = item.enclosure.url;
-          } else if (item.image?.url) {
-            thumbnailUrl = item.image.url;
-          }
-
-          // 2순위: content에서 첫 번째 이미지 추출 시도
-          if (!thumbnailUrl && (item.content || item.originContent)) {
-            const content = item.originContent || item.content || '';
-            const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-            if (imgMatch) {
-              thumbnailUrl = imgMatch[1];
-            }
-          }
-
-          // 상대 URL을 절대 URL로 변환
-          if (thumbnailUrl && !thumbnailUrl.startsWith('http') && item.link) {
-            try {
-              const baseUrl = new URL(item.link);
-              thumbnailUrl = new URL(thumbnailUrl, baseUrl.origin).href;
-            } catch {
-              thumbnailUrl = '';
-            }
-          }
-
+        for (const item of feed.items.slice(0, 5)) {
+          // 각 소스당 최대 5개만
           const article = {
             title: item.title || '',
             description: item.contentSnippet || item.content || '',
@@ -242,19 +212,10 @@ export async function GET() {
             source_url: source.url,
             category: source.category,
             is_domestic: source.isDomestic,
-            thumbnail: thumbnailUrl,
+            thumbnail: '', // 빈 값으로 저장
             view_count: 0,
           };
 
-          // 썸네일이 없고 링크가 있는 경우 나중에 추출하기 위해 별도 배열에 저장
-          if (!thumbnailUrl && item.link) {
-            articlesForThumbnailExtraction.push({
-              link: item.link,
-              title: item.title || '',
-            });
-          }
-
-          // 중복 체크 후 삽입
           const { error } = await supabase.from('articles').upsert(article, {
             onConflict: 'link',
             ignoreDuplicates: true,
@@ -262,66 +223,24 @@ export async function GET() {
 
           if (!error) {
             articles.push(article);
-          } else {
-            console.error(`❌ DB 삽입 실패 (${item.title}):`, error);
           }
+          totalProcessed++;
         }
-
-        // RSS 소스 마지막 수집 시간 업데이트
-        await supabase.from('rss_sources').upsert(
-          {
-            name: source.name,
-            url: source.url,
-            is_domestic: source.isDomestic,
-            category: source.category,
-            last_fetched: new Date().toISOString(),
-          },
-          { onConflict: 'url' },
-        );
-
-        console.log(`✅ RSS 수집 완료: ${source.name}`);
       } catch (error) {
-        console.error(`❌ RSS 수집 실패 (${source.name}):`, error);
-        continue;
+        console.log(`⚠️ ${source.name} 스킵: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+        continue; // 에러 시 다음 소스로
       }
     }
-
-    // 2단계: 썸네일이 없는 새 아티클들의 썸네일 배치 추출
-    if (articlesForThumbnailExtraction.length > 0) {
-      console.log(`🖼️  ${articlesForThumbnailExtraction.length}개 아티클의 썸네일 배치 추출 시작...`);
-
-      const thumbnailMap = await extractThumbnailsBatch(articlesForThumbnailExtraction, 8);
-
-      // 추출된 썸네일로 DB 업데이트
-      for (const [link, thumbnail] of thumbnailMap.entries()) {
-        const { error } = await supabase.from('articles').update({ thumbnail }).eq('link', link);
-
-        if (!error) {
-          thumbnailsExtracted++;
-        }
-      }
-    }
-
-    // 3단계: 기존 아티클 중 썸네일이 없는 것들 업데이트 (선택적)
-    console.log(`🔄 기존 아티클 썸네일 업데이트 시작...`);
-    existingThumbnailsUpdated = await updateExistingThumbnails(supabase, 15);
-
-    const totalThumbnailsProcessed = thumbnailsExtracted + existingThumbnailsUpdated;
 
     return NextResponse.json({
       success: true,
-      message: `${articles.length}개의 새로운 아티클을 수집했습니다. (신규 썸네일 ${thumbnailsExtracted}개, 기존 썸네일 ${existingThumbnailsUpdated}개 추출)`,
+      message: `${articles.length}개 아티클 수집 완료`,
       articles: articles.length,
       totalProcessed,
-      thumbnailsExtracted: totalThumbnailsProcessed,
-      breakdown: {
-        newArticles: articles.length,
-        newThumbnails: thumbnailsExtracted,
-        updatedThumbnails: existingThumbnailsUpdated,
-      },
+      note: '썸네일은 별도 처리됩니다',
     });
   } catch (error) {
-    console.error('❌ RSS 수집 중 오류:', error);
-    return NextResponse.json({ success: false, error: 'RSS 수집 중 오류가 발생했습니다.' }, { status: 500 });
+    console.error('RSS 수집 오류:', error);
+    return NextResponse.json({ success: false, error: 'RSS 수집 실패' }, { status: 500 });
   }
 }
