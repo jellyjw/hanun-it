@@ -172,8 +172,10 @@ function ArticlesPageContent() {
     queryKey,
     queryFn: () => fetchArticles(page),
     placeholderData: keepPreviousData,
-    staleTime: selectedCategory === 'it-news' ? 0 : 5 * 60 * 1000, // IT 뉴스는 항상 새로 조회
-    gcTime: 10 * 60 * 1000, // 10분간 가비지 컬렉션 방지
+    staleTime: selectedCategory === 'it-news' ? 2 * 60 * 1000 : 5 * 60 * 1000, // 캐시 시간 증가
+    gcTime: 30 * 60 * 1000, // 30분간 가비지 컬렉션 방지
+    retry: 1, // 재시도 횟수 제한
+    refetchOnWindowFocus: false, // 윈도우 포커스 시 재요청 방지
   });
 
   useEffect(() => {

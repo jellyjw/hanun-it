@@ -6,10 +6,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const searchValue = searchParams.get('searchValue');
-    const sort = searchParams.get('sort') || 'latest'; // latest, popular, comments
+    const sort = searchParams.get('sort') || 'latest';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
-    const category = searchParams.get('category') || 'all'; // all, news, security, startup
+    const category = searchParams.get('category') || 'all';
     const offset = (page - 1) * limit;
 
     console.log('🔍 IT 뉴스 조회 API 호출:', {
@@ -41,72 +41,41 @@ export async function GET(request: NextRequest) {
       supabase = await createClient();
     }
 
-    // 최대 조회수 조회 (HOT 뱃지용)
-    let maxViewCountQuery = supabase
+    // 단일 쿼리로 최적화
+    let query = supabase
       .from('it_news')
-      .select('view_count')
-      .order('view_count', { ascending: false })
-      .limit(1);
+      .select('id, title, description, link, pub_date, source_name, category, thumbnail, view_count', {
+        count: 'exact',
+      });
 
-    // 검색어가 있는 경우 검색 조건 추가
+    // 검색어 필터
     if (searchValue && searchValue.trim()) {
-      maxViewCountQuery = maxViewCountQuery.or(
+      query = query.or(
         `title.ilike.%${searchValue}%,description.ilike.%${searchValue}%,source_name.ilike.%${searchValue}%`,
       );
     }
 
-    // 카테고리 필터 적용
+    // 카테고리 필터
     if (category && category !== 'all' && category !== 'it-news') {
-      maxViewCountQuery = maxViewCountQuery.eq('category', category);
+      query = query.eq('category', category);
     }
 
-    const { data: maxViewData, error: maxViewError } = await maxViewCountQuery;
-    if (maxViewError) {
-      console.error('최대 조회수 조회 오류:', maxViewError);
-    }
-    const maxViewCount = maxViewData?.[0]?.view_count || 0;
-
-    // 먼저 총 개수를 조회
-    let countQuery = supabase.from('it_news').select('*', { count: 'exact', head: true });
-
-    // 검색어가 있는 경우 검색 조건 추가
-    if (searchValue && searchValue.trim()) {
-      countQuery = countQuery.or(
-        `title.ilike.%${searchValue}%,description.ilike.%${searchValue}%,source_name.ilike.%${searchValue}%`,
-      );
+    // DB 레벨에서 정렬
+    if (sort === 'latest') {
+      query = query.order('pub_date', { ascending: false });
+    } else if (sort === 'popular') {
+      query = query
+        .order('view_count', { ascending: false, nullsFirst: false })
+        .order('pub_date', { ascending: false });
+    } else if (sort === 'comments') {
+      // 댓글순은 별도 처리
+      query = query.order('pub_date', { ascending: false });
     }
 
-    // 카테고리 필터 적용 (it-news는 제외)
-    if (category && category !== 'all' && category !== 'it-news') {
-      countQuery = countQuery.eq('category', category);
-    }
+    // 페이지네이션
+    query = query.range(offset, offset + limit - 1);
 
-    const { count, error: countError } = await countQuery;
-
-    if (countError) {
-      console.error('개수 조회 오류:', countError);
-      throw countError;
-    }
-
-    console.log(`📊 총 IT 뉴스 개수: ${count}`);
-
-    // 실제 데이터 조회
-    let dataQuery = supabase.from('it_news').select('*');
-
-    // 검색어가 있는 경우 검색 조건 추가
-    if (searchValue && searchValue.trim()) {
-      dataQuery = dataQuery.or(
-        `title.ilike.%${searchValue}%,description.ilike.%${searchValue}%,source_name.ilike.%${searchValue}%`,
-      );
-    }
-
-    // 카테고리 필터 적용 (it-news는 제외)
-    if (category && category !== 'all' && category !== 'it-news') {
-      dataQuery = dataQuery.eq('category', category);
-    }
-
-    // 데이터 조회
-    const { data: news, error } = await dataQuery;
+    const { data: news, error, count } = await query;
 
     if (error) {
       console.error('IT 뉴스 데이터 조회 오류:', error);
@@ -115,90 +84,54 @@ export async function GET(request: NextRequest) {
 
     console.log(`📰 조회된 IT 뉴스: ${news?.length || 0}개`);
 
-    // 댓글 수 조회 (댓글순 정렬을 위해)
     let newsWithCommentCount = news || [];
 
-    if (sort === 'comments') {
-      // 모든 뉴스의 댓글 수를 조회
-      const newsIds = (news || []).map((newsItem) => newsItem.id);
+    // 댓글순인 경우만 댓글 수 조회
+    if (sort === 'comments' && news && news.length > 0) {
+      const newsIds = news.map((newsItem) => newsItem.id);
 
-      if (newsIds.length > 0) {
-        const { data: commentCounts } = await supabase
-          .from('it_news_comments')
-          .select('news_id')
-          .in('news_id', newsIds);
+      const { data: commentCounts } = await supabase.from('it_news_comments').select('news_id').in('news_id', newsIds);
 
-        // 댓글 수를 계산하여 뉴스에 추가
-        const commentCountMap = new Map();
-        (commentCounts || []).forEach((comment) => {
-          const count = commentCountMap.get(comment.news_id) || 0;
-          commentCountMap.set(comment.news_id, count + 1);
-        });
-
-        newsWithCommentCount = (news || []).map((newsItem) => ({
-          ...newsItem,
-          comment_count: commentCountMap.get(newsItem.id) || 0,
-        }));
-      }
-    }
-
-    // 정렬 로직
-    let sortedNews;
-
-    if (sort === 'latest') {
-      // 최신순: 발행일 기준
-      sortedNews = newsWithCommentCount.sort((a, b) => {
-        return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
+      const commentCountMap = new Map();
+      (commentCounts || []).forEach((comment) => {
+        const count = commentCountMap.get(comment.news_id) || 0;
+        commentCountMap.set(comment.news_id, count + 1);
       });
-    } else if (sort === 'popular') {
-      // 인기순: 조회수 > 최신순
-      sortedNews = newsWithCommentCount.sort((a, b) => {
-        const aViews = a.view_count || 0;
-        const bViews = b.view_count || 0;
 
-        if (aViews !== bViews) return bViews - aViews;
+      newsWithCommentCount = news.map((newsItem) => ({
+        ...newsItem,
+        comment_count: commentCountMap.get(newsItem.id) || 0,
+      }));
 
-        return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
-      });
-    } else if (sort === 'comments') {
-      // 댓글순: 댓글 수 > 조회수 > 최신순
-      sortedNews = newsWithCommentCount.sort((a, b) => {
+      // 댓글순 정렬
+      newsWithCommentCount.sort((a: any, b: any) => {
         const aComments = a.comment_count || 0;
         const bComments = b.comment_count || 0;
-
         if (aComments !== bComments) return bComments - aComments;
 
         const aViews = a.view_count || 0;
         const bViews = b.view_count || 0;
-
         if (aViews !== bViews) return bViews - aViews;
 
         return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
       });
-    } else {
-      // 기본값은 최신순
-      sortedNews = newsWithCommentCount.sort((a, b) => {
-        return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
-      });
     }
 
-    // 페이지네이션 적용
-    const paginatedNews = sortedNews.slice(offset, offset + limit);
-
+    const maxViewCount = newsWithCommentCount[0]?.view_count || 0;
     const totalPages = Math.ceil((count || 0) / limit);
 
     console.log('✅ IT 뉴스 조회 완료:', {
       total: count,
-      returned: paginatedNews.length,
+      returned: newsWithCommentCount.length,
       page,
       totalPages,
     });
 
     return NextResponse.json({
       success: true,
-      articles: paginatedNews.map((newsItem) => ({
+      articles: newsWithCommentCount.map((newsItem) => ({
         ...newsItem,
-        is_domestic: true, // IT 뉴스는 모두 국내
+        is_domestic: true,
       })),
       pagination: {
         page,
@@ -211,7 +144,7 @@ export async function GET(request: NextRequest) {
       searchValue,
       sort,
       category,
-      maxViewCount, // HOT 뱃지 판단을 위한 최대 조회수 추가
+      maxViewCount,
     });
   } catch (error) {
     console.error('❌ IT 뉴스 조회 중 오류:', error);
