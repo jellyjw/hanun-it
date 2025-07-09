@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import Parser from 'rss-parser';
 import { createClient } from '@/utils/supabase/server';
 import { processArticleContent } from '@/utils/markdown';
@@ -128,11 +128,18 @@ async function extractThumbnailsBatch(
   return thumbnailMap;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // 관리자 권한 확인
+    const authHeader = request.headers.get('authorization');
+    const cronSecret = process.env.CRON_SECRET;
+
+    console.log('Next.js API - Received Auth Header:', authHeader);
+    console.log('Next.js API - CRON_SECRET from process.env:', cronSecret);
+
+    const isCron = authHeader === `Bearer ${cronSecret}`;
     const isAdmin = await checkAdminPermission();
-    if (!isAdmin) {
+
+    if (!isCron && !isAdmin) {
       return NextResponse.json(
         {
           success: false,
