@@ -85,7 +85,7 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
         {[...Array(3)].map((_, i) => (
           <div key={i} className="animate-pulse">
             <div className="flex items-start space-x-3">
-              <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+              <div className="h-8 w-8 rounded-full bg-gray-200"></div>
               <div className="flex-1 space-y-2">
                 <div className="h-4 w-24 rounded bg-gray-200"></div>
                 <div className="h-4 w-full rounded bg-gray-200"></div>
@@ -114,16 +114,10 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
         const isEditing = editingId === comment.id;
 
         return (
-          <div key={comment.id} className="flex items-start space-x-3">
-            {/* 사용자 아바타 */}
-            <div className="flex-shrink-0">
-              {comment.user_profile?.avatar_url ? (
-                <img src={comment.user_profile.avatar_url} alt="프로필" className="h-10 w-10 rounded-full" />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
-                  <User className="h-5 w-5 text-gray-600" />
-                </div>
-              )}
+          <div key={comment.id} className="flex items-start space-x-3 pt-1">
+            {/* 기본 유저 프로필 아이콘 */}
+            <div className="mt-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
+              <User className="h-4 w-4 text-gray-600" />
             </div>
 
             {/* 댓글 내용 */}
@@ -148,16 +142,14 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
                         onClick={() => handleEditStart(comment)}
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0"
-                      >
+                        className="h-8 w-8 p-0">
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         onClick={() => handleDelete(comment.id)}
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                      >
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -177,8 +169,7 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
                         onClick={handleEditCancel}
                         variant="outline"
                         size="sm"
-                        className="flex items-center gap-1"
-                      >
+                        className="flex items-center gap-1">
                         <X className="h-4 w-4" />
                         취소
                       </Button>
@@ -186,8 +177,7 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
                         onClick={() => handleEditSave(comment.id)}
                         size="sm"
                         disabled={!editContent.trim()}
-                        className="flex items-center gap-1"
-                      >
+                        className="flex items-center gap-1">
                         <Save className="h-4 w-4" />
                         저장
                       </Button>

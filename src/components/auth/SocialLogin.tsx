@@ -54,7 +54,6 @@ export default function SocialLogin({ redirectTo = '/articles' }: SocialLoginPro
         <Github className="h-5 w-5" />
         GitHub로 로그인
       </Button>
-
       <Button onClick={() => handleSocialLogin('google')} variant="outline" className="flex w-full items-center gap-2">
         <svg className="h-5 w-5" viewBox="0 0 24 24">
           <path
