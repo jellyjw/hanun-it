@@ -173,12 +173,17 @@ async function updateExistingThumbnails(supabase: any, limit = 20): Promise<numb
 
 export async function GET(request: NextRequest) {
   try {
-    // 관리자 권한 확인 (GitHub Actions용 인증 추가)
     const authHeader = request.headers.get('authorization');
+    const cronSecret = process.env.CRON_SECRET;
+
+    console.log('Next.js API - Received Auth Header:', authHeader);
+    console.log('Next.js API - CRON_SECRET from process.env:', cronSecret);
+
+    const isCron = authHeader === `Bearer ${cronSecret}`;
     const isGitHubActions = request.headers.get('user-agent')?.includes('GitHub-Actions-Bot');
     const isAdmin = await checkAdminPermission();
 
-    if (!isAdmin && !isGitHubActions) {
+    if (!isCron && !isAdmin && !isGitHubActions) {
       return NextResponse.json({ success: false, error: '권한이 필요합니다.' }, { status: 403 });
     }
 
