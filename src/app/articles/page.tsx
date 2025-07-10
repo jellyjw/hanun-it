@@ -395,315 +395,185 @@ function ArticlesPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header
-        handleRefreshRSS={handleRefreshRSS}
-        handleExtractThumbnails={handleExtractThumbnails}
-        handleRefreshITNews={handleRefreshITNews}
-      />
+    <div className="min-h-screen bg-white">
+      {/* 네비게이션 바 - sticky + 스크롤 효과 */}
+      <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-all duration-300">
+        <div className="container mx-auto flex flex-col items-center gap-4 px-4 py-4 sm:flex-row sm:justify-between sm:px-6">
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-bold">한눈IT</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+            <a href="#" className="text-sm text-gray-600 hover:text-gray-900">
+              Analytics
+            </a>
+            <a href="#" className="text-sm text-gray-600 hover:text-gray-900">
+              Pricing
+            </a>
+            <a href="#" className="text-sm text-gray-600 hover:text-gray-900">
+              Resources
+            </a>
+            <a href="#" className="text-sm text-gray-600 hover:text-gray-900">
+              Products
+            </a>
+            <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </nav>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex gap-6">
-          <CategorySidebar
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange}
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-          />
-          <div className="flex-1 space-y-6">
-            {/* 검색 입력 섹션 */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <Button variant="outline" size="sm" className="md:hidden" onClick={() => setIsSidebarOpen(true)}>
-                        <Menu className="h-4 w-4" />
-                      </Button>
-                      <div>
-                        <h1 className="mb-1 text-2xl font-bold text-foreground">{getCategoryTitle()}</h1>
-                        <p className="text-muted-foreground text-sm">
-                          {debouncedSearchValue.trim()
-                            ? // ? `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' 카테고리에서 ' : ''}검색된 결과입니다`
-                              `${selectedCategory !== 'all' ? getCategoryTitle().split(' 검색')[0] + ' ' : ''} 검색 결과입니다.`
-                            : selectedCategory === 'weekly'
-                              ? '조회수가 높은 인기 아티클을 확인하세요'
-                              : selectedCategory === 'domestic'
-                                ? '국내 기술 블로그 및 미디어'
-                                : selectedCategory === 'foreign'
-                                  ? '해외 기술 블로그 및 미디어'
-                                  : selectedCategory === 'it-news'
-                                    ? '최신 IT 뉴스 및 트렌드를 한눈에'
-                                    : '모든 카테고리의 아티클을 한 곳에서'}
-                        </p>
-                      </div>
+      {/* 메인 컨텐츠 */}
+      <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
+        {/* 헤더 섹션 */}
+        <div className="mb-8 text-center sm:mb-12">
+          <h1 className="mb-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Your Blog Title Here.</h1>
+          <p className="mx-auto max-w-2xl text-base text-gray-600 sm:text-lg">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod tempor.
+          </p>
+        </div>
+
+        {/* 메인 컨텐츠 영역 */}
+        <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+          {/* 왼쪽 메인 컨텐츠 */}
+          <div className="flex-1">
+            {/* 검색 및 정렬 */}
+            <div className="mb-8">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="w-full sm:max-w-md">
+                  <SearchInput onSearch={handleSearch} isSearching={isSearching} initialValue={searchValue} />
+                </div>
+                <div className="flex justify-end">
+                  <SelectBox options={SELECT_OPTIONS.sortBy} value={sortBy} onChange={handleSortChange} />
+                </div>
+              </div>
+
+              {/* 로딩 상태 표시 */}
+              {isPlaceholderData && (
+                <div className="mt-4 flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  새로운 데이터를 불러오는 중...
+                </div>
+              )}
+
+              {/* 카테고리 탭 */}
+              <div className="mt-4 overflow-x-auto border-b border-gray-200">
+                <div className="flex min-w-max gap-8 pb-1">
+                  <button className="border-b-2 border-gray-900 pb-4 text-sm font-medium text-gray-900">All</button>
+                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
+                    Blogs
+                  </button>
+                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
+                    Branding
+                  </button>
+                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
+                    Resources
+                  </button>
+                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
+                    Sports
+                  </button>
+                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
+                    Finance
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* 아티클 그리드 */}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+              {data?.articles && data.articles.length > 0 ? (
+                data.articles.map((article) => (
+                  <div
+                    key={article.id}
+                    className="group cursor-pointer overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                    onClick={() => router.push(`/articles/${article.id}`)}>
+                    {/* 썸네일 */}
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      {(article.thumbnail ||
+                        (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그')) &&
+                      !failedImages.has(article.id) ? (
+                        <Image
+                          src={preprocessingThumbnail(article)}
+                          alt={article.title}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          loading="lazy"
+                          onError={() => {
+                            setFailedImages((prev) => new Set(prev).add(article.id));
+                          }}
+                        />
+                      ) : (
+                        <FallbackThumbnail
+                          title={article.title}
+                          category={undefined}
+                          sourceName={article.source_name}
+                          isDomestic={article.is_domestic}
+                        />
+                      )}
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {/* <SelectBox
-                        options={SELECT_OPTIONS.itemsPerPage}
-                        value={itemsPerPage.toString()}
-                        onChange={handleItemsPerPageChange}
-                      /> */}
-                      <SelectBox options={SELECT_OPTIONS.sortBy} value={sortBy} onChange={handleSortChange} />
+
+                    {/* 컨텐츠 */}
+                    <div className="p-4 sm:p-6">
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-emerald-600">{article.source_name}</span>
+                      </div>
+                      <h3 className="mb-2 line-clamp-2 text-base font-semibold text-gray-900 sm:text-lg">
+                        {article.title}
+                      </h3>
+                      <p className="line-clamp-2 text-sm text-gray-600">{article.description}</p>
+                      <button className="mt-4 w-full rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 sm:w-auto sm:px-6">
+                        Read More
+                      </button>
                     </div>
                   </div>
-
-                  {/* 검색 입력 */}
-                  <div className="w-full">
-                    <SearchInput onSearch={handleSearch} isSearching={isSearching} initialValue={searchValue} />
+                ))
+              ) : (
+                <div className="col-span-full">
+                  <div className="rounded-lg bg-gray-50 py-12 text-center">
+                    <div className="mx-auto max-w-sm px-4">
+                      <h3 className="mb-2 text-lg font-semibold text-gray-900">No articles found</h3>
+                      <p className="text-sm text-gray-600">
+                        {debouncedSearchValue.trim() ? '다른 검색어를 시도해보세요' : '아직 등록된 아티클이 없습니다'}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </div>
 
-            {data?.pagination && (
-              <div>
-                <PageInfo
-                  currentPage={data.pagination.page}
-                  totalPages={data.pagination.totalPages}
-                  totalItems={data.pagination.total}
-                  itemsPerPage={data.pagination.limit}
-                />
-              </div>
-            )}
+            {/* 구독 섹션 */}
+            <div className="my-12 overflow-hidden rounded-xl bg-gradient-to-r from-pink-50 via-yellow-50 to-sky-50 px-4 py-12 sm:my-24 sm:px-8 sm:py-16">
+              <div className="relative">
+                {/* 장식용 원형 그라데이션 */}
+                <div className="absolute -left-20 -top-20 h-40 w-40 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 opacity-50 blur-3xl" />
+                <div className="absolute -bottom-20 -right-20 h-40 w-40 rounded-full bg-gradient-to-br from-sky-100 to-sky-50 opacity-50 blur-3xl" />
 
-            {/* 로딩 상태 표시 (placeholderData 사용 시) */}
-            {isPlaceholderData && (
-              <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                새로운 데이터를 불러오는 중...
-              </div>
-            )}
-
-            {/* 카드형 그리드 레이아웃 */}
-            {selectedCategory === 'it-news' ? (
-              // IT 뉴스 리스트형 레이아웃
-              <div className={`space-y-4 ${isPlaceholderData ? 'opacity-50' : ''}`}>
-                {data?.articles && data.articles.length > 0 ? (
-                  data.articles.map((article) => (
-                    <Card
-                      key={article.id}
-                      className="group cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg"
-                      onClick={() => router.push(`/articles/${article.id}`)}>
-                      <CardContent className="p-4">
-                        <div className="flex gap-4">
-                          {/* 썸네일 섹션 - 리스트형에서는 작게 */}
-                          <div className="bg-muted relative h-20 w-32 flex-shrink-0 overflow-hidden rounded-lg">
-                            {(article.thumbnail ||
-                              (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그')) &&
-                            !failedImages.has(article.id) ? (
-                              <Image
-                                src={preprocessingThumbnail(article)}
-                                alt={article.title}
-                                fill
-                                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                sizes="128px"
-                                loading="lazy"
-                                onError={() => {
-                                  setFailedImages((prev) => new Set(prev).add(article.id));
-                                }}
-                              />
-                            ) : (
-                              <FallbackThumbnail
-                                title={article.title}
-                                category={undefined}
-                                sourceName={article.source_name}
-                                isDomestic={article.is_domestic}
-                              />
-                            )}
-
-                            {/* IT 뉴스는 배지 없음 */}
-                          </div>
-
-                          {/* 콘텐츠 섹션 */}
-                          <div className="min-w-0 flex-1">
-                            <div className="mb-2 flex items-start justify-between">
-                              <CardTitle className="group-hover:text-primary line-clamp-2 text-base font-semibold leading-tight transition-colors">
-                                {article.title}
-                              </CardTitle>
-
-                              {/* HOT 뱃지 */}
-                              {data?.maxViewCount &&
-                                article.view_count === data.maxViewCount &&
-                                article.view_count > 0 && (
-                                  <Badge variant="hot" size="sm" showIcon={true} className="ml-2 flex-shrink-0">
-                                    HOT
-                                  </Badge>
-                                )}
-                            </div>
-
-                            <CardDescription className="mb-3 line-clamp-2 text-sm">
-                              {article.description}
-                            </CardDescription>
-
-                            <div className="text-muted-foreground flex items-center justify-between text-sm">
-                              <div className="flex items-center gap-4">
-                                <span className="truncate font-medium text-foreground">{article.source_name}</span>
-                                <div className="flex items-center gap-1">
-                                  <Eye className="h-3 w-3" />
-                                  <span>{(article.view_count || 0).toLocaleString()}</span>
-                                </div>
-                                {article.comment_count !== undefined && article.comment_count > 0 && (
-                                  <div className="flex items-center gap-1">
-                                    <MessageCircle className="h-3 w-3" />
-                                    <span>{article.comment_count.toLocaleString()}</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                <span>
-                                  {new Date(article.pub_date).toLocaleDateString('ko-KR', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                  })}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <Card className="py-12 text-center">
-                    <CardContent>
-                      <div className="flex flex-col items-center space-y-4">
-                        <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-full">
-                          <Newspaper className="text-muted-foreground h-8 w-8" />
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground mb-2 text-lg font-medium">
-                            {debouncedSearchValue.trim() ? '검색 결과가 없습니다' : 'IT 뉴스가 없습니다'}
-                          </p>
-                          <p className="text-muted-foreground text-sm">
-                            {debouncedSearchValue.trim()
-                              ? '다른 검색어를 시도해보거나 카테고리를 변경해보세요'
-                              : '새로운 IT 뉴스를 기다려주세요'}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            ) : (
-              // 기존 그리드형 레이아웃
-              <div
-                className={`grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${isPlaceholderData ? 'opacity-50' : ''}`}>
-                {data?.articles && data.articles.length > 0 ? (
-                  data.articles.map((article) => (
-                    <Card
-                      key={article.id}
-                      className="group flex cursor-pointer flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                      onClick={() => router.push(`/articles/${article.id}`)}>
-                      {/* 썸네일 섹션 */}
-                      <div className="bg-muted relative aspect-video overflow-hidden">
-                        {(article.thumbnail ||
-                          (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그')) &&
-                        !failedImages.has(article.id) ? (
-                          <Image
-                            src={preprocessingThumbnail(article)}
-                            alt={article.title}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                            loading="lazy"
-                            onError={() => {
-                              setFailedImages((prev) => new Set(prev).add(article.id));
-                            }}
-                          />
-                        ) : (
-                          <FallbackThumbnail
-                            title={article.title}
-                            category={undefined}
-                            sourceName={article.source_name}
-                            isDomestic={article.is_domestic}
-                          />
-                        )}
-
-                        {/* HOT 배지 */}
-                        <div className="absolute right-2 top-2 flex gap-1">
-                          {/* HOT 뱃지 - 조회수가 최대인 아티클에만 표시 */}
-                          {data?.maxViewCount && article.view_count === data.maxViewCount && article.view_count > 0 && (
-                            <Badge variant="hot" size="sm" showIcon={true}>
-                              HOT
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* 콘텐츠 섹션 */}
-                      <CardContent className="flex-1 p-4">
-                        <CardTitle className="group-hover:text-primary mb-2 line-clamp-2 min-h-[2.1875rem] text-sm font-semibold leading-tight transition-colors">
-                          {article.title}
-                        </CardTitle>
-
-                        <div className="text-muted-foreground mb-2 flex items-center gap-2 text-xs">
-                          <span className="truncate font-medium text-foreground">{article.source_name}</span>
-                          <span>•</span>
-                          <div className="flex items-center gap-1">
-                            <Eye className="h-3 w-3" />
-                            <span>{(article.view_count || 0).toLocaleString()}</span>
-                          </div>
-                          {article.comment_count !== undefined && article.comment_count > 0 && (
-                            <>
-                              <span>•</span>
-                              <div className="flex items-center gap-1">
-                                <MessageCircle className="h-3 w-3" />
-                                <span>{article.comment_count.toLocaleString()}</span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-
-                        <CardDescription className="mb-3 line-clamp-2 min-h-[2rem] text-xs">
-                          {article.description}
-                        </CardDescription>
-
-                        <div className="text-muted-foreground flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>
-                              {new Date(article.pub_date).toLocaleDateString('ko-KR', {
-                                month: 'short',
-                                day: 'numeric',
-                              })}
-                            </span>
-                          </div>
-                          <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="col-span-full">
-                    <Card className="py-12 text-center">
-                      <CardContent>
-                        <div className="flex flex-col items-center space-y-4">
-                          <div className="bg-muted flex h-16 w-16 items-center justify-center rounded-full">
-                            <Globe className="text-muted-foreground h-8 w-8" />
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground mb-2 text-lg font-medium">
-                              {debouncedSearchValue.trim() ? '검색 결과가 없습니다' : '아티클이 없습니다'}
-                            </p>
-                            <p className="text-muted-foreground text-sm">
-                              {debouncedSearchValue.trim()
-                                ? '다른 검색어를 시도해보거나 카테고리를 변경해보세요'
-                                : '다른 카테고리를 선택하거나 RSS를 새로고침해보세요'}
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                {/* 컨텐츠 */}
+                <div className="relative mx-auto max-w-2xl text-center">
+                  <h2 className="mb-4 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                    Subscribe Blog for latest updates
+                  </h2>
+                  <p className="mb-6 text-base text-gray-600 sm:mb-8 sm:text-lg">
+                    Lorem ipsum dolor sit amet conetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
+                    dolore magna alique.
+                  </p>
+                  <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-2">
+                    <input
+                      type="email"
+                      placeholder="Enter email address"
+                      className="w-full max-w-sm rounded-full border border-gray-200 bg-white/80 px-4 py-2 text-base backdrop-blur-sm focus:border-emerald-500 focus:outline-none sm:px-6 sm:py-3"
+                    />
+                    <button className="w-full rounded-full bg-emerald-500 px-4 py-2 text-base font-medium text-white hover:bg-emerald-600 sm:w-auto sm:px-8 sm:py-3">
+                      Subscribe Now
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
-            )}
+            </div>
 
+            {/* 페이지네이션 */}
             {data?.pagination && data.pagination.totalPages > 1 && (
-              <div className="flex justify-center">
+              <div className="mt-8 flex justify-center sm:mt-12">
                 <PaginationWrapper
                   totalItems={data.pagination.total}
                   itemsPerPage={itemsPerPage}
@@ -713,9 +583,41 @@ function ArticlesPageContent() {
               </div>
             )}
           </div>
-          {/* <div className="w-64">
-          <WeeklyPopularSidebar />
-        </div> */}
+
+          {/* 오른쪽 사이드바 - sticky */}
+          <div className="mt-8 w-full lg:mt-0 lg:w-80">
+            <div className="space-y-8 lg:sticky lg:top-24 lg:transition-all lg:duration-300">
+              {/* 구독 폼 */}
+              <div className="rounded-lg bg-gray-50 p-4 shadow-sm transition-all hover:shadow-md sm:p-6">
+                <h3 className="mb-2 text-lg font-semibold text-gray-900">Subscribe Blog for latest updates</h3>
+                <p className="mb-4 text-sm text-gray-600">Get the latest news and updates delivered to your inbox.</p>
+                <div className="space-y-2">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm transition-colors focus:border-emerald-500 focus:outline-none"
+                  />
+                  <button className="w-full rounded-lg bg-emerald-500 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
+                    Subscribe
+                  </button>
+                </div>
+              </div>
+
+              {/* 추천 아티클 */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">Popular Articles</h3>
+                {data?.articles?.slice(0, 3).map((article) => (
+                  <div
+                    key={article.id}
+                    className="cursor-pointer rounded-lg bg-gray-50 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-gray-100 hover:shadow-md"
+                    onClick={() => router.push(`/articles/${article.id}`)}>
+                    <h4 className="mb-1 line-clamp-2 font-medium text-gray-900">{article.title}</h4>
+                    <p className="text-sm text-gray-600">{article.source_name}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
