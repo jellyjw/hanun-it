@@ -9,11 +9,62 @@ import { StagewiseToolbar } from '@stagewise/toolbar-next';
 import { ReactPlugin } from '@stagewise-plugins/react';
 
 export const metadata: Metadata = {
-  title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
+  metadataBase: new URL('https://hanun-it.vercel.app'),
+  title: {
+    default: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
+    template: '%s | 한눈IT',
+  },
   description:
-    '최신 IT 뉴스와 기술 트렌드를 한눈에 확인하세요. 개발자와 IT 전문가를 위한 큐레이션된 콘텐츠를 제공합니다.',
-  keywords: 'IT뉴스, 기술뉴스, 개발자뉴스, 프로그래밍, 소프트웨어, 하드웨어, 스타트업',
+    '최신 IT 뉴스와 기술 트렌드를 한눈에 확인하세요. 개발자와 IT 전문가를 위한 큐레이션된 콘텐츠를 제공합니다. 국내외 IT 뉴스, 기술 블로그, 개발자 커뮤니티의 인기 콘텐츠를 매일 업데이트합니다.',
+  keywords: [
+    'IT뉴스',
+    '기술뉴스',
+    '개발자뉴스',
+    '프로그래밍',
+    '소프트웨어',
+    '하드웨어',
+    '스타트업',
+    '테크뉴스',
+    '기술블로그',
+    '개발자커뮤니티',
+  ],
   authors: [{ name: '한눈IT Team' }],
+  creator: '한눈IT Team',
+  publisher: '한눈IT',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
+    description:
+      '최신 IT 뉴스와 기술 트렌드를 한눈에 확인하세요. 개발자와 IT 전문가를 위한 큐레이션된 콘텐츠를 제공합니다.',
+    url: 'https://hanun-it.vercel.app',
+    siteName: '한눈IT',
+    locale: 'ko_KR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
+    description:
+      '최신 IT 뉴스와 기술 트렌드를 한눈에 확인하세요. 개발자와 IT 전문가를 위한 큐레이션된 콘텐츠를 제공합니다.',
+  },
 };
 
 export const viewport: Viewport = {
