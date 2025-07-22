@@ -200,9 +200,6 @@ export default function ArticleDetailPage() {
         </Button> */}
 
         <div className="mb-2 flex items-center gap-2">
-          <Badge variant={article.is_domestic ? 'success-medium' : 'info-medium'} showIcon={false} size="sm">
-            {article.is_domestic ? '국내' : '해외'}
-          </Badge>
           <span className="text-sm text-gray-500">{article.source_name}</span>
           <span className="text-sm text-gray-500">•</span>
           <span className="text-sm text-gray-500">

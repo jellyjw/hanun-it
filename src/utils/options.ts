@@ -5,8 +5,8 @@ export const SELECT_OPTIONS = {
     { label: '100개씩 보기', value: '100' },
   ],
   sortBy: [
-    { label: '인기순', value: 'popular' },
     { label: '최신순', value: 'latest' },
+    { label: '인기순', value: 'popular' },
     { label: '댓글순', value: 'comments' },
   ],
   categories: [
