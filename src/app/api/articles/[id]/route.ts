@@ -11,7 +11,7 @@ export async function GET(request: NextRequest, { params }: Props) {
     const { id } = await params;
 
     // 서비스 역할 키가 있으면 서비스 클라이언트 사용, 없으면 일반 클라이언트 사용
-    let supabase;
+    let supabase = await createClient(); // 기본값으로 일반 클라이언트 초기화
     const hasServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (hasServiceKey) {
@@ -22,10 +22,8 @@ export async function GET(request: NextRequest, { params }: Props) {
         );
       } catch (error) {
         console.error('서비스 클라이언트 생성 실패, 일반 클라이언트 사용:', error);
-        supabase = await createClient();
+        // 이미 일반 클라이언트로 초기화되어 있으므로 추가 작업 불필요
       }
-    } else {
-      supabase = await createClient();
     }
 
     // 1. 먼저 일반 articles 테이블에서 조회
