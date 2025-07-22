@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const isDomestic = searchParams.get('domestic');
     const searchValue = searchParams.get('searchValue');
-    const sort = searchParams.get('sort') || 'popular';
+    const sort = searchParams.get('sort') || 'latest';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;

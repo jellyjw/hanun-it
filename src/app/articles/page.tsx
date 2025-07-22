@@ -32,7 +32,7 @@ function ArticlesPageContent() {
   const initialPage = parseInt(searchParams.get('page') || '1');
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || 'domestic';
-  const initialSort = searchParams.get('sort') || (initialCategory === 'domestic' || initialCategory === 'it-news' ? 'latest' : 'popular');
+  const initialSort = searchParams.get('sort') || 'latest';
 
   const [page, setPage] = useState(initialPage);
   const [search, setSearch] = useState(initialSearch);
@@ -77,7 +77,7 @@ function ArticlesPageContent() {
       }
 
       if (newParams.sort !== undefined) {
-        if (newParams.sort === 'popular') {
+        if (newParams.sort === 'latest') {
           params.delete('sort');
         } else {
           params.set('sort', newParams.sort);
@@ -95,7 +95,7 @@ function ArticlesPageContent() {
     const urlPage = parseInt(searchParams.get('page') || '1');
     const urlSearch = searchParams.get('search') || '';
     const urlCategory = searchParams.get('category') || 'domestic';
-    const urlSort = searchParams.get('sort') || 'popular';
+    const urlSort = searchParams.get('sort') || 'latest';
 
     if (urlPage !== page) setPage(urlPage);
     if (urlSearch !== searchValue) updateSearchValue(urlSearch);
@@ -622,7 +622,7 @@ function ArticlesPageContent() {
                           />
                         )}
 
-                        {/* 국내/해외 배지와 HOT 배지 */}
+                        {/* HOT 배지 */}
                         <div className="absolute right-2 top-2 flex gap-1">
                           {/* HOT 뱃지 - 조회수가 최대인 아티클에만 표시 */}
                           {data?.maxViewCount && article.view_count === data.maxViewCount && article.view_count > 0 && (
@@ -630,25 +630,6 @@ function ArticlesPageContent() {
                               HOT
                             </Badge>
                           )}
-
-                          {/* 국내/해외 배지 */}
-                          <Badge
-                            variant={article.is_domestic ? 'success-medium' : 'info-medium'}
-                            size="sm"
-                            showIcon={false}
-                            className="border-0">
-                            {article.is_domestic ? (
-                              <>
-                                <MapPin className="mr-1 h-3 w-3" />
-                                국내
-                              </>
-                            ) : (
-                              <>
-                                <Globe className="mr-1 h-3 w-3" />
-                                해외
-                              </>
-                            )}
-                          </Badge>
                         </div>
                       </div>
 

@@ -6,6 +6,30 @@ export const RSS_SOURCES = [
     category: 'tech',
   },
   {
+    name: '넷마블 기술블로그',
+    url: 'https://netmarble.engineering/feed/',
+    isDomestic: true,
+    category: 'tech',
+  },
+  {
+    name: '지마켓 기술블로그',
+    url: 'https://ebay-korea.tistory.com/rss',
+    isDomestic: true,
+    category: 'tech',
+  },
+  {
+    name: '티빙 기술블로그',
+    url: 'https://medium.com/feed/tving-team',
+    isDomestic: true,
+    category: 'tech',
+  },
+  {
+    name: '기억보단 기록을',
+    url: 'https://jojoldu.tistory.com/rss',
+    isDomestic: true,
+    category: 'tech',
+  },
+  {
     name: '우아한형제들 기술블로그',
     url: 'https://techblog.woowahan.com/feed/',
     isDomestic: true,
@@ -92,6 +116,12 @@ export const RSS_SOURCES = [
   {
     name: '카카오 기술블로그',
     url: 'https://tech.kakao.com/feed/',
+    isDomestic: true,
+    category: 'tech',
+  },
+  {
+    name: '카카오 엔터프라이즈 기술블로그',
+    url: 'https://tech.kakaoenterprise.com/feed',
     isDomestic: true,
     category: 'tech',
   },
