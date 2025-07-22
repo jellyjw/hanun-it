@@ -12,10 +12,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArticleSkeleton } from '@/components/skeleton/ArticleSkeleton';
 
+import { useAuth } from '@/hooks/useAuth';
+
 export default function ArticleDetailPage() {
   const params = useParams();
   const router = useRouter();
   const articleId = params?.id as string;
+  const { isAdmin } = useAuth();
 
   const { data, isLoading, error, refetch } = useQuery<ArticleResponse>({
     queryKey: ['article', articleId],
@@ -25,6 +28,33 @@ export default function ArticleDetailPage() {
       return response.json();
     },
   });
+
+  const backfillMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/articles/backfill-content', {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Failed to backfill content');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      alert(data.message);
+      refetch(); // 데이터를 다시 불러와 뷰를 업데이트
+    },
+    onError: (error) => {
+      alert(`마이그레이션 실패: ${error.message}`);
+    },
+  });
+
+  const handleBackfill = () => {
+    if (backfillMutation.isPending) return;
+    const confirmed = confirm(
+      '기존 모든 아티클의 본문을 최신 내용으로 업데이트합니다. 이 작업은 시간이 걸릴 수 있습니다. 계속하시겠습니까?',
+    );
+    if (confirmed) {
+      backfillMutation.mutate();
+    }
+  };
 
   const incrementViewMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -155,6 +185,16 @@ export default function ArticleDetailPage() {
           <ArrowLeft size={20} />
           목록으로 돌아가기
         </button>
+        {isAdmin && (
+          <Button
+            onClick={handleBackfill}
+            disabled={backfillMutation.isPending}
+            variant="outline"
+            size="sm"
+            className="ml-4 text-xs">
+            {backfillMutation.isPending ? '업데이트 중' : '기존 본문 채우기'}
+          </Button>
+        )}
         {/* <Button onClick={handleConvertMarkdown} variant="outline" size="sm" className="text-xs">
           마크다운 변환
         </Button> */}
@@ -166,13 +206,15 @@ export default function ArticleDetailPage() {
           <span className="text-sm text-gray-500">{article.source_name}</span>
           <span className="text-sm text-gray-500">•</span>
           <span className="text-sm text-gray-500">
-            {new Date(article.pub_date).toLocaleDateString('ko-KR', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+            {article && article.pub_date
+              ? new Date(article.pub_date).toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })
+              : '날짜 정보 없음'}
           </span>
-          {article.view_count !== undefined && (
+          {typeof article.view_count === 'number' && (
             <>
               <span className="text-sm text-gray-500">•</span>
               <div className="flex items-center gap-1 text-sm text-gray-500">

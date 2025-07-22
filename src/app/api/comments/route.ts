@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'article_id가 필요합니다.' }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabase = await createClient(request);
     const offset = (page - 1) * limit;
 
     // 댓글 목록 조회
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'article_id와 content가 필요합니다.' }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabase = await createClient(request);
 
     // 사용자 인증 확인
     const {

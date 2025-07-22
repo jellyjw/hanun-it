@@ -22,10 +22,10 @@ export async function POST(request: NextRequest, { params }: Props) {
         );
       } catch (error) {
         console.error('서비스 클라이언트 생성 실패, 일반 클라이언트 사용:', error);
-        supabase = await createClient();
+        supabase = await createClient(request);
       }
     } else {
-      supabase = await createClient();
+      supabase = await createClient(request);
     }
 
     // 1. 먼저 articles 테이블에서 조회수 가져오기

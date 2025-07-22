@@ -32,7 +32,7 @@ function ArticlesPageContent() {
   const initialPage = parseInt(searchParams.get('page') || '1');
   const initialSearch = searchParams.get('search') || '';
   const initialCategory = searchParams.get('category') || 'domestic';
-  const initialSort = searchParams.get('sort') || (initialCategory === 'it-news' ? 'latest' : 'popular');
+  const initialSort = searchParams.get('sort') || (initialCategory === 'domestic' || initialCategory === 'it-news' ? 'latest' : 'popular');
 
   const [page, setPage] = useState(initialPage);
   const [search, setSearch] = useState(initialSearch);

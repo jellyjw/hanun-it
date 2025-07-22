@@ -14,33 +14,22 @@ serve(async (req) => {
   try {
     console.log('🚀 Cron job started: Fetching IT news and articles...');
 
-    // IT 뉴스 업데이트
-    const itNewsResponse = await fetch(`${SITE_URL}/api/it-news/rss`, {
+    // 통합된 RSS 피드 및 썸네일 수집
+    const response = await fetch(`${SITE_URL}/api/rss`, {
       headers: {
         Authorization: `Bearer ${CRON_SECRET}`,
         'User-Agent': 'Supabase-Cron-Function',
       },
     });
-    const itNewsResult = await itNewsResponse.json();
-    console.log('✅ IT News update response:', itNewsResult);
-
-    // 아티클 업데이트
-    const articlesResponse = await fetch(`${SITE_URL}/api/rss`, {
-      headers: {
-        Authorization: `Bearer ${CRON_SECRET}`,
-        'User-Agent': 'Supabase-Cron-Function',
-      },
-    });
-    const articlesResult = await articlesResponse.json();
-    console.log('✅ Articles update response:', articlesResult);
+    const result = await response.json();
+    console.log('✅ RSS & Thumbnail processing response:', result);
 
     console.log('🎉 Cron job finished successfully.');
 
     return new Response(
       JSON.stringify({
         message: 'Cron job executed successfully',
-        itNews: itNewsResult,
-        articles: articlesResult,
+        result,
       }),
       {
         status: 200,
