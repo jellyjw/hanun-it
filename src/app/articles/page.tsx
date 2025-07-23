@@ -3,7 +3,19 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery, keepPreviousData, QueryFunctionContext, useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Calendar, ExternalLink, Globe, MapPin, Loader2, Menu, Eye, MessageCircle, Newspaper } from 'lucide-react';
+import {
+  Calendar,
+  ExternalLink,
+  Globe,
+  MapPin,
+  Loader2,
+  Menu,
+  Eye,
+  MessageCircle,
+  Newspaper,
+  RefreshCw,
+  ImageIcon,
+} from 'lucide-react';
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
@@ -21,6 +33,8 @@ import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import { useToast } from '@/hooks/use-toast';
 import { Suspense } from 'react';
 import { ArticlesSkeleton } from '@/components/skeleton/ArticlesSkeleton';
+import { useAuth } from '@/hooks/useAuth';
+import Link from 'next/link';
 
 function ArticlesPageContent() {
   const router = useRouter();
@@ -46,6 +60,8 @@ function ArticlesPageContent() {
   const { searchValue, debouncedSearchValue, updateSearchValue, isSearching } = useSearch(initialSearch, 800);
 
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+
+  const { user, signOut, isAdmin } = useAuth();
 
   // URL 업데이트 함수
   const updateURL = useCallback(
@@ -402,7 +418,7 @@ function ArticlesPageContent() {
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold">한눈IT</span>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+          {/* <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <a href="#" className="text-sm text-gray-600 hover:text-gray-900">
               Analytics
             </a>
@@ -418,6 +434,55 @@ function ArticlesPageContent() {
             <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
               Subscribe
             </button>
+          </div> */}
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <>
+                <Button
+                  onClick={handleRefreshRSS}
+                  variant="outline"
+                  size="sm"
+                  className="hidden items-center space-x-2 border-purple-200 transition-all duration-200 hover:border-purple-300 hover:bg-purple-50 sm:flex dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-950">
+                  <RefreshCw className="h-4 w-4" />
+                  <span>새로고침</span>
+                </Button>
+
+                {handleRefreshITNews && (
+                  <Button
+                    onClick={handleRefreshITNews}
+                    variant="outline"
+                    size="sm"
+                    className="hidden items-center space-x-2 border-green-200 transition-all duration-200 hover:border-green-300 hover:bg-green-50 sm:flex dark:border-green-800 dark:hover:border-green-700 dark:hover:bg-green-950">
+                    <Newspaper className="h-4 w-4" />
+                    <span>IT뉴스</span>
+                  </Button>
+                )}
+
+                {handleExtractThumbnails && (
+                  <Button
+                    onClick={handleExtractThumbnails}
+                    variant="outline"
+                    size="sm"
+                    className="hidden items-center space-x-2 border-orange-200 transition-all duration-200 hover:border-orange-300 hover:bg-orange-50 sm:flex dark:border-orange-800 dark:hover:border-orange-700 dark:hover:bg-orange-950">
+                    <ImageIcon className="h-4 w-4" />
+                    <span>썸네일</span>
+                  </Button>
+                )}
+              </>
+            )}
+            {user ? (
+              <button
+                onClick={signOut}
+                className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
+                로그아웃
+              </button>
+            ) : (
+              <Link href="/auth/login">
+                <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
+                  로그인
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       </nav>
@@ -426,9 +491,9 @@ function ArticlesPageContent() {
       <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
         {/* 헤더 섹션 */}
         <div className="mb-8 text-center sm:mb-12">
-          <h1 className="mb-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Your Blog Title Here.</h1>
+          <h1 className="mb-4 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">한눈에 모아보는 IT 뉴스</h1>
           <p className="mx-auto max-w-2xl text-base text-gray-600 sm:text-lg">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit sed do eiusmod tempor.
+            최신 IT 뉴스와 기술 아티클, 인기 영상을 한눈에 모아보세요.
           </p>
         </div>
 
@@ -458,22 +523,48 @@ function ArticlesPageContent() {
               {/* 카테고리 탭 */}
               <div className="mt-4 overflow-x-auto border-b border-gray-200">
                 <div className="flex min-w-max gap-8 pb-1">
-                  <button className="border-b-2 border-gray-900 pb-4 text-sm font-medium text-gray-900">All</button>
-                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
-                    Blogs
+                  <button
+                    onClick={() => handleCategoryChange('domestic')}
+                    className={`whitespace-nowrap pb-4 text-sm font-medium transition-colors ${
+                      selectedCategory === 'domestic'
+                        ? 'border-b-2 border-gray-900 text-gray-900'
+                        : 'text-gray-500 hover:text-gray-900'
+                    }`}>
+                    국내
                   </button>
-                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
-                    Branding
+                  <button
+                    onClick={() => handleCategoryChange('foreign')}
+                    className={`whitespace-nowrap pb-4 text-sm font-medium transition-colors ${
+                      selectedCategory === 'foreign'
+                        ? 'border-b-2 border-gray-900 text-gray-900'
+                        : 'text-gray-500 hover:text-gray-900'
+                    }`}>
+                    해외
                   </button>
-                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
-                    Resources
+                  <button
+                    onClick={() => handleCategoryChange('it-news')}
+                    className={`whitespace-nowrap pb-4 text-sm font-medium transition-colors ${
+                      selectedCategory === 'it-news'
+                        ? 'border-b-2 border-gray-900 text-gray-900'
+                        : 'text-gray-500 hover:text-gray-900'
+                    }`}>
+                    IT News
                   </button>
-                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
+                  <button
+                    onClick={() => handleCategoryChange('videos')}
+                    className={`whitespace-nowrap pb-4 text-sm font-medium transition-colors ${
+                      selectedCategory === 'videos'
+                        ? 'border-b-2 border-gray-900 text-gray-900'
+                        : 'text-gray-500 hover:text-gray-900'
+                    }`}>
+                    인기 영상
+                  </button>
+                  {/* <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
                     Sports
                   </button>
                   <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
                     Finance
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
@@ -542,14 +633,14 @@ function ArticlesPageContent() {
             </div>
 
             {/* 구독 섹션 */}
-            <div className="my-12 overflow-hidden rounded-xl bg-gradient-to-r from-pink-50 via-yellow-50 to-sky-50 px-4 py-12 sm:my-24 sm:px-8 sm:py-16">
-              <div className="relative">
-                {/* 장식용 원형 그라데이션 */}
-                <div className="absolute -left-20 -top-20 h-40 w-40 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 opacity-50 blur-3xl" />
-                <div className="absolute -bottom-20 -right-20 h-40 w-40 rounded-full bg-gradient-to-br from-sky-100 to-sky-50 opacity-50 blur-3xl" />
+            {/* <div className="my-12 overflow-hidden rounded-xl bg-gradient-to-r from-pink-50 via-yellow-50 to-sky-50 px-4 py-12 sm:my-24 sm:px-8 sm:py-16">
+              <div className="relative"> */}
+            {/* 장식용 원형 그라데이션 */}
+            {/* <div className="absolute -left-20 -top-20 h-40 w-40 rounded-full bg-gradient-to-br from-pink-100 to-pink-50 opacity-50 blur-3xl" />
+                <div className="absolute -bottom-20 -right-20 h-40 w-40 rounded-full bg-gradient-to-br from-sky-100 to-sky-50 opacity-50 blur-3xl" /> */}
 
-                {/* 컨텐츠 */}
-                <div className="relative mx-auto max-w-2xl text-center">
+            {/* 컨텐츠 */}
+            {/* <div className="relative mx-auto max-w-2xl text-center">
                   <h2 className="mb-4 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
                     Subscribe Blog for latest updates
                   </h2>
@@ -569,7 +660,7 @@ function ArticlesPageContent() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* 페이지네이션 */}
             {data?.pagination && data.pagination.totalPages > 1 && (
@@ -588,7 +679,7 @@ function ArticlesPageContent() {
           <div className="mt-8 w-full lg:mt-0 lg:w-80">
             <div className="space-y-8 lg:sticky lg:top-24 lg:transition-all lg:duration-300">
               {/* 구독 폼 */}
-              <div className="rounded-lg bg-gray-50 p-4 shadow-sm transition-all hover:shadow-md sm:p-6">
+              {/* <div className="rounded-lg bg-gray-50 p-4 shadow-sm transition-all hover:shadow-md sm:p-6">
                 <h3 className="mb-2 text-lg font-semibold text-gray-900">Subscribe Blog for latest updates</h3>
                 <p className="mb-4 text-sm text-gray-600">Get the latest news and updates delivered to your inbox.</p>
                 <div className="space-y-2">
@@ -601,7 +692,7 @@ function ArticlesPageContent() {
                     Subscribe
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               {/* 추천 아티클 */}
               <div className="space-y-4">
