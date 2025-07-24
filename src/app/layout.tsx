@@ -84,6 +84,10 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7127894498153967"
+          crossOrigin="anonymous"></script>
         <link
           rel="stylesheet"
           as="style"
