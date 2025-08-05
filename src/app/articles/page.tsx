@@ -153,28 +153,43 @@ function ArticlesPageContent() {
     selectedCategory === 'videos'
       ? {
           ...videosQuery,
-          data: videosQuery.data
+          // YouTube API 에러 시 빈 데이터로 처리
+          data: videosQuery.error
             ? {
-                articles: videosQuery.data.videos.map((video) => ({
-                  id: video.id,
-                  title: video.title,
-                  description: video.description,
-                  link: `https://www.youtube.com/watch?v=${video.videoId}`,
-                  content: video.description,
-                  pub_date: video.publishedAt,
-                  source_name: video.channelTitle,
-                  category: 'videos',
-                  is_domestic: false,
-                  thumbnail: video.thumbnail,
-                  summary: video.description,
-                  view_count: video.viewCount,
-                  like_count: video.likeCount,
-                  videoId: video.videoId,
-                  duration: video.duration,
-                })),
-                pagination: videosQuery.data.pagination,
+                articles: [],
+                pagination: {
+                  page: 1,
+                  limit: itemsPerPage,
+                  total: 0,
+                  totalPages: 0,
+                  hasNext: false,
+                  hasPrev: false,
+                },
               }
-            : null,
+            : videosQuery.data
+              ? {
+                  articles: videosQuery.data.videos.map((video) => ({
+                    id: video.id,
+                    title: video.title,
+                    description: video.description,
+                    link: `https://www.youtube.com/watch?v=${video.videoId}`,
+                    content: video.description,
+                    pub_date: video.publishedAt,
+                    source_name: video.channelTitle,
+                    category: 'videos',
+                    is_domestic: false,
+                    thumbnail: video.thumbnail,
+                    summary: video.description,
+                    view_count: video.viewCount,
+                    like_count: video.likeCount,
+                    videoId: video.videoId,
+                    duration: video.duration,
+                  })),
+                  pagination: videosQuery.data.pagination,
+                }
+              : null,
+          // videos 카테고리에서는 에러를 숨김
+          error: null,
         }
       : articlesQuery;
 
@@ -375,10 +390,23 @@ function ArticlesPageContent() {
     // YouTube 썸네일 크기 최적화 - 모든 경우에 적용
     if (article.category === 'videos' && thumbnail.includes('i.ytimg.com')) {
       // 다양한 YouTube 썸네일 크기를 mqdefault로 통일 (320x180)
+      // 더욱 엄격하게 처리하여 모든 경우를 커버
       thumbnail = thumbnail
-        .replace('maxresdefault', 'mqdefault')
-        .replace('hqdefault', 'mqdefault')
-        .replace('sddefault', 'mqdefault');
+        .replace(/maxresdefault\.jpg/g, 'mqdefault.jpg')
+        .replace(/hqdefault\.jpg/g, 'mqdefault.jpg')
+        .replace(/sddefault\.jpg/g, 'mqdefault.jpg')
+        .replace(/hq720\.jpg/g, 'mqdefault.jpg')
+        .replace(/maxresdefault\.webp/g, 'mqdefault.jpg')
+        .replace(/hqdefault\.webp/g, 'mqdefault.jpg')
+        .replace(/sddefault\.webp/g, 'mqdefault.jpg');
+
+      // YouTube URL에 mqdefault가 없는 경우 강제로 추가
+      if (!thumbnail.includes('mqdefault') && thumbnail.includes('i.ytimg.com')) {
+        const videoIdMatch = thumbnail.match(/vi\/([^\/]+)\//);
+        if (videoIdMatch) {
+          thumbnail = `https://i.ytimg.com/vi/${videoIdMatch[1]}/mqdefault.jpg`;
+        }
+      }
     }
 
     return thumbnail;
@@ -444,23 +472,7 @@ function ArticlesPageContent() {
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold">한눈IT</span>
           </div>
-          {/* <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-            <a href="#" className="text-sm text-gray-600 hover:text-gray-900">
-              Analytics
-            </a>
-            <a href="#" className="text-sm text-gray-600 hover:text-gray-900">
-              Pricing
-            </a>
-            <a href="#" className="text-sm text-gray-600 hover:text-gray-900">
-              Resources
-            </a>
-            <a href="#" className="text-sm text-gray-600 hover:text-gray-900">
-              Products
-            </a>
-            <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
-              Subscribe
-            </button>
-          </div> */}
+
           <div className="flex items-center gap-2">
             {isAdmin && (
               <>
@@ -597,13 +609,13 @@ function ArticlesPageContent() {
               </div>
             </div>
 
-            {/* 아티클 그리드 - Flexbox 레이아웃으로 개선 */}
-            <div className="flex flex-wrap gap-6 lg:gap-8">
+            {/* 아티클 그리드 - 고정 크기로 엄격 제한 */}
+            <div className="flex max-w-full flex-wrap gap-6 overflow-hidden lg:gap-8" style={{ maxWidth: '100%' }}>
               {data?.articles && data.articles.length > 0 ? (
                 data.articles.map((article) => (
                   <div
                     key={article.id}
-                    className="group flex max-h-[480px] min-h-0 w-full cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.333rem)]"
+                    className="card-width-constrained flex-item-constrained group flex max-h-[480px] min-h-0 w-full cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.333rem)]"
                     onClick={() => {
                       if (article.category === 'videos' && (article as any).videoId) {
                         window.open(`https://www.youtube.com/watch?v=${(article as any).videoId}`, '_blank');
@@ -619,6 +631,9 @@ function ArticlesPageContent() {
                       style={{
                         minHeight: article.category === 'videos' ? '192px' : '224px',
                         maxHeight: article.category === 'videos' ? '192px' : '224px',
+                        width: '100%',
+                        maxWidth: '100%',
+                        boxSizing: 'border-box',
                       }}>
                       {(article.thumbnail ||
                         (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그')) &&
@@ -627,7 +642,7 @@ function ArticlesPageContent() {
                           src={preprocessingThumbnail(article)}
                           alt={article.title}
                           fill
-                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          className="thumbnail-size-constrained h-full w-full max-w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           sizes={
                             article.category === 'videos'
                               ? '320px'
@@ -636,7 +651,6 @@ function ArticlesPageContent() {
                           loading="lazy"
                           priority={false}
                           style={{
-                            maxHeight: article.category === 'videos' ? '192px' : '224px',
                             objectFit: 'cover',
                           }}
                           onError={() => {
@@ -719,9 +733,15 @@ function ArticlesPageContent() {
                 <div className="w-full">
                   <div className="rounded-lg bg-gray-50 py-12 text-center">
                     <div className="mx-auto max-w-sm px-4">
-                      <h3 className="mb-2 text-lg font-semibold text-gray-900">No articles found</h3>
-                      <p className="text-sm text-gray-600">
-                        {debouncedSearchValue.trim() ? '다른 검색어를 시도해보세요' : '아직 등록된 아티클이 없습니다'}
+                      <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                        {selectedCategory === 'videos' ? '영상을 불러올 수 없습니다' : 'No articles found'}
+                      </h3>
+                      <p className="whitespace-pre-wrap text-sm text-gray-600">
+                        {selectedCategory === 'videos'
+                          ? 'YouTube 영상 조회 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.'
+                          : debouncedSearchValue.trim()
+                            ? '다른 검색어를 시도해보세요'
+                            : '아직 등록된 아티클이 없습니다'}
                       </p>
                     </div>
                   </div>

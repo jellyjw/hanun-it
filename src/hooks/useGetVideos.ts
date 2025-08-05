@@ -22,7 +22,11 @@ export function useGetVideos({
 
       const response = await fetch(`/api/youtube?${params.toString()}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch videos');
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 429 && errorData.quotaExceeded) {
+          throw new Error('YouTube API 할당량이 초과되었습니다. 잠시 후 다시 시도해주세요.');
+        }
+        throw new Error(errorData.error || 'Failed to fetch videos');
       }
       return response.json();
     },

@@ -122,13 +122,28 @@ export async function GET(request: NextRequest) {
       query = randomKeyword;
     }
 
-    // YouTube Search API 호출 - 한국 지역 설정 추가
-    const searchResponse = await fetch(
-      `${YOUTUBE_API_URL}/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=${limit}&order=relevance&publishedAfter=${new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()}&videoDuration=medium&videoDefinition=high&regionCode=KR&relevanceLanguage=ko&key=${YOUTUBE_API_KEY}`,
-    );
+    // YouTube Search API 호출 - 단순화된 버전
+    const searchUrl = `${YOUTUBE_API_URL}/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=${limit}&order=relevance&regionCode=KR&relevanceLanguage=ko&key=${YOUTUBE_API_KEY}`;
+    
+    console.log('YouTube API 호출:', {
+      query,
+      limit,
+      hasApiKey: !!YOUTUBE_API_KEY,
+      apiKeyPrefix: YOUTUBE_API_KEY?.substring(0, 10) + '...'
+    });
+    
+    const searchResponse = await fetch(searchUrl);
 
     if (!searchResponse.ok) {
-      throw new Error(`YouTube API error: ${searchResponse.statusText}`);
+      const errorText = await searchResponse.text();
+      console.error('YouTube Search API error:', {
+        status: searchResponse.status,
+        statusText: searchResponse.statusText,
+        error: errorText,
+        query,
+        url: `${YOUTUBE_API_URL}/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=${limit}&order=relevance&publishedAfter=${new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()}&videoDuration=medium&videoDefinition=high&regionCode=KR&relevanceLanguage=ko&key=***`
+      });
+      throw new Error(`YouTube API error: ${searchResponse.status} ${searchResponse.statusText} - ${errorText}`);
     }
 
     const searchData = await searchResponse.json();
@@ -152,7 +167,14 @@ export async function GET(request: NextRequest) {
     );
 
     if (!detailsResponse.ok) {
-      throw new Error(`YouTube API error: ${detailsResponse.statusText}`);
+      const errorText = await detailsResponse.text();
+      console.error('YouTube Details API error:', {
+        status: detailsResponse.status,
+        statusText: detailsResponse.statusText,
+        error: errorText,
+        videoIds
+      });
+      throw new Error(`YouTube API error: ${detailsResponse.status} ${detailsResponse.statusText} - ${errorText}`);
     }
 
     const detailsData = await detailsResponse.json();
@@ -186,6 +208,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
   } catch (error) {
     console.error('YouTube API error:', error);
+    
+    // 할당량 초과 에러인 경우 더 명확한 메시지 제공
+    if (error instanceof Error && error.message.includes('quotaExceeded')) {
+      return NextResponse.json({ 
+        error: 'YouTube API 할당량이 초과되었습니다. 잠시 후 다시 시도해주세요.',
+        quotaExceeded: true 
+      }, { status: 429 });
+    }
+    
     return NextResponse.json({ error: 'Failed to fetch YouTube videos' }, { status: 500 });
   }
 }
