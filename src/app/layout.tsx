@@ -5,8 +5,6 @@ import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/Footer';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { StagewiseToolbar } from '@stagewise/toolbar-next';
-import { ReactPlugin } from '@stagewise-plugins/react';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://hanun-it.vercel.app'),
@@ -104,11 +102,6 @@ export default function RootLayout({
         </Providers>
         <Toaster />
         <Analytics />
-        <StagewiseToolbar
-          config={{
-            plugins: [ReactPlugin],
-          }}
-        />
         <SpeedInsights />
       </body>
     </html>
