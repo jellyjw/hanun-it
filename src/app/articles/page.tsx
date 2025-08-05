@@ -15,6 +15,8 @@ import {
   Newspaper,
   RefreshCw,
   ImageIcon,
+  Play,
+  Clock,
 } from 'lucide-react';
 import PageInfo from '@/components/pagination/PageInfo';
 import { Header } from '@/components/header/Header';
@@ -37,6 +39,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 
 import { useGetArticles } from '@/hooks/useGetArticles';
+import { useGetVideos } from '@/hooks/useGetVideos';
 
 function ArticlesPageContent() {
   const router = useRouter();
@@ -52,7 +55,7 @@ function ArticlesPageContent() {
 
   const [page, setPage] = useState(initialPage);
   const [search, setSearch] = useState(initialSearch);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [itemsPerPage, setItemsPerPage] = useState(21); // 3의 배수로 변경 (7행 * 3열)
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [sortBy, setSortBy] = useState(initialSort);
 
@@ -130,32 +133,84 @@ function ArticlesPageContent() {
     }
   }, [debouncedSearchValue]);
 
-  // TanStack Query를 사용한 페이지네이션
-  const { data, isLoading, error, refetch, isPlaceholderData } = useGetArticles({
-    category: selectedCategory,
-    searchValue: debouncedSearchValue,
+  // TanStack Query를 사용한 페이지네이션 - 아티클과 비디오 구분
+  const articlesQuery = useGetArticles({
+    category: selectedCategory === 'videos' ? 'all' : selectedCategory,
+    searchValue: selectedCategory === 'videos' ? '' : debouncedSearchValue,
     sort: sortBy,
-    page,
-    limit: itemsPerPage,
+    page: selectedCategory === 'videos' ? 1 : page,
+    limit: selectedCategory === 'videos' ? 1 : itemsPerPage,
   });
+
+  const videosQuery = useGetVideos({
+    searchValue: selectedCategory === 'videos' ? debouncedSearchValue : '',
+    page: selectedCategory === 'videos' ? page : 1,
+    limit: selectedCategory === 'videos' ? itemsPerPage : 1,
+  });
+
+  // 현재 선택된 카테고리에 따라 적절한 쿼리 선택
+  const { data, isLoading, error, refetch, isPlaceholderData } =
+    selectedCategory === 'videos'
+      ? {
+          ...videosQuery,
+          data: videosQuery.data
+            ? {
+                articles: videosQuery.data.videos.map((video) => ({
+                  id: video.id,
+                  title: video.title,
+                  description: video.description,
+                  link: `https://www.youtube.com/watch?v=${video.videoId}`,
+                  content: video.description,
+                  pub_date: video.publishedAt,
+                  source_name: video.channelTitle,
+                  category: 'videos',
+                  is_domestic: false,
+                  thumbnail: video.thumbnail,
+                  summary: video.description,
+                  view_count: video.viewCount,
+                  like_count: video.likeCount,
+                  videoId: video.videoId,
+                  duration: video.duration,
+                })),
+                pagination: videosQuery.data.pagination,
+              }
+            : null,
+        }
+      : articlesQuery;
 
   useEffect(() => {
     if (!isPlaceholderData && data?.pagination.hasNext) {
-      queryClient.prefetchQuery({
-        queryKey: ['articles', selectedCategory, debouncedSearchValue, sortBy, page + 1, itemsPerPage],
-        queryFn: async () => {
-          const params = new URLSearchParams();
-          if (selectedCategory !== 'all') params.append('category', selectedCategory);
-          if (debouncedSearchValue) params.append('searchValue', debouncedSearchValue);
-          if (sortBy) params.append('sort', sortBy);
-          params.append('page', (page + 1).toString());
-          params.append('limit', itemsPerPage.toString());
+      if (selectedCategory === 'videos') {
+        queryClient.prefetchQuery({
+          queryKey: ['videos', debouncedSearchValue, page + 1, itemsPerPage],
+          queryFn: async () => {
+            const params = new URLSearchParams();
+            if (debouncedSearchValue) params.append('searchValue', debouncedSearchValue);
+            params.append('page', (page + 1).toString());
+            params.append('limit', itemsPerPage.toString());
 
-          const response = await fetch(`/api/articles?${params.toString()}`);
-          if (!response.ok) throw new Error('Failed to fetch articles');
-          return response.json();
-        },
-      });
+            const response = await fetch(`/api/youtube?${params.toString()}`);
+            if (!response.ok) throw new Error('Failed to fetch videos');
+            return response.json();
+          },
+        });
+      } else {
+        queryClient.prefetchQuery({
+          queryKey: ['articles', selectedCategory, debouncedSearchValue, sortBy, page + 1, itemsPerPage],
+          queryFn: async () => {
+            const params = new URLSearchParams();
+            if (selectedCategory !== 'all') params.append('category', selectedCategory);
+            if (debouncedSearchValue) params.append('searchValue', debouncedSearchValue);
+            if (sortBy) params.append('sort', sortBy);
+            params.append('page', (page + 1).toString());
+            params.append('limit', itemsPerPage.toString());
+
+            const response = await fetch(`/api/articles?${params.toString()}`);
+            if (!response.ok) throw new Error('Failed to fetch articles');
+            return response.json();
+          },
+        });
+      }
     }
   }, [data, isPlaceholderData, page, queryClient, selectedCategory, sortBy, debouncedSearchValue, itemsPerPage]);
 
@@ -300,18 +355,33 @@ function ArticlesPageContent() {
             ? '해외 아티클'
             : selectedCategory === 'it-news'
               ? 'IT 뉴스'
-              : '전체 아티클';
+              : selectedCategory === 'videos'
+                ? '인기 영상'
+                : '전체 아티클';
 
     return `${baseTitle}`;
   };
 
   const preprocessingThumbnail = (article: ArticleResponse['article']) => {
-    if (article.thumbnail.includes('https://techblog.woowa.in')) {
-      return article.thumbnail.replace('https://techblog.woowa.in', 'https://techblog.woowahan.com');
-    } else if (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그') {
+    let thumbnail = article.thumbnail;
+
+    // 우아한형제들 블로그 URL 수정
+    if (thumbnail.includes('https://techblog.woowa.in')) {
+      thumbnail = thumbnail.replace('https://techblog.woowa.in', 'https://techblog.woowahan.com');
+    } else if (thumbnail === '' && article.source_name === '우아한형제들 기술블로그') {
       return 'https://techblog.woowahan.com/wp-content/uploads/2023/02/2023-%EC%9A%B0%EC%95%84%ED%95%9C%ED%85%8C%ED%81%AC-%EB%A1%9C%EA%B3%A0-2-e1675772695839.png';
     }
-    return article.thumbnail;
+
+    // YouTube 썸네일 크기 최적화 - 모든 경우에 적용
+    if (article.category === 'videos' && thumbnail.includes('i.ytimg.com')) {
+      // 다양한 YouTube 썸네일 크기를 mqdefault로 통일 (320x180)
+      thumbnail = thumbnail
+        .replace('maxresdefault', 'mqdefault')
+        .replace('hqdefault', 'mqdefault')
+        .replace('sddefault', 'mqdefault');
+    }
+
+    return thumbnail;
   };
 
   if (isLoading && !isPlaceholderData) {
@@ -463,9 +533,11 @@ function ArticlesPageContent() {
                 <div className="w-full sm:max-w-md">
                   <SearchInput onSearch={handleSearch} isSearching={isSearching} initialValue={searchValue} />
                 </div>
-                <div className="flex justify-end">
-                  <SelectBox options={SELECT_OPTIONS.sortBy} value={sortBy} onChange={handleSortChange} />
-                </div>
+                {selectedCategory !== 'videos' && (
+                  <div className="flex justify-end">
+                    <SelectBox options={SELECT_OPTIONS.sortBy} value={sortBy} onChange={handleSortChange} />
+                  </div>
+                )}
               </div>
 
               {/* 로딩 상태 표시 */}
@@ -525,16 +597,29 @@ function ArticlesPageContent() {
               </div>
             </div>
 
-            {/* 아티클 그리드 */}
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+            {/* 아티클 그리드 - Flexbox 레이아웃으로 개선 */}
+            <div className="flex flex-wrap gap-6 lg:gap-8">
               {data?.articles && data.articles.length > 0 ? (
                 data.articles.map((article) => (
                   <div
                     key={article.id}
-                    className="group flex cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                    onClick={() => router.push(`/articles/${article.id}`)}>
-                    {/* 썸네일 */}
-                    <div className="relative aspect-[4/3] overflow-hidden">
+                    className="group flex max-h-[480px] min-h-0 w-full cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.333rem)]"
+                    onClick={() => {
+                      if (article.category === 'videos' && (article as any).videoId) {
+                        window.open(`https://www.youtube.com/watch?v=${(article as any).videoId}`, '_blank');
+                      } else {
+                        router.push(`/articles/${article.id}`);
+                      }
+                    }}>
+                    {/* 썸네일 - 고정 높이와 추가 제한 */}
+                    <div
+                      className={`relative w-full overflow-hidden bg-gray-100 ${
+                        article.category === 'videos' ? 'h-48 max-h-48' : 'h-56 max-h-56'
+                      }`}
+                      style={{
+                        minHeight: article.category === 'videos' ? '192px' : '224px',
+                        maxHeight: article.category === 'videos' ? '192px' : '224px',
+                      }}>
                       {(article.thumbnail ||
                         (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그')) &&
                       !failedImages.has(article.id) ? (
@@ -542,9 +627,18 @@ function ArticlesPageContent() {
                           src={preprocessingThumbnail(article)}
                           alt={article.title}
                           fill
-                          className="object-cover transition-transform duration-300 group-hover:scale-105"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes={
+                            article.category === 'videos'
+                              ? '320px'
+                              : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                          }
                           loading="lazy"
+                          priority={false}
+                          style={{
+                            maxHeight: article.category === 'videos' ? '192px' : '224px',
+                            objectFit: 'cover',
+                          }}
                           onError={() => {
                             setFailedImages((prev) => new Set(prev).add(article.id));
                           }}
@@ -557,16 +651,37 @@ function ArticlesPageContent() {
                           isDomestic={article.is_domestic}
                         />
                       )}
+
+                      {/* 비디오인 경우 재생 버튼과 길이 표시 */}
+                      {article.category === 'videos' && (
+                        <>
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 shadow-lg">
+                              <Play className="ml-0.5 h-6 w-6 text-white" fill="currentColor" />
+                            </div>
+                          </div>
+                          {(article as any).duration && (
+                            <div className="absolute bottom-2 right-2 rounded bg-black/80 px-2 py-1 text-xs font-medium text-white">
+                              {(article as any).duration}
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
 
                     {/* 컨텐츠 */}
                     <div className="flex flex-1 flex-col p-4 sm:p-6">
                       <div className="mb-2 flex items-center justify-between">
-                        <span className="text-xs font-medium text-emerald-600">{article.source_name}</span>
+                        <span
+                          className={`text-xs font-medium ${
+                            article.category === 'videos' ? 'text-red-600' : 'text-emerald-600'
+                          }`}>
+                          {article.source_name}
+                        </span>
                         <span className="text-xs text-gray-500">
                           {new Date(article.pub_date).toLocaleDateString('ko-KR', {
                             month: 'short',
-                            day: 'numeric'
+                            day: 'numeric',
                           })}
                         </span>
                       </div>
@@ -575,21 +690,33 @@ function ArticlesPageContent() {
                       </h3>
                       <p className="line-clamp-2 flex-1 text-sm text-gray-600">{article.description}</p>
                       <div className="mt-4 flex items-center justify-between">
-                        <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 sm:px-6">
-                          Read More
+                        <button
+                          className={`rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:shadow-md sm:px-6 ${
+                            article.category === 'videos'
+                              ? 'bg-red-500 hover:bg-red-600'
+                              : 'bg-emerald-500 hover:bg-emerald-600'
+                          }`}>
+                          {article.category === 'videos' ? 'Watch Video' : 'Read More'}
                         </button>
-                        {(article.like_count || 0) > 0 && (
-                          <div className="flex items-center gap-1 text-sm text-gray-500">
-                            <span className="text-xs">❤️</span>
-                            <span>{article.like_count}</span>
-                          </div>
-                        )}
+                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                          {article.category === 'videos' && article.view_count ? (
+                            <div className="flex items-center gap-1">
+                              <Eye className="h-3 w-3" />
+                              <span>{article.view_count.toLocaleString()}</span>
+                            </div>
+                          ) : (article.like_count || 0) > 0 ? (
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs">❤️</span>
+                              <span>{article.like_count}</span>
+                            </div>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="col-span-full">
+                <div className="w-full">
                   <div className="rounded-lg bg-gray-50 py-12 text-center">
                     <div className="mx-auto max-w-sm px-4">
                       <h3 className="mb-2 text-lg font-semibold text-gray-900">No articles found</h3>
