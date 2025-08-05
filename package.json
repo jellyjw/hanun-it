@@ -42,8 +42,6 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@stagewise-plugins/react": "^0.4.8",
-    "@stagewise/toolbar-next": "^0.4.8",
     "@tanstack/eslint-plugin-query": "^5.62.16",
     "@types/node": "^20",
     "@types/react": "^19",
