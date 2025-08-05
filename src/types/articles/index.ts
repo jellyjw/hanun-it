@@ -12,6 +12,7 @@ export interface Article {
   summary: string;
   view_count?: number;
   comment_count?: number;
+  like_count?: number;
   is_translated?: boolean;
   original_article_id?: string;
   original_language?: string;

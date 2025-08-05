@@ -36,6 +36,8 @@ import { ArticlesSkeleton } from '@/components/skeleton/ArticlesSkeleton';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 
+import { useGetArticles } from '@/hooks/useGetArticles';
+
 function ArticlesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -128,80 +130,34 @@ function ArticlesPageContent() {
     }
   }, [debouncedSearchValue]);
 
-  const fetchArticles = async (
-    page = 0,
-  ): Promise<{
-    articles: Array<ArticleResponse['article']>;
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-      hasNext: boolean;
-      hasPrev: boolean;
-    };
-    maxViewCount?: number;
-  }> => {
-    console.log('🚀 fetchArticles 호출됨:', {
-      selectedCategory,
-      page,
-      debouncedSearchValue,
-      sortBy,
-      timestamp: new Date().toISOString(),
-    });
-
-    const params = new URLSearchParams({
-      page: page.toString(),
-      searchValue: debouncedSearchValue,
-      sort: sortBy,
-    });
-
-    // 카테고리 파라미터 추가
-    if (selectedCategory !== 'all') {
-      params.append('category', selectedCategory);
-    }
-
-    // IT 뉴스의 경우 별도 API 호출
-    const apiUrl = selectedCategory === 'it-news' ? '/api/it-news' : '/api/articles';
-
-    console.log('📡 API 요청:', `${apiUrl}?${params.toString()}`);
-
-    const response = await fetch(`${apiUrl}?${params}`);
-    const result = await response.json();
-
-    console.log('📦 API 응답:', {
-      success: result.success,
-      articlesCount: result.articles?.length || 0,
-      total: result.pagination?.total || 0,
-    });
-
-    return result;
-  };
-
-  // TanStack Query를 사용한 페이지네이션 - IT 뉴스를 위한 별도 처리
-  const queryKey =
-    selectedCategory === 'it-news'
-      ? (['it-news', page, debouncedSearchValue, selectedCategory, sortBy] as const)
-      : (['articles', page, debouncedSearchValue, selectedCategory, sortBy] as const);
-
-  const { data, isLoading, error, refetch, isPlaceholderData } = useQuery({
-    queryKey,
-    queryFn: () => fetchArticles(page),
-    placeholderData: keepPreviousData,
-    staleTime: selectedCategory === 'it-news' ? 2 * 60 * 1000 : 5 * 60 * 1000, // 캐시 시간 증가
-    gcTime: 30 * 60 * 1000, // 30분간 가비지 컬렉션 방지
-    retry: 1, // 재시도 횟수 제한
-    refetchOnWindowFocus: false, // 윈도우 포커스 시 재요청 방지
+  // TanStack Query를 사용한 페이지네이션
+  const { data, isLoading, error, refetch, isPlaceholderData } = useGetArticles({
+    category: selectedCategory,
+    searchValue: debouncedSearchValue,
+    sort: sortBy,
+    page,
+    limit: itemsPerPage,
   });
 
   useEffect(() => {
     if (!isPlaceholderData && data?.pagination.hasNext) {
       queryClient.prefetchQuery({
-        queryKey: selectedCategory === 'it-news' ? ['it-news', page + 1] : ['articles', page + 1],
-        queryFn: () => fetchArticles(page + 1),
+        queryKey: ['articles', selectedCategory, debouncedSearchValue, sortBy, page + 1, itemsPerPage],
+        queryFn: async () => {
+          const params = new URLSearchParams();
+          if (selectedCategory !== 'all') params.append('category', selectedCategory);
+          if (debouncedSearchValue) params.append('searchValue', debouncedSearchValue);
+          if (sortBy) params.append('sort', sortBy);
+          params.append('page', (page + 1).toString());
+          params.append('limit', itemsPerPage.toString());
+
+          const response = await fetch(`/api/articles?${params.toString()}`);
+          if (!response.ok) throw new Error('Failed to fetch articles');
+          return response.json();
+        },
       });
     }
-  }, [data, isPlaceholderData, page, queryClient, selectedCategory, sortBy]);
+  }, [data, isPlaceholderData, page, queryClient, selectedCategory, sortBy, debouncedSearchValue, itemsPerPage]);
 
   const handleRefreshRSS = async () => {
     try {
@@ -575,7 +531,7 @@ function ArticlesPageContent() {
                 data.articles.map((article) => (
                   <div
                     key={article.id}
-                    className="group cursor-pointer overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                    className="group flex cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                     onClick={() => router.push(`/articles/${article.id}`)}>
                     {/* 썸네일 */}
                     <div className="relative aspect-[4/3] overflow-hidden">
@@ -604,17 +560,31 @@ function ArticlesPageContent() {
                     </div>
 
                     {/* 컨텐츠 */}
-                    <div className="p-4 sm:p-6">
-                      <div className="mb-2">
+                    <div className="flex flex-1 flex-col p-4 sm:p-6">
+                      <div className="mb-2 flex items-center justify-between">
                         <span className="text-xs font-medium text-emerald-600">{article.source_name}</span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(article.pub_date).toLocaleDateString('ko-KR', {
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
                       </div>
                       <h3 className="mb-2 line-clamp-2 text-base font-semibold text-gray-900 sm:text-lg">
                         {article.title}
                       </h3>
-                      <p className="line-clamp-2 text-sm text-gray-600">{article.description}</p>
-                      <button className="mt-4 w-full rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 sm:w-auto sm:px-6">
-                        Read More
-                      </button>
+                      <p className="line-clamp-2 flex-1 text-sm text-gray-600">{article.description}</p>
+                      <div className="mt-4 flex items-center justify-between">
+                        <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 sm:px-6">
+                          Read More
+                        </button>
+                        {(article.like_count || 0) > 0 && (
+                          <div className="flex items-center gap-1 text-sm text-gray-500">
+                            <span className="text-xs">❤️</span>
+                            <span>{article.like_count}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))
