@@ -12,32 +12,29 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category') || 'all';
     const offset = (page - 1) * limit;
 
-    console.log('🔍 IT 뉴스 조회 API 호출:', {
-      searchValue,
-      sort,
-      page,
-      limit,
-      category,
-      timestamp: new Date().toISOString(),
-    });
+    // console.log('🔍 IT 뉴스 조회 API 호출:', {
+    //   searchValue,
+    //   sort,
+    //   page,
+    //   limit,
+    //   category,
+    //   timestamp: new Date().toISOString(),
+    // });
 
     // 서비스 역할 키가 있으면 서비스 클라이언트 사용, 없으면 일반 클라이언트 사용
     let supabase;
     const hasServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (hasServiceKey) {
-      console.log('🔑 서비스 역할 키 사용하여 조회');
       try {
         supabase = createServiceRoleClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!,
         );
       } catch (error) {
-        console.error('서비스 클라이언트 생성 실패, 일반 클라이언트 사용:', error);
         supabase = await createClient();
       }
     } else {
-      console.log('⚠️  서비스 역할 키 없음, 일반 클라이언트 사용');
       supabase = await createClient();
     }
 
@@ -82,7 +79,7 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
-    console.log(`📰 조회된 IT 뉴스: ${news?.length || 0}개`);
+    // console.log(`📰 조회된 IT 뉴스: ${news?.length || 0}개`);
 
     let newsWithCommentCount = news || [];
 
@@ -120,18 +117,22 @@ export async function GET(request: NextRequest) {
     const maxViewCount = newsWithCommentCount[0]?.view_count || 0;
     const totalPages = Math.ceil((count || 0) / limit);
 
-    console.log('✅ IT 뉴스 조회 완료:', {
-      total: count,
-      returned: newsWithCommentCount.length,
-      page,
-      totalPages,
-    });
+    // console.log('✅ IT 뉴스 조회 완료:', {
+    //   total: count,
+    //   returned: newsWithCommentCount.length,
+    //   page,
+    //   totalPages,
+    // });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       articles: newsWithCommentCount.map((newsItem) => ({
         ...newsItem,
         is_domestic: true,
+        // description 길이 제한 (응답 크기 최적화)
+        description: newsItem.description?.length > 200 
+          ? newsItem.description.substring(0, 200) + '...' 
+          : newsItem.description,
       })),
       pagination: {
         page,
@@ -143,9 +144,13 @@ export async function GET(request: NextRequest) {
       },
       searchValue,
       sort,
-      category,
       maxViewCount,
     });
+
+    // 캐시 헤더 추가
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    
+    return response;
   } catch (error) {
     console.error('❌ IT 뉴스 조회 중 오류:', error);
     return NextResponse.json({ success: false, error: 'IT 뉴스 조회 중 오류가 발생했습니다.' }, { status: 500 });
