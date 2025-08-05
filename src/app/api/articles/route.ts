@@ -45,8 +45,29 @@ export async function GET(request: NextRequest) {
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         query = query.gte('pub_date', sevenDaysAgo.toISOString());
       } else if (category === 'it-news') {
-        const response = await fetch(`${request.url.replace('/api/articles', '/api/it-news')}`);
-        return response;
+        try {
+          const response = await fetch(`${request.url.replace('/api/articles', '/api/it-news')}`, {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error(`IT News API failed: ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          return NextResponse.json(data);
+        } catch (error) {
+          console.error('IT News API error:', error);
+          return NextResponse.json({ 
+            success: false, 
+            articles: [], 
+            pagination: { page: 1, limit: 20, total: 0, totalPages: 0, hasNext: false, hasPrev: false },
+            error: 'IT 뉴스를 불러올 수 없습니다.' 
+          });
+        }
       } else {
         query = query.eq('category', category);
       }
