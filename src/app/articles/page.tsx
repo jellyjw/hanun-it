@@ -616,9 +616,11 @@ function ArticlesPageContent() {
                   <div
                     key={article.id}
                     className="card-width-constrained flex-item-constrained group flex max-h-[480px] min-h-0 w-full cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.333rem)]"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       if (article.category === 'videos' && (article as any).videoId) {
-                        window.open(`https://www.youtube.com/watch?v=${(article as any).videoId}`, '_blank');
+                        router.push(`/videos/${(article as any).videoId}`);
                       } else {
                         router.push(`/articles/${article.id}`);
                       }
