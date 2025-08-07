@@ -1,9 +1,9 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
-import { ArrowLeft, ExternalLink, Eye } from 'lucide-react';
+import { ExternalLink, Eye } from 'lucide-react';
 import CommentSection from '@/components/comments/CommentSection';
 import { marked } from 'marked';
 import { processArticleContent, detectContentType } from '@/utils/markdown';
@@ -14,14 +14,18 @@ import LikeButton from '@/components/articles/LikeButton';
 import ShareButton from '@/components/articles/ShareButton';
 import { useLikeStatus } from '@/hooks/useLikeStatus';
 import { useGetArticle } from '@/hooks/useGetArticle';
+import { Header } from '@/components/header/Header';
+import { useToast } from '@/hooks/use-toast';
+import BackButton from '@/components/ui/BackButton';
+import ScrollNavigation from '@/components/ui/ScrollNavigation';
 
 import { useAuth } from '@/hooks/useAuth';
 
 export default function ArticleDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const articleId = params?.id as string;
   const { isAdmin } = useAuth();
+  const { toast } = useToast();
 
   const { data, isLoading, error, refetch } = useGetArticle(articleId);
 
@@ -140,17 +144,104 @@ export default function ArticleDetailPage() {
     }
   };
 
+  // Header 함수들
+  const handleRefreshRSS = async () => {
+    try {
+      const response = await fetch('/api/rss');
+      const result = await response.json();
+      if (result.success) {
+        toast({
+          title: `${result.articles}개의 새로운 아티클을 수집했습니다.`,
+          variant: 'default',
+        });
+        refetch();
+      }
+    } catch {
+      toast({
+        title: 'RSS 수집 중 오류가 발생했습니다.',
+        variant: 'error',
+      });
+    }
+  };
+
+  const handleExtractThumbnails = async () => {
+    try {
+      toast({
+        title: '기존 아티클의 썸네일을 추출하고 있습니다...',
+        variant: 'default',
+      });
+
+      const response = await fetch('/api/articles/extract-thumbnails', {
+        method: 'POST',
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        toast({
+          title: `${result.processed}개 아티클 중 ${result.extracted}개의 썸네일을 추출했습니다.`,
+          variant: 'default',
+        });
+        refetch();
+      } else {
+        toast({
+          title: result.error || '썸네일 추출 중 오류가 발생했습니다.',
+          variant: 'error',
+        });
+      }
+    } catch {
+      toast({
+        title: '썸네일 추출 중 오류가 발생했습니다.',
+        variant: 'error',
+      });
+    }
+  };
+
+  const handleRefreshITNews = async () => {
+    try {
+      const response = await fetch('/api/it-news/rss');
+      const result = await response.json();
+      if (result.success) {
+        toast({
+          title: `${result.articles}개의 새로운 IT 뉴스를 수집했습니다.`,
+          variant: 'default',
+        });
+        refetch();
+      }
+    } catch {
+      toast({
+        title: 'IT 뉴스 RSS 수집 중 오류가 발생했습니다.',
+        variant: 'error',
+      });
+    }
+  };
+
   if (isLoading) {
-    return <ArticleSkeleton />;
+    return (
+      <div className="min-h-screen bg-white">
+        <Header 
+          handleRefreshRSS={handleRefreshRSS}
+          handleExtractThumbnails={handleExtractThumbnails}
+          handleRefreshITNews={handleRefreshITNews}
+        />
+        <ArticleSkeleton />
+      </div>
+    );
   }
 
   if (error || !data?.article) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="mb-4 text-2xl font-bold text-gray-900">아티클을 찾을 수 없습니다</h1>
-          <p className="mb-4 text-gray-600">요청하신 아티클이 존재하지 않거나 삭제되었습니다.</p>
-          <Button onClick={() => router.back()}>목록으로 돌아가기</Button>
+      <div className="min-h-screen bg-white">
+        <Header 
+          handleRefreshRSS={handleRefreshRSS}
+          handleExtractThumbnails={handleExtractThumbnails}
+          handleRefreshITNews={handleRefreshITNews}
+        />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="mb-4 text-2xl font-bold text-gray-900">아티클을 찾을 수 없습니다</h1>
+            <p className="mb-4 text-gray-600">요청하신 아티클이 존재하지 않거나 삭제되었습니다.</p>
+            <BackButton />
+          </div>
         </div>
       </div>
     );
@@ -159,7 +250,13 @@ export default function ArticleDetailPage() {
   const article = data.article;
 
   return (
-    <div className="container mx-auto px-4 py-8 pb-24 lg:pb-8">
+    <div className="min-h-screen bg-white">
+      <Header 
+        handleRefreshRSS={handleRefreshRSS}
+        handleExtractThumbnails={handleExtractThumbnails}
+        handleRefreshITNews={handleRefreshITNews}
+      />
+      <div className="container mx-auto px-4 py-8 pb-24 lg:pb-8">
       <div className="relative mx-auto max-w-4xl">
         {/* 좋아요/공유 버튼 - 반응형 위치 조정 */}
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transform lg:bottom-auto lg:left-6 lg:top-1/2 lg:-translate-y-1/2 lg:translate-x-0">
@@ -179,10 +276,7 @@ export default function ArticleDetailPage() {
         {/* 헤더 */}
         <div className="mb-8">
           <div className="mb-4 flex items-center gap-2">
-            <Button onClick={() => router.back()} variant="ghost" size="sm" className="flex items-center gap-2">
-              <ArrowLeft size={16} />
-              목록으로
-            </Button>
+            <BackButton variant="ghost" size="sm" />
 
             {isAdmin && (
               <Button
@@ -265,9 +359,7 @@ export default function ArticleDetailPage() {
         {/* 하단 액션 */}
         <div className="mt-8 border-t border-gray-200 pt-6">
           <div className="flex items-center justify-between">
-            <button onClick={() => router.back()} className="text-gray-600 hover:text-gray-800">
-              ← 목록으로 돌아가기
-            </button>
+            <BackButton variant="ghost" className="text-gray-600 hover:text-gray-800" />
             <a
               href={article.link}
               target="_blank"
@@ -279,6 +371,10 @@ export default function ArticleDetailPage() {
           </div>
         </div>
       </div>
+      </div>
+      
+      {/* 스크롤 네비게이션 */}
+      <ScrollNavigation />
     </div>
   );
 }
