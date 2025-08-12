@@ -507,3 +507,28 @@ body {
 .article-content .table-wrapper::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400 dark:bg-gray-500;
 }
+
+/* 카드 폭 제한 유틸리티 클래스 */
+.card-width-constrained {
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+.card-width-constrained * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 썸네일 크기 제한 유틸리티 클래스 */
+.thumbnail-size-constrained {
+  max-width: 100% !important;
+  object-fit: cover !important;
+  box-sizing: border-box !important;
+}
+
+/* Flexbox 아이템 폭 제한 */
+.flex-item-constrained {
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+  box-sizing: border-box !important;
+}

@@ -79,8 +79,12 @@ export default function VideosPage() {
     [updateSearchValue],
   );
 
-  const openVideo = (videoId: string) => {
-    window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+  const openVideo = (videoId: string, event?: React.MouseEvent) => {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    router.push(`/videos/${videoId}`);
   };
 
   if (isLoading) {
@@ -214,7 +218,7 @@ export default function VideosPage() {
                   <Card
                     key={video.id}
                     className="group flex cursor-pointer flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                    onClick={() => openVideo(video.videoId)}>
+                    onClick={(e) => openVideo(video.videoId, e)}>
                     {/* 썸네일 섹션 */}
                     <div className="bg-muted relative aspect-video overflow-hidden">
                       {video.thumbnail ? (
