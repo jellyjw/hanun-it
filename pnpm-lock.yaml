@@ -99,12 +99,6 @@ importers:
       '@eslint/eslintrc':
         specifier: ^3
         version: 3.2.0
-      '@stagewise-plugins/react':
-        specifier: ^0.4.8
-        version: 0.4.8(@stagewise/toolbar@0.4.8)
-      '@stagewise/toolbar-next':
-        specifier: ^0.4.8
-        version: 0.4.8(@types/react@19.0.6)(next@15.1.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       '@tanstack/eslint-plugin-query':
         specifier: ^5.62.16
         version: 5.62.16(eslint@9.18.0(jiti@1.21.7))(typescript@5.7.3)
@@ -735,27 +729,6 @@ packages:
 
   '@rushstack/eslint-patch@1.10.5':
     resolution: {integrity: sha512-kkKUDVlII2DQiKy7UstOR1ErJP8kUKAQ4oa+SQtM0K+lPdmmjj0YnnxBgtTVYH7mUKtbsxeFC9y0AmK7Yb78/A==}
-
-  '@stagewise-plugins/react@0.4.8':
-    resolution: {integrity: sha512-2zzk7U5kZ4xnI8rOm1HILPCMhPruQ+KSyFPzSMFRiW0jJJlKhPO5eNly+wQSrg1IUnkNoLH0yDl1HNJp42zpyQ==}
-    peerDependencies:
-      '@stagewise/toolbar': 0.4.8
-
-  '@stagewise/toolbar-next@0.4.8':
-    resolution: {integrity: sha512-Ya35ePRkuxroUJX1Tsk+tIZaQIbP9frX5jglXS1FZ3SKDgGpVgb8E0mOmF+QjTwzEU+BhJyMV41/yzqUneBX9g==}
-    peerDependencies:
-      '@types/react': '>=18.0.0'
-      next: '>=14.0.0'
-      react: '>=18.0.0'
-
-  '@stagewise/toolbar-react@0.4.8':
-    resolution: {integrity: sha512-g+r2npAfftM87+jFt4go9e0KaIAkQ/sObDKWEmBp4IJaFpsOmcfBtLiF/GIoiXRrllxMa5oQZeRrra8EFq166A==}
-    peerDependencies:
-      '@types/react': '>=18.0.0'
-      react: '>=18.0.0'
-
-  '@stagewise/toolbar@0.4.8':
-    resolution: {integrity: sha512-0ByvC4hYdHHf3rK5M+xSR9mipHYr8naNn2OgDBtv4DE0SoSCr08KfQtZ6VpsBNbOW/Mh1Y4c/AoWcyCTOc2ocA==}
 
   '@supabase/auth-js@2.69.1':
     resolution: {integrity: sha512-FILtt5WjCNzmReeRLq5wRs3iShwmnWgBvxHfqapC/VoljJl+W8hDAyFmf1NVw3zH+ZjZ05AKxiKxVeb0HNWRMQ==}
@@ -3190,25 +3163,6 @@ snapshots:
   '@rtsao/scc@1.1.0': {}
 
   '@rushstack/eslint-patch@1.10.5': {}
-
-  '@stagewise-plugins/react@0.4.8(@stagewise/toolbar@0.4.8)':
-    dependencies:
-      '@stagewise/toolbar': 0.4.8
-
-  '@stagewise/toolbar-next@0.4.8(@types/react@19.0.6)(next@15.1.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)':
-    dependencies:
-      '@stagewise/toolbar-react': 0.4.8(@types/react@19.0.6)(react@19.0.0)
-      '@types/react': 19.0.6
-      next: 15.1.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react: 19.0.0
-
-  '@stagewise/toolbar-react@0.4.8(@types/react@19.0.6)(react@19.0.0)':
-    dependencies:
-      '@stagewise/toolbar': 0.4.8
-      '@types/react': 19.0.6
-      react: 19.0.0
-
-  '@stagewise/toolbar@0.4.8': {}
 
   '@supabase/auth-js@2.69.1':
     dependencies:
