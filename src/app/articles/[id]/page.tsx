@@ -18,6 +18,7 @@ import { Header } from '@/components/header/Header';
 import { useToast } from '@/hooks/use-toast';
 import BackButton from '@/components/ui/BackButton';
 import ScrollNavigation from '@/components/ui/ScrollNavigation';
+import InArticleAd from '@/components/ads/InArticleAd';
 
 import { useAuth } from '@/hooks/useAuth';
 
@@ -337,10 +338,14 @@ export default function ArticleDetailPage() {
         {/* 아티클 내용 */}
         <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
           {article.content ? (
-            <div className="article-content" dangerouslySetInnerHTML={{ __html: processedContent }} />
+            <>
+              <div className="article-content" dangerouslySetInnerHTML={{ __html: processedContent }} />
+              <InArticleAd />
+            </>
           ) : (
             <div className="leading-relaxed text-gray-800">
               <p className="mb-4">{article.description}</p>
+              <InArticleAd />
               <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
                 <p className="text-yellow-800">
                   이 아티클의 전체 내용을 확인하시려면{' '}
