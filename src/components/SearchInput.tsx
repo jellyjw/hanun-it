@@ -44,17 +44,19 @@ export default function SearchInput({
           placeholder={placeholder}
           className="border-input focus:ring-ring w-full rounded-lg border bg-background py-3 pl-10 pr-12 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2"
         />
-        {query && (
+        {query && !isSearching && (
           <button
             type="button"
             onClick={handleClear}
-            className="text-muted-foreground absolute right-10 top-1/2 -translate-y-1/2 transform transition-colors hover:text-foreground"
+            className="text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 transform transition-colors hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
         )}
         {isSearching && (
-          <Loader2 className="text-primary absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 transform animate-spin" />
+          <div className="absolute right-3 top-0 flex h-full items-center">
+            <Loader2 className="text-primary h-4 w-4 animate-spin" />
+          </div>
         )}
       </div>
     </div>

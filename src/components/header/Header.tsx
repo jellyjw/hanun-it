@@ -17,7 +17,9 @@ export function Header({ handleRefreshRSS, handleExtractThumbnails, handleRefres
     <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-all duration-300">
       <div className="container mx-auto flex flex-col items-center gap-4 px-4 py-4 sm:flex-row sm:justify-between sm:px-6">
         <div className="flex items-center gap-2">
-          <span className="text-xl font-bold">한눈IT</span>
+          <Link href="/" className="text-xl font-bold transition-colors hover:text-emerald-500">
+            한눈IT
+          </Link>
         </div>
 
         <div className="flex items-center gap-2">
