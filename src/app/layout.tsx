@@ -5,9 +5,10 @@ import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/Footer';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { getSiteUrl, getAbsoluteUrl, getImageUrl } from '@/utils/url';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://hanun-it.vercel.app'),
+  metadataBase: new URL(getSiteUrl()),
   title: {
     default: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
     template: '%s | 한눈IT',
@@ -52,16 +53,25 @@ export const metadata: Metadata = {
     title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
     description:
       '최신 IT 뉴스와 기술 트렌드를 한눈에 확인하세요. 개발자와 IT 전문가를 위한 큐레이션된 콘텐츠를 제공합니다.',
-    url: 'https://hanun-it.vercel.app',
+    url: getSiteUrl(),
     siteName: '한눈IT',
     locale: 'ko_KR',
     type: 'website',
+    images: [
+      {
+        url: getImageUrl('/assets/logo/logo.png'),
+        width: 1200,
+        height: 630,
+        alt: '한눈IT 로고',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
     description:
       '최신 IT 뉴스와 기술 트렌드를 한눈에 확인하세요. 개발자와 IT 전문가를 위한 큐레이션된 콘텐츠를 제공합니다.',
+    images: [getImageUrl('/assets/logo/logo.png')],
   },
 };
 
@@ -86,6 +96,11 @@ export default function RootLayout({
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7127894498153967"
           crossOrigin="anonymous"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: '(window.adsbygoogle=window.adsbygoogle||[]).push({overlays:{bottom:false,top:false}});',
+          }}
+        />
         <link
           rel="stylesheet"
           as="style"

@@ -1,45 +1,28 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useQuery, keepPreviousData, QueryFunctionContext, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  Calendar,
-  ExternalLink,
-  Globe,
-  MapPin,
-  Loader2,
-  Menu,
-  Eye,
-  MessageCircle,
-  Newspaper,
-  RefreshCw,
-  ImageIcon,
-  Play,
-  Clock,
-} from 'lucide-react';
-import PageInfo from '@/components/pagination/PageInfo';
-import { Header } from '@/components/header/Header';
-import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
-import { ArticleResponse, ArticlesResponse } from '@/types/articles';
-import SelectBox from '@/components/select/SelectBox';
-import { SELECT_OPTIONS } from '@/utils/options';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import SearchInput from '@/components/SearchInput';
+import { Eye, Loader2, Play } from 'lucide-react';
+import { ArticleResponse } from '@/types/articles';
 import { useSearch } from '@/hooks/useSearch';
-import FallbackThumbnail from '@/components/FallbackThumbnail';
-import Image from 'next/image';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import { useToast } from '@/hooks/use-toast';
 import { Suspense } from 'react';
-import { ArticlesSkeleton } from '@/components/skeleton/ArticlesSkeleton';
 import { useAuth } from '@/hooks/useAuth';
-import Link from 'next/link';
 
 import { useGetArticles } from '@/hooks/useGetArticles';
 import { useGetVideos } from '@/hooks/useGetVideos';
+import { SELECT_OPTIONS } from '@/utils/options';
+import { ArticlesSkeleton } from '@/components/skeleton/ArticlesSkeleton';
+import { Header } from '@/components/header/Header';
+import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import SearchInput from '@/components/SearchInput';
+import SelectBox from '@/components/select/SelectBox';
+import FallbackThumbnail from '@/components/FallbackThumbnail';
+import Image from 'next/image';
 
 function ArticlesPageContent() {
   const router = useRouter();
@@ -466,64 +449,12 @@ function ArticlesPageContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* 네비게이션 바 - sticky + 스크롤 효과 */}
-      <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-all duration-300">
-        <div className="container mx-auto flex flex-col items-center gap-4 px-4 py-4 sm:flex-row sm:justify-between sm:px-6">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold">한눈IT</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {isAdmin && (
-              <>
-                <Button
-                  onClick={handleRefreshRSS}
-                  variant="outline"
-                  size="sm"
-                  className="hidden items-center space-x-2 border-purple-200 transition-all duration-200 hover:border-purple-300 hover:bg-purple-50 sm:flex dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-950">
-                  <RefreshCw className="h-4 w-4" />
-                  <span>새로고침</span>
-                </Button>
-
-                {handleRefreshITNews && (
-                  <Button
-                    onClick={handleRefreshITNews}
-                    variant="outline"
-                    size="sm"
-                    className="hidden items-center space-x-2 border-green-200 transition-all duration-200 hover:border-green-300 hover:bg-green-50 sm:flex dark:border-green-800 dark:hover:border-green-700 dark:hover:bg-green-950">
-                    <Newspaper className="h-4 w-4" />
-                    <span>IT뉴스</span>
-                  </Button>
-                )}
-
-                {handleExtractThumbnails && (
-                  <Button
-                    onClick={handleExtractThumbnails}
-                    variant="outline"
-                    size="sm"
-                    className="hidden items-center space-x-2 border-orange-200 transition-all duration-200 hover:border-orange-300 hover:bg-orange-50 sm:flex dark:border-orange-800 dark:hover:border-orange-700 dark:hover:bg-orange-950">
-                    <ImageIcon className="h-4 w-4" />
-                    <span>썸네일</span>
-                  </Button>
-                )}
-              </>
-            )}
-            {user ? (
-              <button
-                onClick={signOut}
-                className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
-                로그아웃
-              </button>
-            ) : (
-              <Link href="/auth/login">
-                <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
-                  로그인
-                </button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </nav>
+      {/* Header 컴포넌트 사용 */}
+      <Header
+        handleRefreshRSS={handleRefreshRSS}
+        handleExtractThumbnails={handleExtractThumbnails}
+        handleRefreshITNews={handleRefreshITNews}
+      />
 
       {/* 메인 컨텐츠 */}
       <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
