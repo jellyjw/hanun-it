@@ -101,8 +101,8 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
   if (comments.length === 0) {
     return (
       <div className="py-8 text-center text-sm text-gray-500">
-        <MessageCircle className="mx-auto mb-4 h-12 w-12 opacity-50" />
-        <p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</p>
+        <MessageCircle className="mx-auto mb-4 h-8 w-8 opacity-50" />
+        <p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요.</p>
       </div>
     );
   }

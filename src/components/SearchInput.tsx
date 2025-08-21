@@ -42,7 +42,7 @@ export default function SearchInput({
           {...register('query')}
           type="text"
           placeholder={placeholder}
-          className="border-input focus:ring-ring w-full rounded-lg border bg-background py-3 pl-10 pr-12 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2"
+          className="border-input focus:ring-ring w-full rounded-lg border bg-background py-2.5 pl-10 pr-12 text-sm outline-none transition-all duration-200 focus:border-transparent focus:ring-2 sm:py-3"
         />
         {query && !isSearching && (
           <button

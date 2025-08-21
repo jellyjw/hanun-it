@@ -457,10 +457,20 @@ function ArticlesPageContent() {
       />
 
       {/* 메인 컨텐츠 */}
-      <div className="container mx-auto px-4 py-8 sm:px-6 sm:py-12">
+      <div className="container mx-auto px-3 py-6 sm:px-6 sm:py-12">
         {/* 헤더 섹션 */}
-        <div className="mb-8 text-center sm:mb-12">
-          <h1 className="mb-4 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">한눈에 모아보는 IT 뉴스</h1>
+        <div className="mb-8 flex flex-col items-center text-center sm:mb-12">
+          <Image
+            src="/assets/icons/eyes.gif"
+            alt="eyes"
+            width={60}
+            height={60}
+            className="h-12 w-12 sm:h-16 sm:w-16"
+            unoptimized
+          />
+          <div className="mb-4 flex items-center justify-center gap-3">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">한눈에 모아보는 IT 뉴스</h1>
+          </div>
           <p className="mx-auto max-w-2xl text-base text-gray-600 sm:text-lg">
             최신 IT 뉴스와 기술 아티클, 인기 영상을 한눈에 모아보세요.
           </p>
@@ -471,8 +481,8 @@ function ArticlesPageContent() {
           {/* 왼쪽 메인 컨텐츠 */}
           <div className="flex-1">
             {/* 검색 및 정렬 */}
-            <div className="mb-8">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mb-6 sm:mb-8">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="w-full sm:max-w-md">
                   <SearchInput onSearch={handleSearch} isSearching={isSearching} initialValue={searchValue} />
                 </div>
@@ -493,7 +503,7 @@ function ArticlesPageContent() {
 
               {/* 카테고리 탭 */}
               <div className="mt-4 overflow-x-auto border-b border-gray-200">
-                <div className="flex min-w-max gap-8 pb-1">
+                <div className="flex min-w-max gap-4 pb-1 sm:gap-8">
                   <button
                     onClick={() => handleCategoryChange('domestic')}
                     className={`whitespace-nowrap pb-4 text-sm font-medium transition-colors ${
@@ -540,13 +550,13 @@ function ArticlesPageContent() {
               </div>
             </div>
 
-            {/* 아티클 그리드 - 고정 크기로 엄격 제한 */}
-            <div className="flex max-w-full flex-wrap gap-6 overflow-hidden lg:gap-8" style={{ maxWidth: '100%' }}>
+            {/* 아티클 그리드 - 반응형 최적화 */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
               {data?.articles && data.articles.length > 0 ? (
                 data.articles.map((article) => (
                   <div
                     key={article.id}
-                    className="card-width-constrained flex-item-constrained group flex max-h-[480px] min-h-0 w-full cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1.333rem)]"
+                    className="group flex h-auto min-h-0 w-full cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -556,18 +566,11 @@ function ArticlesPageContent() {
                         router.push(`/articles/${article.id}`);
                       }
                     }}>
-                    {/* 썸네일 - 고정 높이와 추가 제한 */}
+                    {/* 썸네일 - 반응형 높이 */}
                     <div
-                      className={`relative w-full overflow-hidden bg-gray-100 ${
-                        article.category === 'videos' ? 'h-48 max-h-48' : 'h-56 max-h-56'
-                      }`}
-                      style={{
-                        minHeight: article.category === 'videos' ? '192px' : '224px',
-                        maxHeight: article.category === 'videos' ? '192px' : '224px',
-                        width: '100%',
-                        maxWidth: '100%',
-                        boxSizing: 'border-box',
-                      }}>
+                      className={`relative aspect-video w-full overflow-hidden bg-gray-100 ${
+                        article.category === 'videos' ? 'sm:aspect-video' : 'sm:aspect-[4/3]'
+                      }`}>
                       {(article.thumbnail ||
                         (article.thumbnail === '' && article.source_name === '우아한형제들 기술블로그')) &&
                       !failedImages.has(article.id) ? (
@@ -575,12 +578,8 @@ function ArticlesPageContent() {
                           src={preprocessingThumbnail(article)}
                           alt={article.title}
                           fill
-                          className="thumbnail-size-constrained h-full w-full max-w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          sizes={
-                            article.category === 'videos'
-                              ? '320px'
-                              : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
-                          }
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           loading="lazy"
                           priority={false}
                           style={{
@@ -617,7 +616,7 @@ function ArticlesPageContent() {
                     </div>
 
                     {/* 컨텐츠 */}
-                    <div className="flex flex-1 flex-col p-4 sm:p-6">
+                    <div className="flex flex-1 flex-col p-4">
                       <div className="mb-2 flex items-center justify-between">
                         <span
                           className={`text-xs font-medium ${
@@ -632,20 +631,20 @@ function ArticlesPageContent() {
                           })}
                         </span>
                       </div>
-                      <h3 className="mb-2 line-clamp-2 text-base font-semibold text-gray-900 sm:text-lg">
+                      <h3 className="mb-2 line-clamp-2 text-sm font-semibold text-gray-900 sm:text-base">
                         {article.title}
                       </h3>
-                      <p className="line-clamp-2 flex-1 text-sm text-gray-600">{article.description}</p>
-                      <div className="mt-4 flex items-center justify-between">
+                      <p className="line-clamp-2 flex-1 text-xs text-gray-600 sm:text-sm">{article.description}</p>
+                      <div className="mt-3 flex items-center justify-between">
                         <button
-                          className={`rounded-full px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:shadow-md sm:px-6 ${
+                          className={`rounded-full px-3 py-1.5 text-xs font-medium text-white transition-all duration-200 hover:shadow-md sm:px-4 sm:py-2 sm:text-sm ${
                             article.category === 'videos'
                               ? 'bg-red-500 hover:bg-red-600'
                               : 'bg-emerald-500 hover:bg-emerald-600'
                           }`}>
                           {article.category === 'videos' ? 'Watch Video' : 'Read More'}
                         </button>
-                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                        <div className="flex items-center gap-2 text-xs text-gray-500 sm:gap-3 sm:text-sm">
                           {article.category === 'videos' && article.view_count ? (
                             <div className="flex items-center gap-1">
                               <Eye className="h-3 w-3" />
@@ -714,7 +713,7 @@ function ArticlesPageContent() {
 
             {/* 페이지네이션 */}
             {data?.pagination && data.pagination.totalPages > 1 && (
-              <div className="mt-8 flex justify-center sm:mt-12">
+              <div className="mt-6 flex justify-center sm:mt-8">
                 <PaginationWrapper
                   totalItems={data.pagination.total}
                   itemsPerPage={itemsPerPage}
@@ -726,8 +725,8 @@ function ArticlesPageContent() {
           </div>
 
           {/* 오른쪽 사이드바 - sticky */}
-          <div className="mt-8 w-full lg:mt-0 lg:w-80">
-            <div className="space-y-8 lg:sticky lg:top-24 lg:transition-all lg:duration-300">
+          <div className="mt-6 w-full sm:mt-8 lg:mt-0 lg:w-80">
+            <div className="space-y-6 sm:space-y-8 lg:sticky lg:top-24 lg:transition-all lg:duration-300">
               {/* 구독 폼 */}
               {/* <div className="rounded-lg bg-gray-50 p-4 shadow-sm transition-all hover:shadow-md sm:p-6">
                 <h3 className="mb-2 text-lg font-semibold text-gray-900">Subscribe Blog for latest updates</h3>
@@ -745,15 +744,17 @@ function ArticlesPageContent() {
               </div> */}
 
               {/* 추천 아티클 */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Popular Articles</h3>
+              <div className="space-y-3 sm:space-y-4">
+                <h3 className="text-base font-semibold text-gray-900 sm:text-lg">Popular Articles</h3>
                 {data?.articles?.slice(0, 3).map((article) => (
                   <div
                     key={article.id}
-                    className="cursor-pointer rounded-lg bg-gray-50 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-gray-100 hover:shadow-md"
+                    className="cursor-pointer rounded-lg bg-gray-50 p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-gray-100 hover:shadow-md sm:p-4"
                     onClick={() => router.push(`/articles/${article.id}`)}>
-                    <h4 className="mb-1 line-clamp-2 font-medium text-gray-900">{article.title}</h4>
-                    <p className="text-sm text-gray-600">{article.source_name}</p>
+                    <h4 className="mb-1 line-clamp-2 text-sm font-medium text-gray-900 sm:text-base">
+                      {article.title}
+                    </h4>
+                    <p className="text-xs text-gray-600 sm:text-sm">{article.source_name}</p>
                   </div>
                 ))}
               </div>

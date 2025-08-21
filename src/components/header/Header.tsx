@@ -15,14 +15,14 @@ export function Header({ handleRefreshRSS, handleExtractThumbnails, handleRefres
   const { isAuthenticated, isAdmin, signOut } = useAuth();
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-all duration-300">
-      <div className="container mx-auto flex flex-col items-center gap-4 px-4 py-4 sm:flex-row sm:justify-between sm:px-6">
+      <div className="container mx-auto flex items-center justify-between gap-3 px-3 py-3 sm:gap-4 sm:px-6 sm:py-4">
         <div className="flex items-center gap-2">
-          <Link href="/" className="text-xl font-bold transition-colors hover:text-emerald-500">
+          <Link href="/" className="text-lg font-bold transition-colors hover:text-emerald-500 sm:text-xl">
             한눈IT
           </Link>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:gap-3">
             {!isAuthenticated ? (
               <Link href="/auth/login">
                 <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
