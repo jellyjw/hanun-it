@@ -46,6 +46,11 @@
       "source": "/hanun-it.vercel.app/(.*)",
       "destination": "/$1",
       "permanent": true
+    },
+    {
+      "source": "/www.hanun-it.com/(.*)",
+      "destination": "https://hanun-it.com/$1",
+      "permanent": true
     }
   ],
   "rewrites": [

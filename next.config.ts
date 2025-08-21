@@ -38,6 +38,32 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
+  },
+  // 도메인 설정
+  env: {
+    CUSTOM_DOMAIN: 'hanun-it.com',
+    VERCEL_DOMAIN: 'hanun-it.vercel.app',
+  },
 };
 
 export default nextConfig;
