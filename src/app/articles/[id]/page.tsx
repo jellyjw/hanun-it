@@ -11,17 +11,34 @@ interface PageProps {
 async function getArticle(id: string) {
   const supabase = await createClient();
   
-  const { data, error } = await supabase
+  // First try to find in regular articles table
+  const { data: articleData, error: articleError } = await supabase
     .from('articles')
     .select('*')
     .eq('id', id)
     .single();
 
-  if (error || !data) {
-    return null;
+  if (articleData && !articleError) {
+    return articleData;
   }
 
-  return data;
+  // If not found, try IT news table
+  const { data: newsData, error: newsError } = await supabase
+    .from('it_news')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (newsData && !newsError) {
+    // Transform IT news data to match article structure
+    return {
+      ...newsData,
+      is_domestic: true, // IT news are typically domestic
+      category: 'it-news',
+    };
+  }
+
+  return null;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
