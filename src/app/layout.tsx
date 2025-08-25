@@ -7,7 +7,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { getSiteUrl, getAbsoluteUrl, getImageUrl } from '@/utils/url';
 
-const SITE_URL = 'https://hanun-it.com';
+const SITE_URL = process.env.NEXT_PUBLIC_CUSTOM_DOMAIN || 'https://hanun-it.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
