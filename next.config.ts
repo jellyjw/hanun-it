@@ -65,7 +65,7 @@ const nextConfig: NextConfig = {
     VERCEL_DOMAIN: 'hanun-it.vercel.app',
   },
   // 호스트 설정
-  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://hanun-it.com' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_CUSTOM_DOMAIN : 'hanun-it.vercel.app',
 };
 
 export default nextConfig;
