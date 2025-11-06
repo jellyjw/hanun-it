@@ -2,10 +2,17 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import ArticleDetailClient from './ArticleDetailClient';
+import CategoryPageClient from './CategoryPageClient';
 import { getArticleUrl, getImageUrl } from '@/utils/url';
+import { ARTICLE_CATEGORIES, CATEGORY_INFO, type CategoryType } from '@/utils/constants';
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
+}
+
+// Check if slug is a valid category
+function isCategory(slug: string): slug is CategoryType {
+  return Object.values(ARTICLE_CATEGORIES).includes(slug as CategoryType);
 }
 
 async function getArticle(id: string) {
@@ -42,8 +49,28 @@ async function getArticle(id: string) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = await params;
-  const article = await getArticle(id);
+  const { slug } = await params;
+
+  // If slug is a category, return category metadata
+  if (isCategory(slug)) {
+    const categoryInfo = CATEGORY_INFO[slug];
+    return {
+      title: `${categoryInfo.label} - ${categoryInfo.description} | 한눈IT`,
+      description: `${categoryInfo.description}을 한눈에 모아보세요`,
+      keywords: ['IT뉴스', '기술뉴스', '개발자뉴스', categoryInfo.label, slug],
+      openGraph: {
+        title: `${categoryInfo.label} | 한눈IT`,
+        description: categoryInfo.description,
+        url: `https://hanun-it.com/articles/${slug}`,
+        siteName: '한눈IT',
+        locale: 'ko_KR',
+        type: 'website',
+      },
+    };
+  }
+
+  // Otherwise, it's an article ID
+  const article = await getArticle(slug);
 
   if (!article) {
     return {
@@ -54,7 +81,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${article.title} | 한눈IT`;
   const description = article.description || article.title;
   const imageUrl = getImageUrl(article.thumbnail);
-  const articleUrl = getArticleUrl(id);
+  const articleUrl = getArticleUrl(slug);
 
   return {
     title,
@@ -106,13 +133,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function ArticleDetailPage({ params }: PageProps) {
-  const { id } = await params;
-  const article = await getArticle(id);
+export default async function ArticlePage({ params }: PageProps) {
+  const { slug } = await params;
+
+  // If slug is a category, render category page
+  if (isCategory(slug)) {
+    return <CategoryPageClient category={slug} />;
+  }
+
+  // Otherwise, render article detail page
+  const article = await getArticle(slug);
 
   if (!article) {
     notFound();
   }
 
-  return <ArticleDetailClient articleId={id} initialArticle={article} />;
+  return <ArticleDetailClient articleId={slug} initialArticle={article} />;
 }

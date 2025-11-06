@@ -11,7 +11,7 @@ interface UseGetArticlesParams {
 }
 
 export function useGetArticles({
-  category = 'all',
+  category = 'domestic',
   isDomestic,
   searchValue = '',
   sort = 'latest',
@@ -22,7 +22,7 @@ export function useGetArticles({
     queryKey: ['articles', category, isDomestic, searchValue, sort, page, limit],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (category !== 'all') params.append('category', category);
+      if (category) params.append('category', category);
       if (isDomestic !== undefined) params.append('domestic', isDomestic);
       if (searchValue) params.append('searchValue', searchValue);
       if (sort) params.append('sort', sort);
