@@ -40,6 +40,9 @@ export async function GET(request: NextRequest) {
         query = query.eq('is_domestic', true);
       } else if (category === 'foreign') {
         query = query.eq('is_domestic', false);
+      } else if (category === 'ai-data') {
+        // AI/Data 통합 카테고리 - ai 또는 data 중 하나라도 매칭
+        query = query.in('category', ['ai', 'data']);
       } else if (category === 'weekly') {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);

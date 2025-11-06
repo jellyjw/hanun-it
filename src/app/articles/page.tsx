@@ -73,11 +73,7 @@ function ArticlesPageContent() {
       }
 
       if (newParams.category !== undefined) {
-        if (newParams.category === 'domestic') {
-          params.delete('category');
-        } else {
-          params.set('category', newParams.category);
-        }
+        params.set('category', newParams.category);
       }
 
       if (newParams.sort !== undefined) {
@@ -118,7 +114,7 @@ function ArticlesPageContent() {
 
   // TanStack Query를 사용한 페이지네이션 - 아티클과 비디오 구분
   const articlesQuery = useGetArticles({
-    category: selectedCategory === 'videos' ? 'all' : selectedCategory,
+    category: selectedCategory === 'videos' ? 'domestic' : selectedCategory,
     searchValue: selectedCategory === 'videos' ? '' : debouncedSearchValue,
     sort: sortBy,
     page: selectedCategory === 'videos' ? 1 : page,
@@ -197,7 +193,7 @@ function ArticlesPageContent() {
           queryKey: ['articles', selectedCategory, debouncedSearchValue, sortBy, page + 1, itemsPerPage],
           queryFn: async () => {
             const params = new URLSearchParams();
-            if (selectedCategory !== 'all') params.append('category', selectedCategory);
+            if (selectedCategory) params.append('category', selectedCategory);
             if (debouncedSearchValue) params.append('searchValue', debouncedSearchValue);
             if (sortBy) params.append('sort', sortBy);
             params.append('page', (page + 1).toString());
@@ -344,23 +340,19 @@ function ArticlesPageContent() {
       return `"${debouncedSearchValue}" 검색 결과`;
     }
 
-    const baseTitle =
-      selectedCategory === 'weekly'
-        ? '주간 인기 아티클'
-        : selectedCategory === 'domestic'
-          ? '국내 아티클'
-          : selectedCategory === 'foreign'
-            ? '해외 아티클'
-            : selectedCategory === 'it-news'
-              ? 'IT 뉴스'
-              : selectedCategory === 'videos'
-                ? '인기 영상'
-                : '전체 아티클';
+    const categoryTitles: Record<string, string> = {
+      domestic: '국내 아티클',
+      foreign: '해외 아티클',
+      news: 'IT 뉴스',
+      'ai-data': 'AI/데이터 사이언스',
+      personal: '개인 블로그',
+      videos: '인기 영상',
+    };
 
-    return `${baseTitle}`;
+    return categoryTitles[selectedCategory] || '국내 아티클';
   };
 
-  const preprocessingThumbnail = (article: ArticleResponse['article']) => {
+  const preprocessingThumbnail = (article: any) => {
     let thumbnail = article.thumbnail;
 
     // 우아한형제들 블로그 URL 수정
@@ -371,7 +363,7 @@ function ArticlesPageContent() {
     }
 
     // YouTube 썸네일 크기 최적화 - 모든 경우에 적용
-    if (article.category === 'videos' && thumbnail.includes('i.ytimg.com')) {
+    if ((article.category as string) === 'videos' && thumbnail.includes('i.ytimg.com')) {
       // 다양한 YouTube 썸네일 크기를 mqdefault로 통일 (320x180)
       // 더욱 엄격하게 처리하여 모든 경우를 커버
       thumbnail = thumbnail
@@ -395,7 +387,9 @@ function ArticlesPageContent() {
     return thumbnail;
   };
 
-  if (isLoading && !isPlaceholderData) {
+  // 초기 로딩 시에만 스켈레톤 표시 (데이터가 없을 때)
+  // 카테고리 변경이나 페이지 변경 시에는 기존 데이터를 유지하면서 로딩 인디케이터만 표시
+  if (isLoading && !isPlaceholderData && !data) {
     return (
       <ArticlesSkeleton
         handleRefreshRSS={handleRefreshRSS}
@@ -501,51 +495,64 @@ function ArticlesPageContent() {
                 </div>
               )}
 
-              {/* 카테고리 탭 */}
-              <div className="mt-4 overflow-x-auto border-b border-gray-200">
-                <div className="flex min-w-max gap-4 pb-1 sm:gap-8">
+              {/* 카테고리 메뉴 */}
+              <div className="mt-4 overflow-x-auto">
+                <div className="flex gap-2">
+                  {/* 지역 필터 */}
                   <button
                     onClick={() => handleCategoryChange('domestic')}
-                    className={`whitespace-nowrap pb-4 text-sm font-medium transition-colors ${
+                    className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                       selectedCategory === 'domestic'
-                        ? 'border-b-2 border-gray-900 text-gray-900'
-                        : 'text-gray-500 hover:text-gray-900'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                     }`}>
                     국내
                   </button>
                   <button
                     onClick={() => handleCategoryChange('foreign')}
-                    className={`whitespace-nowrap pb-4 text-sm font-medium transition-colors ${
+                    className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                       selectedCategory === 'foreign'
-                        ? 'border-b-2 border-gray-900 text-gray-900'
-                        : 'text-gray-500 hover:text-gray-900'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                     }`}>
                     해외
                   </button>
                   <button
-                    onClick={() => handleCategoryChange('it-news')}
-                    className={`whitespace-nowrap pb-4 text-sm font-medium transition-colors ${
-                      selectedCategory === 'it-news'
-                        ? 'border-b-2 border-gray-900 text-gray-900'
-                        : 'text-gray-500 hover:text-gray-900'
+                    onClick={() => handleCategoryChange('news')}
+                    className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                      selectedCategory === 'news'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                     }`}>
-                    IT News
+                    News
+                  </button>
+                  <button
+                    onClick={() => handleCategoryChange('ai-data')}
+                    className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                      selectedCategory === 'ai-data'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    }`}>
+                    AI/Data
+                  </button>
+                  <button
+                    onClick={() => handleCategoryChange('personal')}
+                    className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                      selectedCategory === 'personal'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    }`}>
+                    Personal
                   </button>
                   <button
                     onClick={() => handleCategoryChange('videos')}
-                    className={`whitespace-nowrap pb-4 text-sm font-medium transition-colors ${
+                    className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                       selectedCategory === 'videos'
-                        ? 'border-b-2 border-gray-900 text-gray-900'
-                        : 'text-gray-500 hover:text-gray-900'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                     }`}>
                     인기 영상
                   </button>
-                  {/* <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
-                    Sports
-                  </button>
-                  <button className="whitespace-nowrap pb-4 text-sm font-medium text-gray-500 hover:text-gray-900">
-                    Finance
-                  </button> */}
                 </div>
               </div>
             </div>
@@ -563,7 +570,9 @@ function ArticlesPageContent() {
                       if (article.category === 'videos' && (article as any).videoId) {
                         router.push(`/videos/${(article as any).videoId}`);
                       } else {
-                        router.push(`/articles/${article.id}`);
+                        // Include category in URL for breadcrumb navigation
+                        const categoryParam = selectedCategory ? `?from=${selectedCategory}` : '';
+                        router.push(`/articles/${article.id}${categoryParam}`);
                       }
                     }}>
                     {/* 썸네일 - 반응형 높이 */}
@@ -662,18 +671,19 @@ function ArticlesPageContent() {
                   </div>
                 ))
               ) : (
-                <div className="w-full">
-                  <div className="rounded-lg bg-gray-50 py-12 text-center">
-                    <div className="mx-auto max-w-sm px-4">
-                      <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                        {selectedCategory === 'videos' ? '영상을 불러올 수 없습니다' : 'No articles found'}
+                <div className="col-span-full">
+                  <div className="rounded-lg bg-gray-50 py-24 text-center sm:py-32">
+                    <div className="mx-auto max-w-md px-4">
+                      <div className="mb-4 text-6xl">📭</div>
+                      <h3 className="mb-3 text-xl font-semibold text-gray-900 sm:text-2xl">
+                        {selectedCategory === 'videos' ? '영상을 불러올 수 없습니다' : '아티클이 없습니다'}
                       </h3>
-                      <p className="whitespace-pre-wrap text-sm text-gray-600">
+                      <p className="whitespace-pre-wrap text-sm text-gray-600 sm:text-base">
                         {selectedCategory === 'videos'
                           ? 'YouTube 영상 조회 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.'
                           : debouncedSearchValue.trim()
                             ? '다른 검색어를 시도해보세요'
-                            : '아직 등록된 아티클이 없습니다'}
+                            : '선택한 카테고리에 아직 등록된 아티클이 없습니다.\n곧 새로운 콘텐츠가 추가될 예정입니다.'}
                       </p>
                     </div>
                   </div>
