@@ -1,3 +1,27 @@
+// 아티클 카테고리 타입 및 상수
+export const ARTICLE_CATEGORIES = {
+  TECH: 'tech',
+  NEWS: 'news',
+  AI: 'ai',
+  DATA: 'data',
+  COMMUNITY: 'community',
+  PERSONAL: 'personal',
+} as const;
+
+export type CategoryType = (typeof ARTICLE_CATEGORIES)[keyof typeof ARTICLE_CATEGORIES];
+
+export const CATEGORY_INFO: Record<
+  CategoryType,
+  { label: string; description: string }
+> = {
+  tech: { label: 'Tech', description: '기술 블로그 및 개발 아티클' },
+  news: { label: 'News', description: 'IT 뉴스 및 동향' },
+  ai: { label: 'AI', description: '인공지능 및 머신러닝' },
+  data: { label: 'Data', description: '데이터 사이언스 및 분석' },
+  community: { label: 'Community', description: '개발자 커뮤니티' },
+  personal: { label: 'Personal', description: '개인 개발자 블로그' },
+};
+
 export const RSS_SOURCES = [
   {
     name: '네이버 D2',

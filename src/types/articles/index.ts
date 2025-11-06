@@ -1,3 +1,5 @@
+import { CategoryType } from '@/utils/constants';
+
 export interface Article {
   id: string;
   title: string;
@@ -6,7 +8,7 @@ export interface Article {
   content: string;
   pub_date: string;
   source_name: string;
-  category: string;
+  category: CategoryType;
   is_domestic: boolean;
   thumbnail: string;
   summary: string;
