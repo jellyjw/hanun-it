@@ -2,7 +2,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
-import { ExternalLink, Eye } from 'lucide-react';
+import { ExternalLink, Eye, Cpu, Sparkles } from 'lucide-react';
 import CommentSection from '@/components/comments/CommentSection';
 import { marked } from 'marked';
 import { processArticleContent, detectContentType } from '@/utils/markdown';
@@ -19,6 +19,8 @@ import BackButton from '@/components/ui/BackButton';
 import ScrollNavigation from '@/components/ui/ScrollNavigation';
 import InArticleAd from '@/components/ads/InArticleAd';
 import { useAuth } from '@/hooks/useAuth';
+import { Separator } from '@/components/ui/separator';
+import { getContentPreview } from '@/utils/contentPreview';
 
 interface ArticleDetailClientProps {
   articleId: string;
@@ -55,6 +57,38 @@ export default function ArticleDetailClient({ articleId, initialArticle }: Artic
     },
     onError: (error) => {
       alert(`마이그레이션 실패: ${error.message}`);
+    },
+  });
+
+  const generateSummaryMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/articles/${id}/generate-summary`, {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Failed to generate summary');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.regenerated) {
+        toast({
+          title: '✅ 요약이 생성되었습니다!',
+          description: data.summary.substring(0, 100) + '...',
+          variant: 'default',
+        });
+      } else {
+        toast({
+          title: 'ℹ️ 요약이 이미 존재합니다',
+          variant: 'default',
+        });
+      }
+      refetch();
+    },
+    onError: (error) => {
+      toast({
+        title: '요약 생성 실패',
+        description: error.message,
+        variant: 'error',
+      });
     },
   });
 
@@ -272,14 +306,25 @@ export default function ArticleDetailClient({ articleId, initialArticle }: Artic
               <BackButton variant="outline" size="sm" />
 
               {isAdmin && (
-                <Button
-                  onClick={handleBackfill}
-                  disabled={backfillMutation.isPending}
-                  variant="outline"
-                  size="sm"
-                  className="ml-4 text-xs">
-                  {backfillMutation.isPending ? '업데이트 중' : '기존 본문 채우기'}
-                </Button>
+                <>
+                  <Button
+                    onClick={handleBackfill}
+                    disabled={backfillMutation.isPending}
+                    variant="outline"
+                    size="sm"
+                    className="ml-4 text-xs">
+                    {backfillMutation.isPending ? '업데이트 중' : '기존 본문 채우기'}
+                  </Button>
+                  <Button
+                    onClick={() => generateSummaryMutation.mutate(articleId)}
+                    disabled={generateSummaryMutation.isPending}
+                    variant="outline"
+                    size="sm"
+                    className="ml-2 text-xs">
+                    <Cpu size={14} className="mr-1" />
+                    {generateSummaryMutation.isPending ? '요약 생성 중...' : 'AI 요약 생성'}
+                  </Button>
+                </>
               )}
             </div>
 
@@ -327,12 +372,92 @@ export default function ArticleDetailClient({ articleId, initialArticle }: Artic
           </div>
 
           <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
-            {article.content ? (
+            {article.summary ? (
+              // 요약이 있는 경우 (새 아티클)
               <>
-                <div className="article-content" dangerouslySetInnerHTML={{ __html: processedContent }} />
+                {/* AI 요약 섹션 */}
+                <div className="mb-8">
+                  {/* Gradient border card */}
+                  <div className="rounded-xl bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 p-[1px]">
+                    <div className="rounded-xl bg-white p-6">
+                      {/* 타이틀 - 카드 안쪽 상단 */}
+                      <div className="mb-4 flex items-center gap-2">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-400 via-cyan-400 to-blue-500">
+                          <Sparkles className="h-3.5 w-3.5 text-white" />
+                        </div>
+                        <h2 className="text-sm font-semibold text-gray-900">AI 요약</h2>
+                      </div>
+
+                      {/* 불릿 리스트 */}
+                      <ul className="list-disc space-y-2 pl-5">
+                        {article.summary
+                          .split(/\.\s+/) // 마침표 + 공백으로 분리 (소숫점 제외)
+                          .filter((sentence: string) => sentence.trim().length > 0)
+                          .map((sentence: string, index: number) => {
+                            const trimmed = sentence.trim();
+                            return (
+                              <li key={index} className="text-sm leading-relaxed text-gray-700">
+                                {trimmed}
+                                {!trimmed.endsWith('.') && '.'}
+                              </li>
+                            );
+                          })}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 본문 미리보기 (content가 있을 때만) */}
+                {article.content &&
+                  (() => {
+                    // 본문 일부만 추출 (1200자까지)
+                    const previewContent = article.content.substring(0, 1200);
+                    const processedPreview = processArticleContent(previewContent);
+
+                    return (
+                      <div className="mb-8">
+                        <h3 className="mb-4 text-base font-semibold text-gray-900">본문 미리보기</h3>
+
+                        {/* HTML로 렌더링 with 기존 스타일 */}
+                        <div
+                          className="article-preview prose prose-sm max-w-none leading-relaxed [&_img]:mx-auto [&_img]:mb-4 [&_img]:max-h-96 [&_img]:rounded-lg [&_img]:object-contain"
+                          style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 8,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}
+                          dangerouslySetInnerHTML={{ __html: processedPreview }}
+                        />
+                      </div>
+                    );
+                  })()}
+
+                <Separator className="mb-8" />
+
+                {/* 원문 보기 버튼 */}
+                <div className="mb-8 flex justify-center">
+                  <Button size="lg" asChild>
+                    <a href={article.link} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      원문 전체 보기
+                    </a>
+                  </Button>
+                </div>
+
+                <InArticleAd />
+              </>
+            ) : article.content ? (
+              // 기존 아티클 - 전체 콘텐츠 표시
+              <>
+                <div
+                  className="article-content [&_img]:mx-auto [&_img]:block [&_video]:mx-auto [&_video]:block [&_iframe]:mx-auto [&_iframe]:block [&_fieldset]:mx-auto [&_table]:mx-auto"
+                  dangerouslySetInnerHTML={{ __html: processedContent }}
+                />
                 <InArticleAd />
               </>
             ) : (
+              // Fallback - description만 있는 경우
               <div className="leading-relaxed text-gray-800">
                 <p className="mb-4">{article.description}</p>
                 <InArticleAd />

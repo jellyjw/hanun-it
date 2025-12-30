@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 import { RSS_SOURCES } from '@/utils/constants';
 import { extractThumbnailFromUrl } from '@/lib/thumbnailExtractor';
 import { processArticleContent } from '@/utils/markdown';
+import { ArticleSummarizer } from '@/lib/summarizer/summarizer';
 
 const parser = new Parser({
   customFields: {
@@ -32,6 +33,23 @@ export async function GET(request: NextRequest) {
     let totalArticlesProcessed = 0;
     const BATCH_SIZE = 5;
 
+    // AI 요약 기능 활성화 여부 (환경 변수)
+    const enableAI = process.env.ENABLE_AI_SUMMARIZATION !== 'false';
+    const openaiKey = process.env.OPENAI_API_KEY || '';
+
+    // Summarizer 인스턴스 생성 (활성화된 경우)
+    let summarizer: ArticleSummarizer | null = null;
+    if (enableAI && openaiKey) {
+      try {
+        summarizer = new ArticleSummarizer(openaiKey);
+        console.log('✅ AI Summarization enabled');
+      } catch (error) {
+        console.warn('⚠️ Failed to initialize summarizer:', error);
+      }
+    } else {
+      console.log('ℹ️ AI Summarization disabled');
+    }
+
     // RSS 소스를 5개씩 배치로 처리
     for (let i = 0; i < RSS_SOURCES.length; i += BATCH_SIZE) {
       const batch = RSS_SOURCES.slice(i, i + BATCH_SIZE);
@@ -46,7 +64,7 @@ export async function GET(request: NextRequest) {
               if (!item.link) return null;
 
               const articleContent = item['content:encoded'] || item.content || '';
-              
+
               // 썸네일 추출을 별도로 처리 (타임아웃 단축)
               let thumbnailUrl = null;
               try {
@@ -58,10 +76,24 @@ export async function GET(request: NextRequest) {
                 console.warn(`썸네일 추출 실패 (${item.link}):`, error);
               }
 
+              // AI 요약 생성
+              let aiSummary = null;
+              if (summarizer && articleContent && articleContent.length > 100) {
+                try {
+                  aiSummary = await summarizer.summarizeArticle(articleContent, item.title || '');
+                  if (aiSummary) {
+                    console.log(`✅ 요약 생성: ${item.title?.substring(0, 30)}...`);
+                  }
+                } catch (error) {
+                  console.warn(`⚠️ 요약 실패 (${item.title?.substring(0, 30)}):`, error);
+                  // Fallback to RSS summary
+                }
+              }
+
               return {
                 title: item.title || '',
                 description: item.contentSnippet || '',
-                summary: item.summary || '',
+                summary: aiSummary || item.summary || '',
                 content: processArticleContent(articleContent),
                 link: item.link,
                 pub_date: item.pubDate ? new Date(item.pubDate) : new Date(),
