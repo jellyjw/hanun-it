@@ -51,6 +51,13 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
     },
   });
 
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= 255) {
+      setNewComment(value);
+    }
+  };
+
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -65,26 +72,35 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
 
   return (
     <div className="mt-8 border-t pt-8">
+      {/* 헤더 */}
       <div className="mb-6 flex items-center gap-2">
-        <MessageCircle className="h-5 w-5" />
-        <h3 className="text-xl font-semibold">댓글 ({commentsData?.pagination.total || 0})</h3>
+        <h3 className="text-2xl font-bold text-gray-900">Comments</h3>
+        <span className="flex h-6 min-w-[1.5rem] items-center justify-center rounded-full bg-green-500 px-2 text-sm font-semibold text-white">
+          {commentsData?.pagination.total || 0}
+        </span>
       </div>
 
       {/* 댓글 작성 폼 */}
       {isAuthenticated ? (
         <form onSubmit={handleSubmitComment} className="mb-8">
-          <div className="space-y-4">
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 transition-all hover:border-gray-300 focus-within:border-gray-400 focus-within:bg-white">
             <Textarea
               value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="댓글을 작성해주세요."
-              className="min-h-[100px] resize-none"
+              onChange={handleCommentChange}
+              placeholder="댓글을 작성해주세요"
+              className="min-h-[120px] resize-none border-0 bg-transparent p-0 text-base placeholder:text-gray-400 focus-visible:ring-0"
               disabled={isSubmitting}
+              maxLength={255}
             />
-            <div className="flex justify-end">
-              <Button type="submit" disabled={!newComment.trim() || isSubmitting} className="flex items-center gap-2">
-                <Send className="h-4 w-4" />
-                {isSubmitting ? '작성 중...' : '댓글 작성'}
+            <div className="mt-3 flex items-center justify-between border-t border-gray-200 pt-3">
+              <span className="text-sm text-gray-500">
+                {newComment.length}/255
+              </span>
+              <Button
+                type="submit"
+                disabled={!newComment.trim() || isSubmitting}
+                className="bg-gray-900 px-6 py-2 font-medium text-white hover:bg-gray-800 disabled:bg-gray-300 disabled:text-gray-500 transition-colors">
+                등록
               </Button>
             </div>
           </div>

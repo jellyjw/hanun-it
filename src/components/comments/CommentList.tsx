@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/ko';
-import { User, Edit, Trash2, Save, X, MessageCircle } from 'lucide-react';
+import { User, Edit, Trash2, Save, X, MessageCircle, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Comment } from '@/types/comments';
@@ -98,14 +98,13 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
     );
   }
 
-  if (comments.length === 0) {
-    return (
-      <div className="py-8 text-center text-sm text-gray-500">
-        <MessageCircle className="mx-auto mb-4 h-8 w-8 opacity-50" />
-        <p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요.</p>
-      </div>
-    );
-  }
+  // if (comments.length === 0) {
+  //   return (
+  //     <div className="py-8 text-center text-sm text-gray-500">
+  //       <p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요.</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="space-y-6">
@@ -114,57 +113,61 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
         const isEditing = editingId === comment.id;
 
         return (
-          <div key={comment.id} className="flex items-start space-x-3 pt-1">
-            {/* 기본 유저 프로필 아이콘 */}
-            <div className="mt-3 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gray-100">
-              <User className="h-4 w-4 text-gray-600" />
-            </div>
+          <div key={comment.id} className="flex items-start gap-3 pb-6 border-b last:border-b-0">
+            {/* 기본 유저 프로필 아이콘 - 추후 구현 예정 */}
+            {/* <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200">
+              <User className="h-5 w-5 text-gray-500" />
+            </div> */}
 
             {/* 댓글 내용 */}
             <div className="min-w-0 flex-1">
-              <div className="rounded-lg bg-gray-50 p-4">
-                {/* 사용자 정보 */}
-                <div className="mb-2 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-medium text-gray-900">
-                      {comment.user_profile?.full_name ||
-                        comment.user_profile?.username ||
-                        comment.user_profile?.email?.split('@')[0] ||
-                        '사용자'}
-                    </span>
-                    <span className="text-sm text-gray-500">{dayjs(comment.created_at).fromNow()}</span>
-                  </div>
-
-                  {/* 수정/삭제 버튼 */}
-                  {isOwner && !isEditing && (
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        onClick={() => handleEditStart(comment)}
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDelete(comment.id)}
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
+              {/* 사용자 정보 */}
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-900">
+                    {comment.user_profile?.full_name ||
+                      comment.user_profile?.username ||
+                      comment.user_profile?.email?.split('@')[0] ||
+                      '사용자'}
+                  </span>
+                  <span className="text-sm text-gray-500">{dayjs(comment.created_at).fromNow()}</span>
                 </div>
 
-                {/* 댓글 내용 */}
-                {isEditing ? (
-                  <div className="space-y-3">
-                    <Textarea
-                      value={editContent}
-                      onChange={(e) => setEditContent(e.target.value)}
-                      className="min-h-[80px] resize-none"
-                    />
-                    <div className="flex justify-end space-x-2">
+                {/* 수정/삭제 버튼 */}
+                {isOwner && !isEditing && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEditStart(comment)}
+                      className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+                      수정
+                    </button>
+                    <span className="text-gray-300">|</span>
+                    <button
+                      onClick={() => handleDelete(comment.id)}
+                      className="text-sm text-gray-500 hover:text-red-600 transition-colors">
+                      삭제
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 댓글 내용 */}
+              {isEditing ? (
+                <div className="space-y-3">
+                  <Textarea
+                    value={editContent}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value.length <= 255) {
+                        setEditContent(value);
+                      }
+                    }}
+                    maxLength={255}
+                    className="min-h-[80px] resize-none"
+                  />
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">{editContent.length}/255</span>
+                    <div className="flex space-x-2">
                       <Button
                         onClick={handleEditCancel}
                         variant="outline"
@@ -183,10 +186,27 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
                       </Button>
                     </div>
                   </div>
-                ) : (
-                  <p className="whitespace-pre-wrap text-gray-800">{comment.content}</p>
-                )}
-              </div>
+                </div>
+              ) : (
+                <>
+                  <p className="mb-3 whitespace-pre-wrap text-gray-800 leading-relaxed">{comment.content}</p>
+
+                  {/* 좋아요/싫어요/답글 버튼 - 추후 구현 예정 */}
+                  {/* <div className="flex items-center gap-4">
+                    <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                      <ThumbsUp className="h-4 w-4" />
+                      <span className="font-medium">12</span>
+                    </button>
+                    <button className="flex items-center gap-1 text-sm text-gray-600 hover:text-red-600 transition-colors">
+                      <ThumbsDown className="h-4 w-4" />
+                      <span className="font-medium">0</span>
+                    </button>
+                    <button className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                      Reply
+                    </button>
+                  </div> */}
+                </>
+              )}
             </div>
           </div>
         );
