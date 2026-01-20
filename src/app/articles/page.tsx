@@ -3,8 +3,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Eye, Loader2, Play } from 'lucide-react';
+import { Eye, Loader2, Play, Heart } from 'lucide-react';
 import { ArticleResponse } from '@/types/articles';
+import dayjs from 'dayjs';
 import { useSearch } from '@/hooks/useSearch';
 import { PaginationWrapper } from '@/components/ui/pagination-wrapper';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 import { useGetArticles } from '@/hooks/useGetArticles';
 import { useGetVideos } from '@/hooks/useGetVideos';
+import { useGetPopularArticles } from '@/hooks/useGetPopularArticles';
 import { SELECT_OPTIONS } from '@/utils/options';
 import { ArticlesSkeleton } from '@/components/skeleton/ArticlesSkeleton';
 import { Header } from '@/components/header/Header';
@@ -23,6 +25,73 @@ import SearchInput from '@/components/SearchInput';
 import SelectBox from '@/components/select/SelectBox';
 import FallbackThumbnail from '@/components/FallbackThumbnail';
 import Image from 'next/image';
+
+// Popular Articles Section Component
+function PopularArticlesSection({ router }: { router: any }) {
+  const { data: popularData, isLoading } = useGetPopularArticles();
+
+  // 기준 시간 포맷팅 함수
+  const formatUpdatedAt = (dateString: string) => {
+    return dayjs(dateString).format('YYYY.MM.DD HH시 기준');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-base font-semibold text-gray-900 sm:text-lg">주간 인기 아티클</h3>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse rounded-lg bg-gray-50 p-3 sm:p-4">
+            <div className="mb-2 h-4 w-3/4 rounded bg-gray-200"></div>
+            <div className="h-3 w-1/2 rounded bg-gray-200"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!popularData?.articles || popularData.articles.length === 0) {
+    return (
+      <div className="space-y-3 sm:space-y-4">
+        <h3 className="text-base font-semibold text-gray-900 sm:text-lg">주간 인기 아티클</h3>
+        <div className="rounded-lg bg-gray-50 p-4 text-center text-sm text-gray-600">
+          최근 일주일간 인기 아티클이 없습니다.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 sm:space-y-4">
+      <div>
+        <h3 className="text-base font-semibold text-gray-900 sm:text-lg">주간 인기 아티클</h3>
+        <p className="mt-1 text-xs text-gray-500">{formatUpdatedAt(popularData.updatedAt)}</p>
+      </div>
+      {popularData.articles.map((article) => (
+        <div
+          key={article.id}
+          className="cursor-pointer rounded-lg bg-gray-50 p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-gray-100 hover:shadow-md sm:p-4"
+          onClick={() => router.push(`/articles/${article.id}`)}>
+          <h4 className="mb-1 line-clamp-2 text-sm font-medium text-gray-900 sm:text-base">{article.title}</h4>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-600 sm:text-sm">{article.source_name}</p>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              {article.view_count && article.view_count > 0 && (
+                <div className="flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  <span>{article.view_count}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1">
+                <Heart className="h-3 w-3" />
+                <span>{article.like_count || 0}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function ArticlesPageContent() {
   const router = useRouter();
@@ -753,21 +822,8 @@ function ArticlesPageContent() {
                 </div>
               </div> */}
 
-              {/* 추천 아티클 */}
-              <div className="space-y-3 sm:space-y-4">
-                <h3 className="text-base font-semibold text-gray-900 sm:text-lg">Popular Articles</h3>
-                {data?.articles?.slice(0, 3).map((article) => (
-                  <div
-                    key={article.id}
-                    className="cursor-pointer rounded-lg bg-gray-50 p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-gray-100 hover:shadow-md sm:p-4"
-                    onClick={() => router.push(`/articles/${article.id}`)}>
-                    <h4 className="mb-1 line-clamp-2 text-sm font-medium text-gray-900 sm:text-base">
-                      {article.title}
-                    </h4>
-                    <p className="text-xs text-gray-600 sm:text-sm">{article.source_name}</p>
-                  </div>
-                ))}
-              </div>
+              {/* 인기 아티클 */}
+              <PopularArticlesSection router={router} />
             </div>
           </div>
         </div>
