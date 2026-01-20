@@ -1,13 +1,13 @@
 'use client';
 
-import { RefreshCw, ImageIcon, Newspaper } from 'lucide-react';
+import { RefreshCw, ImageIcon, Newspaper, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { Suspense } from 'react';
 
 interface HeaderProps {
-  handleRefreshRSS: () => Promise<void>;
+  handleRefreshRSS?: () => Promise<void>;
   handleExtractThumbnails?: () => Promise<void>;
   handleRefreshITNews?: () => Promise<void>;
 }
@@ -26,6 +26,16 @@ function HeaderContent({ handleRefreshRSS, handleExtractThumbnails, handleRefres
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/release-notes">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden items-center gap-2 sm:flex">
+                <FileText className="h-4 w-4" />
+                <span>릴리즈 노트</span>
+              </Button>
+            </Link>
+
             {!isAuthenticated ? (
               <Link href="/auth/login">
                 <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
@@ -33,7 +43,7 @@ function HeaderContent({ handleRefreshRSS, handleExtractThumbnails, handleRefres
                 </button>
               </Link>
             ) : (
-              <button 
+              <button
                 onClick={signOut}
                 className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
                 로그아웃
@@ -42,14 +52,16 @@ function HeaderContent({ handleRefreshRSS, handleExtractThumbnails, handleRefres
 
           {isAdmin && (
             <>
-              <Button
-                onClick={handleRefreshRSS}
-                variant="outline"
-                size="sm"
-                className="hidden items-center space-x-2 border-purple-200 transition-all duration-200 hover:border-purple-300 hover:bg-purple-50 sm:flex dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-950">
-                <RefreshCw className="h-4 w-4" />
-                <span>새로고침</span>
-              </Button>
+              {handleRefreshRSS && (
+                <Button
+                  onClick={handleRefreshRSS}
+                  variant="outline"
+                  size="sm"
+                  className="hidden items-center space-x-2 border-purple-200 transition-all duration-200 hover:border-purple-300 hover:bg-purple-50 sm:flex dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-950">
+                  <RefreshCw className="h-4 w-4" />
+                  <span>새로고침</span>
+                </Button>
+              )}
 
               {handleRefreshITNews && (
                 <Button
@@ -105,6 +117,16 @@ function HeaderFallback({ handleRefreshRSS, handleExtractThumbnails, handleRefre
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/release-notes">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden items-center gap-2 sm:flex">
+                <FileText className="h-4 w-4" />
+                <span>릴리즈 노트</span>
+              </Button>
+            </Link>
+
             {!isAuthenticated ? (
               <Link href="/auth/login">
                 <button className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
@@ -121,14 +143,16 @@ function HeaderFallback({ handleRefreshRSS, handleExtractThumbnails, handleRefre
 
             {isAdmin && (
               <>
-                <Button
-                  onClick={handleRefreshRSS}
-                  variant="outline"
-                  size="sm"
-                  className="hidden items-center space-x-2 border-purple-200 transition-all duration-200 hover:border-purple-300 hover:bg-purple-50 sm:flex dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-950">
-                  <RefreshCw className="h-4 w-4" />
-                  <span>새로고침</span>
-                </Button>
+                {handleRefreshRSS && (
+                  <Button
+                    onClick={handleRefreshRSS}
+                    variant="outline"
+                    size="sm"
+                    className="hidden items-center space-x-2 border-purple-200 transition-all duration-200 hover:border-purple-300 hover:bg-purple-50 sm:flex dark:border-purple-800 dark:hover:border-purple-700 dark:hover:bg-purple-950">
+                    <RefreshCw className="h-4 w-4" />
+                    <span>새로고침</span>
+                  </Button>
+                )}
 
                 {handleRefreshITNews && (
                   <Button

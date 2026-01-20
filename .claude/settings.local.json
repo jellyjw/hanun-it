@@ -4,7 +4,8 @@
       "Bash(mkdir:*)",
       "Bash(pnpm build:*)",
       "WebFetch(domain:reactbits.dev)",
-      "Bash(pnpm add:*)"
+      "Bash(pnpm add:*)",
+      "WebSearch"
     ],
     "deny": []
   }

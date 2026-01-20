@@ -25,18 +25,18 @@ export function useAuth() {
         }
 
         const currentUser = session?.user ?? null;
-        console.log('🔐 현재 사용자 세션:', {
-          user: currentUser
-            ? {
-                id: currentUser.id,
-                email: currentUser.email,
-                provider: currentUser.app_metadata?.provider,
-                providers: currentUser.app_metadata?.providers,
-                loginMethod: currentUser.user_metadata?.provider || 'unknown',
-              }
-            : null,
-          hasSession: !!session,
-        });
+        // console.log('🔐 현재 사용자 세션:', {
+        //   user: currentUser
+        //     ? {
+        //         id: currentUser.id,
+        //         email: currentUser.email,
+        //         provider: currentUser.app_metadata?.provider,
+        //         providers: currentUser.app_metadata?.providers,
+        //         loginMethod: currentUser.user_metadata?.provider || 'unknown',
+        //       }
+        //     : null,
+        //   hasSession: !!session,
+        // });
 
         setUser(currentUser);
         setLoading(false);
@@ -53,19 +53,19 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 인증 상태 변경:', {
-        event,
-        user: session?.user
-          ? {
-              id: session.user.id,
-              email: session.user.email,
-              provider: session.user.app_metadata?.provider,
-              providers: session.user.app_metadata?.providers,
-              loginMethod: session.user.user_metadata?.provider || 'unknown',
-            }
-          : null,
-        hasSession: !!session,
-      });
+      // console.log('🔄 인증 상태 변경:', {
+      //   event,
+      //   user: session?.user
+      //     ? {
+      //         id: session.user.id,
+      //         email: session.user.email,
+      //         provider: session.user.app_metadata?.provider,
+      //         providers: session.user.app_metadata?.providers,
+      //         loginMethod: session.user.user_metadata?.provider || 'unknown',
+      //       }
+      //     : null,
+      //   hasSession: !!session,
+      // });
 
       setUser(session?.user ?? null);
       setLoading(false);
@@ -81,12 +81,9 @@ export function useAuth() {
 
   const signOut = async () => {
     try {
-      console.log('🚪 로그아웃 시도...');
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('로그아웃 오류:', error);
-      } else {
-        console.log('✅ 로그아웃 성공');
       }
     } catch (error) {
       console.error('로그아웃 중 예외:', error);
@@ -107,12 +104,12 @@ export function useAuth() {
 
     const adminStatus = userRole === 'admin' || (userEmail && adminEmails.includes(userEmail));
 
-    console.log('👑 관리자 권한 확인:', {
-      userEmail,
-      userRole,
-      adminEmails,
-      isAdmin: adminStatus,
-    });
+    // console.log('👑 관리자 권한 확인:', {
+    //   userEmail,
+    //   userRole,
+    //   adminEmails,
+    //   isAdmin: adminStatus,
+    // });
 
     return adminStatus;
   };
@@ -142,13 +139,14 @@ export function useAuth() {
     userProvider: user?.app_metadata?.provider || 'unknown',
   };
 
-  console.log('🔐 useAuth 반환값:', {
-    isAuthenticated: authInfo.isAuthenticated,
-    isAdmin: authInfo.isAdmin,
-    isSocialLogin: authInfo.isSocialLogin,
-    userProvider: authInfo.userProvider,
-    userEmail: user?.email,
-  });
+  // 로그 제거 (성능 향상)
+  // console.log('🔐 useAuth 반환값:', {
+  //   isAuthenticated: authInfo.isAuthenticated,
+  //   isAdmin: authInfo.isAdmin,
+  //   isSocialLogin: authInfo.isSocialLogin,
+  //   userProvider: authInfo.userProvider,
+  //   userEmail: user?.email,
+  // });
 
   return authInfo;
 }
