@@ -28,6 +28,10 @@ export async function POST(request: NextRequest, { params }: Props) {
       supabase = await createClient(request);
     }
 
+    // 로그인한 사용자의 조회 기록 저장 (별도 클라이언트 사용)
+    const authSupabase = await createClient(request);
+    const { data: { user } } = await authSupabase.auth.getUser();
+
     // 1. 먼저 articles 테이블에서 조회수 가져오기
     const { data: article, error: fetchError } = await supabase
       .from('articles')
@@ -44,6 +48,17 @@ export async function POST(request: NextRequest, { params }: Props) {
       if (updateError) {
         console.error('articles 조회수 업데이트 실패:', updateError);
         return NextResponse.json({ success: false, error: '조회수 업데이트에 실패했습니다.' }, { status: 500 });
+      }
+
+      // 로그인한 사용자의 조회 기록 저장
+      if (user) {
+        await authSupabase.rpc('upsert_article_view', {
+          p_user_id: user.id,
+          p_article_id: id,
+          p_article_type: 'article',
+        }).then(({ error }) => {
+          if (error) console.error('조회 기록 저장 실패:', error);
+        });
       }
 
       return NextResponse.json({
@@ -69,6 +84,17 @@ export async function POST(request: NextRequest, { params }: Props) {
       if (updateError) {
         console.error('it_news 조회수 업데이트 실패:', updateError);
         return NextResponse.json({ success: false, error: '조회수 업데이트에 실패했습니다.' }, { status: 500 });
+      }
+
+      // 로그인한 사용자의 조회 기록 저장
+      if (user) {
+        await authSupabase.rpc('upsert_article_view', {
+          p_user_id: user.id,
+          p_article_id: id,
+          p_article_type: 'it_news',
+        }).then(({ error }) => {
+          if (error) console.error('조회 기록 저장 실패:', error);
+        });
       }
 
       return NextResponse.json({
