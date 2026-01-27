@@ -33,11 +33,19 @@ function HeaderContent({ handleRefreshRSS, handleExtractThumbnails, handleRefres
                 </button>
               </Link>
             ) : (
-              <button 
-                onClick={signOut}
-                className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
-                로그아웃
-              </button>
+              <>
+                <Link href="/mypage">
+                  <button className="rounded-full border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:shadow-md">
+                    <span className="sm:hidden">MY</span>
+                    <span className="hidden sm:inline">마이페이지</span>
+                  </button>
+                </Link>
+                <button
+                  onClick={signOut}
+                  className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
+                  로그아웃
+                </button>
+              </>
             )}
 
           {isAdmin && (
@@ -112,11 +120,19 @@ function HeaderFallback({ handleRefreshRSS, handleExtractThumbnails, handleRefre
                 </button>
               </Link>
             ) : (
-              <button
-                onClick={signOut}
-                className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
-                로그아웃
-              </button>
+              <>
+                <Link href="/mypage">
+                  <button className="rounded-full border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 hover:shadow-md">
+                    <span className="sm:hidden">MY</span>
+                    <span className="hidden sm:inline">마이페이지</span>
+                  </button>
+                </Link>
+                <button
+                  onClick={signOut}
+                  className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-emerald-600 hover:shadow-md">
+                  로그아웃
+                </button>
+              </>
             )}
 
             {isAdmin && (
