@@ -17,6 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture Overview
 
 ### Tech Stack
+
 - **Frontend**: Next.js 15.1.4 (App Router), TypeScript, Tailwind CSS, Shadcn UI
 - **State Management**: TanStack Query for server state, Zustand for client state
 - **Database**: Supabase (PostgreSQL with Row Level Security)
@@ -33,18 +34,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 5. **Type Safety**: Comprehensive TypeScript interfaces in `src/types/`
 
 ### Database Schema (Supabase)
+
 - **articles**: Main content table with fields like `id`, `title`, `description`, `link`, `content`, `pub_date`, `source_name`, `category`, `is_domestic`, `thumbnail`, `view_count`
 - **comments**: User comments linked to articles
 - **article_likes**: Like system for articles (recently added)
 - Uses Row Level Security (RLS) policies
 
 ### Data Flow
+
 1. RSS feeds collected via API routes (`/api/rss`, `/api/it-news`)
 2. Content stored in Supabase with automatic translation capabilities
 3. Client fetches via TanStack Query with caching
 4. Real-time updates through Supabase subscriptions
 
 ### Key Features
+
 - **Article Aggregation**: Collects from domestic (우아한형제들, 카카오, 토스) and international sources
 - **IT News**: Integrates with ZDNet, IT동아, 디지털타임스
 - **Search & Filter**: By title, content, source, category, domestic/international
@@ -66,35 +70,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Guidelines
 
 ### API Routes
+
 - Use consistent error handling with `NextResponse.json()`
 - Implement caching headers (`s-maxage=300`)
 - Handle search parameters with proper validation
 - Use Supabase server client for database operations
 
 ### Component Development
+
 - Follow existing component patterns in `src/components/ui/`
 - Use TypeScript interfaces from `src/types/`
 - Leverage TanStack Query for data fetching
 - Implement proper loading and error states
 
 ### Database Operations
+
 - Use Supabase server client for API routes
 - Use Supabase browser client for client components
 - Respect RLS policies
 - Optimize queries with proper indexing and select clauses
 
 ### Code Quality
+
 - ESLint configuration includes React, TypeScript, and import sorting rules
 - Prettier with Tailwind CSS plugin for consistent formatting
 - Unused imports are automatically removed
 - Use proper TypeScript typing throughout
 
 ## Environment Variables Required
+
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
 - Additional API keys for external services (translation, RSS feeds)
 
 ## Recent Changes (Based on Git Status)
+
 - Added article like functionality with API route and database migration
 - Implemented LikeButton component and related hooks
 - Updated article pages to include like/share functionality
