@@ -15,6 +15,7 @@ import { useGetArticles } from '@/hooks/useGetArticles';
 import { useGetVideos } from '@/hooks/useGetVideos';
 import { SELECT_OPTIONS } from '@/utils/options';
 import { ArticlesSkeleton } from '@/components/skeleton/ArticlesSkeleton';
+import { PageLoadingSkeleton } from '@/components/skeleton/PageLoadingSkeleton';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
 import { WeeklyPopularSidebar } from '@/components/sidebar/WeeklyPopularSidebar';
@@ -766,7 +767,7 @@ function ArticlesPageContent() {
 
 export default function ArticlesPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<PageLoadingSkeleton />}>
       <ArticlesPageContent />
     </Suspense>
   );
