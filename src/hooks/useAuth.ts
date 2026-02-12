@@ -81,15 +81,21 @@ export function useAuth() {
 
   const signOut = async () => {
     try {
-      console.log('🚪 로그아웃 시도...');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setUser(null);
+        router.push('/');
+        return;
+      }
+
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('로그아웃 오류:', error);
-      } else {
-        console.log('✅ 로그아웃 성공');
       }
     } catch (error) {
       console.error('로그아웃 중 예외:', error);
+      setUser(null);
+      router.push('/');
     }
   };
 
