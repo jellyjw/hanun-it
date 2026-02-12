@@ -5,6 +5,7 @@ import ProfileSection from './components/ProfileSection';
 import PasswordChangeForm from './components/PasswordChangeForm';
 import LikedArticlesSection from './components/LikedArticlesSection';
 import RecentViewsSection from './components/RecentViewsSection';
+import NewsletterSection from './components/NewsletterSection';
 import Link from 'next/link';
 
 export default function MyPage() {
@@ -20,6 +21,7 @@ export default function MyPage() {
 
         <div className="space-y-5">
           <ProfileSection />
+          <NewsletterSection />
           <PasswordChangeForm />
           <LikedArticlesSection />
           <RecentViewsSection />
