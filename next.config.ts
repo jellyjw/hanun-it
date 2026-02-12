@@ -64,8 +64,8 @@ const nextConfig: NextConfig = {
     CUSTOM_DOMAIN: 'hanun-it.com',
     VERCEL_DOMAIN: 'hanun-it.vercel.app',
   },
-  // 호스트 설정
-  assetPrefix: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_CUSTOM_DOMAIN : 'hanun-it.vercel.app',
+  // 호스트 설정 (Vercel 배포 시에만 적용)
+  assetPrefix: process.env.VERCEL ? undefined : undefined,
 };
 
 export default nextConfig;
