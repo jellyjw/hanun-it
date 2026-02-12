@@ -19,6 +19,7 @@ import { PageLoadingSkeleton } from '@/components/skeleton/PageLoadingSkeleton';
 import { Header } from '@/components/header/Header';
 import { CategorySidebar } from '@/components/sidebar/CategorySidebar';
 import { WeeklyPopularSidebar } from '@/components/sidebar/WeeklyPopularSidebar';
+import { NewsletterSubscribeCard } from '@/components/sidebar/NewsletterSubscribeCard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import SearchInput from '@/components/SearchInput';
@@ -754,6 +755,9 @@ function ArticlesPageContent() {
                   </button>
                 </div>
               </div> */}
+
+              {/* 뉴스레터 구독 */}
+              <NewsletterSubscribeCard />
 
               {/* 인기 아티클 */}
               <WeeklyPopularSidebar />
