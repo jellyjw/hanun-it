@@ -4,8 +4,6 @@ import { createClient } from '@/utils/supabase/server';
 import { generateNewsletterHtml } from '@/lib/newsletter-template';
 import { NewsletterArticle } from '@/types/newsletter';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hanun-it.com';
 const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',');
 
@@ -44,6 +42,7 @@ function generateUnsubscribeUrl(userId: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const resend = new Resend(process.env.RESEND_API_KEY);
     const supabase = await createClient(request);
 
     // 관리자 확인

@@ -16,6 +16,9 @@ export default function NewsletterSection() {
   useEffect(() => {
     if (user) {
       fetchSubscriptionStatus();
+    } else {
+      setIsSubscribed(false);
+      setLoading(false);
     }
   }, [user]);
 
@@ -45,11 +48,6 @@ export default function NewsletterSection() {
 
       if (data.success) {
         setIsSubscribed(true);
-        toast({
-          title: '구독 완료!',
-          description: '매주 월요일 아침, IT 아티클을 받아보세요.',
-          variant: 'success',
-        });
       } else {
         toast({
           title: '구독 실패',
