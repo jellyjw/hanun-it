@@ -9,6 +9,34 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hanun-it.com';
 const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',');
 
+function getWeekOfMonth(date: Date): number {
+  const day = date.getDate();
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const firstDayOfWeek = firstDayOfMonth.getDay();
+
+  // 첫 번째 월요일 찾기
+  let firstMonday: number;
+  if (firstDayOfWeek === 1) {
+    firstMonday = 1;
+  } else if (firstDayOfWeek === 0) {
+    firstMonday = 2;
+  } else {
+    firstMonday = 1 + (8 - firstDayOfWeek);
+  }
+
+  if (day < firstMonday) return 1;
+  return Math.floor((day - firstMonday) / 7) + 1;
+}
+
+function generateEmailSubject(): string {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const weekNum = getWeekOfMonth(now);
+  const weekNames = ['', '첫째', '둘째', '셋째', '넷째', '다섯째'];
+  const weekName = weekNames[Math.min(weekNum, 5)];
+  return `[한눈IT] ${month}월 ${weekName} 주 인기 아티클 모음!`;
+}
+
 function generateUnsubscribeUrl(userId: string): string {
   const token = Buffer.from(userId).toString('base64');
   return `${SITE_URL}/api/newsletter/unsubscribe?userId=${userId}&token=${token}`;
@@ -120,7 +148,7 @@ export async function POST(request: NextRequest) {
         return resend.emails.send({
           from: '한눈IT <newsletter@hanun-it.com>',
           to: subscriber.email,
-          subject: '[한눈IT] 이번주 인기 아티클 모음!',
+          subject: generateEmailSubject(),
           html,
         });
       })

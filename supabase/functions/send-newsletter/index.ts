@@ -23,6 +23,33 @@ interface Article {
   view_count: number;
 }
 
+function getWeekOfMonth(date: Date): number {
+  const day = date.getDate();
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const firstDayOfWeek = firstDayOfMonth.getDay();
+
+  let firstMonday: number;
+  if (firstDayOfWeek === 1) {
+    firstMonday = 1;
+  } else if (firstDayOfWeek === 0) {
+    firstMonday = 2;
+  } else {
+    firstMonday = 1 + (8 - firstDayOfWeek);
+  }
+
+  if (day < firstMonday) return 1;
+  return Math.floor((day - firstMonday) / 7) + 1;
+}
+
+function generateEmailSubject(): string {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const weekNum = getWeekOfMonth(now);
+  const weekNames = ['', '첫째', '둘째', '셋째', '넷째', '다섯째'];
+  const weekName = weekNames[Math.min(weekNum, 5)];
+  return `[한눈IT] ${month}월 ${weekName} 주 인기 아티클 모음!`;
+}
+
 function truncate(text: string, max: number): string {
   if (!text) return '';
   return text.length > max ? text.slice(0, max) + '...' : text;
@@ -192,7 +219,7 @@ serve(async (req) => {
           body: JSON.stringify({
             from: '한눈IT <newsletter@hanun-it.com>',
             to: subscriber.email,
-            subject: '[한눈IT] 이번주 인기 아티클 모음!',
+            subject: generateEmailSubject(),
             html,
           }),
         });
