@@ -27,6 +27,8 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
       if (!response.ok) throw new Error('Failed to fetch comments');
       return response.json();
     },
+    staleTime: 1000 * 60, // 1분
+    gcTime: 1000 * 60 * 5, // 5분
   });
 
   // 댓글 작성 뮤테이션
