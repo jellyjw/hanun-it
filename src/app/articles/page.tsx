@@ -284,14 +284,13 @@ function ArticlesPageContent() {
   };
 
   // 페이지 변경 핸들러
-  const handlePageChange = (newPage: number) => {
+  const handlePageChange = useCallback((newPage: number) => {
     setPage(newPage);
     updateURL({ page: newPage });
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }, [updateURL]);
 
-  const handleCategoryChange = (category: string) => {
-    console.log('🔄 카테고리 변경:', { from: selectedCategory, to: category });
+  const handleCategoryChange = useCallback((category: string) => {
     setSelectedCategory(category);
     setPage(1);
 
@@ -305,20 +304,18 @@ function ArticlesPageContent() {
 
     // 카테고리 변경 시 강제 refetch (특히 IT 뉴스의 경우)
     setTimeout(() => {
-      console.log('🔄 강제 refetch 실행');
-      // 캐시 무효화
       queryClient.invalidateQueries({
         queryKey: category === 'it-news' ? ['it-news'] : ['articles'],
       });
       refetch();
     }, 100);
-  };
+  }, [sortBy, updateURL, queryClient, refetch]);
 
-  const handleSortChange = (value: string) => {
+  const handleSortChange = useCallback((value: string) => {
     setSortBy(value);
     setPage(1);
     updateURL({ sort: value, page: 1 });
-  };
+  }, [updateURL]);
 
   // 검색 처리 함수
   const handleSearch = useCallback(
@@ -330,11 +327,11 @@ function ArticlesPageContent() {
   );
 
   // 페이지당 아이템 수 변경 처리
-  const handleItemsPerPageChange = (value: string) => {
+  const handleItemsPerPageChange = useCallback((value: string) => {
     const newItemsPerPage = Number(value);
     setItemsPerPage(newItemsPerPage);
     setPage(1);
-  };
+  }, []);
 
   const getCategoryTitle = () => {
     const sortLabel = SELECT_OPTIONS.sortBy.find((option) => option.value === sortBy)?.label || '인기순';
