@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { mapCommentWithProfile } from '@/lib/comments';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -51,16 +52,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
       );
     }
 
-    // 사용자 프로필 정보는 저장된 데이터에서 가져오기
-    const commentWithProfile = {
-      ...comment,
-      user_profile: {
-        email: comment.user_email || '',
-        full_name: comment.user_full_name || null,
-        username: comment.user_username || null,
-        avatar_url: comment.user_avatar_url || null,
-      },
-    };
+    const commentWithProfile = mapCommentWithProfile(comment);
 
     return NextResponse.json({
       success: true,

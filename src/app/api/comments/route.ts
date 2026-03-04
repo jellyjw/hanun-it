@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { mapCommentWithProfile } from '@/lib/comments';
 
 // 댓글 목록 조회 (GET /api/comments?article_id=xxx)
 export async function GET(request: NextRequest) {
@@ -30,15 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 저장된 사용자 정보를 사용하여 댓글 목록 구성
-    const commentsWithProfiles = (comments || []).map((comment) => ({
-      ...comment,
-      user_profile: {
-        email: comment.user_email || '',
-        full_name: comment.user_full_name || null,
-        username: comment.user_username || null,
-        avatar_url: comment.user_avatar_url || null,
-      },
-    }));
+    const commentsWithProfiles = (comments || []).map(mapCommentWithProfile);
 
     // 전체 댓글 수 조회
     const { count, error: countError } = await supabase
@@ -114,16 +107,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: '댓글 작성에 실패했습니다.' }, { status: 500 });
     }
 
-    // 사용자 프로필 정보는 저장된 데이터에서 가져오기
-    const commentWithProfile = {
-      ...comment,
-      user_profile: {
-        email: comment.user_email,
-        full_name: comment.user_full_name,
-        username: comment.user_username,
-        avatar_url: comment.user_avatar_url,
-      },
-    };
+    const commentWithProfile = mapCommentWithProfile(comment);
 
     return NextResponse.json({
       success: true,
