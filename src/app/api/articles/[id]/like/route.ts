@@ -29,7 +29,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       .eq('user_id', user.id)
       .eq('article_id', id)
       .eq('article_type', articleType)
-      .single();
+      .maybeSingle();
 
     if (existingLike) {
       // 좋아요 취소
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest, { params }: Props) {
         message: '좋아요가 취소되었습니다.',
       });
     } else {
-      // 좋아요 추가
+      // 좋아요 추가 (unique 제약 위반 시 이미 존재하는 것으로 처리)
       const { error: insertError } = await supabase.from('article_likes').insert({
         user_id: user.id,
         article_id: id,
@@ -59,6 +59,10 @@ export async function POST(request: NextRequest, { params }: Props) {
       });
 
       if (insertError) {
+        // unique 제약 위반 = 이미 좋아요한 상태 (race condition)
+        if (insertError.code === '23505') {
+          return NextResponse.json({ success: true, liked: true, message: '이미 좋아요한 상태입니다.' });
+        }
         console.error('좋아요 추가 실패:', insertError);
         return NextResponse.json({ success: false, error: '좋아요 추가에 실패했습니다.' }, { status: 500 });
       }
@@ -104,21 +108,18 @@ export async function GET(request: NextRequest, { params }: Props) {
     }
 
     // 아티클의 좋아요 수 조회 (로그인 여부와 관계없이)
-    let likeCount = 0;
-    if (articleType === 'article') {
-      const { data: article } = await supabase.from('articles').select('like_count').eq('id', id).single();
-      likeCount = article?.like_count || 0;
-    } else if (articleType === 'it_news') {
-      const { data: itNews } = await supabase.from('it_news').select('like_count').eq('id', id).single();
-      likeCount = itNews?.like_count || 0;
-    } else if (articleType === 'translated_article') {
-      const { data: translatedArticle } = await supabase
-        .from('translated_articles')
-        .select('like_count')
-        .eq('id', id)
-        .single();
-      likeCount = translatedArticle?.like_count || 0;
-    }
+    const tableMap: Record<string, string> = {
+      article: 'articles',
+      it_news: 'it_news',
+      translated_article: 'translated_articles',
+    };
+    const tableName = tableMap[articleType] || 'articles';
+    const { data: articleData } = await supabase
+      .from(tableName)
+      .select('like_count')
+      .eq('id', id)
+      .single();
+    const likeCount = articleData?.like_count || 0;
 
     return NextResponse.json({
       success: true,

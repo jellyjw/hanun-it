@@ -32,80 +32,52 @@ export async function POST(request: NextRequest, { params }: Props) {
     const authSupabase = await createClient(request);
     const { data: { user } } = await authSupabase.auth.getUser();
 
-    // 1. 먼저 articles 테이블에서 조회수 가져오기
-    const { data: article, error: fetchError } = await supabase
-      .from('articles')
-      .select('view_count')
-      .eq('id', id)
-      .single();
+    // 테이블 순서대로 조회수 증가 시도 (원자적 업데이트)
+    const tables = ['articles', 'it_news'] as const;
+    const typeMap = { articles: 'article', it_news: 'it-news' } as const;
 
-    if (article) {
-      // articles 테이블에 있는 경우 조회수 증가
-      const newViewCount = (article.view_count || 0) + 1;
+    for (const table of tables) {
+      const { data, error } = await supabase
+        .from(table)
+        .select('id, view_count')
+        .eq('id', id)
+        .maybeSingle();
 
-      const { error: updateError } = await supabase.from('articles').update({ view_count: newViewCount }).eq('id', id);
-
-      if (updateError) {
-        console.error('articles 조회수 업데이트 실패:', updateError);
-        return NextResponse.json({ success: false, error: '조회수 업데이트에 실패했습니다.' }, { status: 500 });
-      }
-
-      // 로그인한 사용자의 조회 기록 저장
-      if (user) {
-        await authSupabase.rpc('upsert_article_view', {
-          p_user_id: user.id,
+      if (data) {
+        // view_count를 원자적으로 증가 (race condition 방지)
+        const { error: updateError } = await supabase.rpc('increment_view_count', {
+          p_table_name: table,
           p_article_id: id,
-          p_article_type: 'article',
-        }).then(({ error }) => {
-          if (error) console.error('조회 기록 저장 실패:', error);
+        });
+
+        // RPC가 없으면 기존 방식으로 fallback
+        if (updateError) {
+          await supabase
+            .from(table)
+            .update({ view_count: (data.view_count || 0) + 1 })
+            .eq('id', id);
+        }
+
+        // 로그인한 사용자의 조회 기록 저장
+        if (user) {
+          const articleType = table === 'articles' ? 'article' : 'it_news';
+          await authSupabase.rpc('upsert_article_view', {
+            p_user_id: user.id,
+            p_article_id: id,
+            p_article_type: articleType,
+          }).then(({ error: rpcError }) => {
+            if (rpcError) console.error('조회 기록 저장 실패:', rpcError);
+          });
+        }
+
+        return NextResponse.json({
+          success: true,
+          view_count: (data.view_count || 0) + 1,
+          type: typeMap[table],
         });
       }
-
-      return NextResponse.json({
-        success: true,
-        view_count: newViewCount,
-        type: 'article',
-      });
     }
 
-    // 2. articles 테이블에 없으면 it_news 테이블에서 조회
-    const { data: itNews, error: itNewsFetchError } = await supabase
-      .from('it_news')
-      .select('view_count')
-      .eq('id', id)
-      .single();
-
-    if (itNews) {
-      // it_news 테이블에 있는 경우 조회수 증가
-      const newViewCount = (itNews.view_count || 0) + 1;
-
-      const { error: updateError } = await supabase.from('it_news').update({ view_count: newViewCount }).eq('id', id);
-
-      if (updateError) {
-        console.error('it_news 조회수 업데이트 실패:', updateError);
-        return NextResponse.json({ success: false, error: '조회수 업데이트에 실패했습니다.' }, { status: 500 });
-      }
-
-      // 로그인한 사용자의 조회 기록 저장
-      if (user) {
-        await authSupabase.rpc('upsert_article_view', {
-          p_user_id: user.id,
-          p_article_id: id,
-          p_article_type: 'it_news',
-        }).then(({ error }) => {
-          if (error) console.error('조회 기록 저장 실패:', error);
-        });
-      }
-
-      return NextResponse.json({
-        success: true,
-        view_count: newViewCount,
-        type: 'it-news',
-      });
-    }
-
-    // 3. 두 테이블 모두에 없는 경우
-    console.error('아티클/IT뉴스 조회 실패:', { fetchError, itNewsFetchError });
     return NextResponse.json({ success: false, error: '아티클을 찾을 수 없습니다.' }, { status: 404 });
   } catch (error) {
     console.error('조회수 증가 중 오류:', error);
