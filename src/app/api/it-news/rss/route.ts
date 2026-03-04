@@ -3,6 +3,7 @@ import Parser from 'rss-parser';
 import { createClient } from '@/utils/supabase/server';
 import { processArticleContent } from '@/utils/markdown';
 import { createClient as createServiceRoleClient } from '@supabase/supabase-js';
+import { checkIsAdmin } from '@/lib/admin';
 
 type CustomFeed = {
   title: string;
@@ -35,25 +36,7 @@ const parser: Parser<CustomFeed, CustomItem> = new Parser({
 // 관리자 권한 확인 함수
 async function checkAdminPermission(): Promise<boolean> {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return false;
-  }
-
-  // 환경변수에서 관리자 이메일 목록 가져오기 (쉼표로 구분)
-  const adminEmailsEnv = process.env.NEXT_PUBLIC_ADMIN_EMAILS || 'greenery.dev@gmail.com,admin@hanunit.com';
-  const adminEmails = adminEmailsEnv.split(',').map((email) => email.trim());
-
-  // 사용자 메타데이터에서 role 확인 또는 이메일 기반 확인
-  const userRole = user.user_metadata?.role;
-  const userEmail = user.email;
-
-  return userRole === 'admin' || Boolean(userEmail && adminEmails.includes(userEmail));
+  return checkIsAdmin(supabase);
 }
 
 // 썸네일 추출 함수

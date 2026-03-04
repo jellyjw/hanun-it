@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@/utils/supabase/server';
+import { checkIsAdmin } from '@/lib/admin';
 import { generateNewsletterHtml } from '@/lib/newsletter-template';
 import { NewsletterArticle } from '@/types/newsletter';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hanun-it.com';
-const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',');
 
 function getWeekOfMonth(date: Date): number {
   const day = date.getDate();
@@ -46,19 +46,9 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient(request);
 
     // 관리자 확인
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    const isAdmin = await checkIsAdmin(supabase);
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: '로그인이 필요합니다.' },
-        { status: 401 }
-      );
-    }
-
-    if (!ADMIN_EMAILS.includes(user.email || '')) {
+    if (!isAdmin) {
       return NextResponse.json(
         { success: false, error: '관리자만 뉴스레터를 발송할 수 있습니다.' },
         { status: 403 }
