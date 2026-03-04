@@ -104,10 +104,9 @@ export default function ArticleDetailClient({ articleId, initialArticle }: Artic
   });
 
   useEffect(() => {
-    if (article) {
-      incrementViewMutation.mutate(articleId);
-    }
-  }, [article, articleId]);
+    incrementViewMutation.mutate(articleId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [articleId]);
 
   const processedContent = useMemo(() => {
     if (!article?.content) return '';
