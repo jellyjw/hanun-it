@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@/utils/supabase/server';
 import { checkIsAdmin } from '@/lib/admin';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { generateUnsubscribeToken } from '@/lib/newsletter-token';
 import { generateNewsletterHtml } from '@/lib/newsletter-template';
 import { NewsletterArticle } from '@/types/newsletter';
@@ -43,6 +44,11 @@ function generateUnsubscribeUrl(userId: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 분당 5회
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const rateLimited = checkRateLimit(ip, 'newsletter-send', 5, 60 * 1000);
+    if (rateLimited) return rateLimited;
+
     const resend = new Resend(process.env.RESEND_API_KEY);
     const supabase = await createClient(request);
 
