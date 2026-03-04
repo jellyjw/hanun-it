@@ -122,7 +122,7 @@ export async function GET(request: NextRequest) {
       }));
 
       // 댓글순 정렬
-      articlesWithCommentCount.sort((a: any, b: any) => {
+      articlesWithCommentCount.sort((a: { comment_count?: number; view_count?: number; pub_date: string }, b: { comment_count?: number; view_count?: number; pub_date: string }) => {
         const aComments = a.comment_count || 0;
         const bComments = b.comment_count || 0;
         if (aComments !== bComments) return bComments - aComments;

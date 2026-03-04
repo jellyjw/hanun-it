@@ -7,6 +7,7 @@ import CommentSection from '@/components/comments/CommentSection';
 import { marked } from 'marked';
 import DOMPurify from 'isomorphic-dompurify';
 import { processArticleContent, detectContentType } from '@/utils/markdown';
+import { Article } from '@/types/articles';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArticleSkeleton } from '@/components/skeleton/ArticleSkeleton';
@@ -25,7 +26,7 @@ import { getContentPreview } from '@/utils/contentPreview';
 
 interface ArticleDetailClientProps {
   articleId: string;
-  initialArticle: any;
+  initialArticle: Article | null;
 }
 
 export default function ArticleDetailClient({ articleId, initialArticle }: ArticleDetailClientProps) {
@@ -94,7 +95,7 @@ export default function ArticleDetailClient({ articleId, initialArticle }: Artic
   });
 
   const article = data?.article || initialArticle;
-  const articleType = article?.type === 'it-news' ? 'it_news' : 'article';
+  const articleType = data?.type === 'it-news' ? 'it_news' : 'article';
 
   const { data: likeStatus } = useLikeStatus({
     articleId,
