@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { verifyUnsubscribeToken } from '@/lib/newsletter-token';
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,25 +69,24 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
-    const userId = searchParams.get('userId');
 
-    if (!token || !userId) {
+    if (!token) {
       return NextResponse.json(
         { success: false, error: '유효하지 않은 요청입니다.' },
         { status: 400 }
       );
     }
 
-    const supabase = await createClient(request);
-
-    // 간단한 토큰 검증 (userId를 base64로 인코딩한 값)
-    const expectedToken = Buffer.from(userId).toString('base64');
-    if (token !== expectedToken) {
+    // HMAC 서명 검증으로 userId 추출
+    const userId = verifyUnsubscribeToken(token);
+    if (!userId) {
       return NextResponse.json(
         { success: false, error: '유효하지 않은 토큰입니다.' },
         { status: 400 }
       );
     }
+
+    const supabase = await createClient(request);
 
     // 구독 취소
     const { error: updateError } = await supabase

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@/utils/supabase/server';
 import { checkIsAdmin } from '@/lib/admin';
+import { generateUnsubscribeToken } from '@/lib/newsletter-token';
 import { generateNewsletterHtml } from '@/lib/newsletter-template';
 import { NewsletterArticle } from '@/types/newsletter';
 
@@ -36,8 +37,8 @@ function generateEmailSubject(): string {
 }
 
 function generateUnsubscribeUrl(userId: string): string {
-  const token = Buffer.from(userId).toString('base64');
-  return `${SITE_URL}/api/newsletter/unsubscribe?userId=${userId}&token=${token}`;
+  const token = generateUnsubscribeToken(userId);
+  return `${SITE_URL}/api/newsletter/unsubscribe?token=${token}`;
 }
 
 export async function POST(request: NextRequest) {
