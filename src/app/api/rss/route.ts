@@ -20,26 +20,38 @@ const parser = new Parser({
 
 // RSS 아이템에서 직접 이미지 URL 추출
 function extractImageFromRssItem(item: any): string | null {
-  // 1. enclosure 태그 (가장 일반적)
-  if (item.enclosure?.url) {
-    const url = item.enclosure.url;
-    // 이미지 타입인지 확인
-    const type = item.enclosure.type || '';
-    if (type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)/i.test(url)) {
-      return url;
+  // enclosure 태그 - rss-parser는 { url, type, length } 객체로 파싱
+  if (item.enclosure) {
+    const enclosure = item.enclosure;
+    const url = enclosure.url || enclosure.$?.url || enclosure;
+    const type = enclosure.type || '';
+
+    if (typeof url === 'string' && url.startsWith('http')) {
+      if (type.startsWith('image/') || /\.(jpg|jpeg|png|gif|webp|svg)/i.test(url) || url.includes('image')) {
+        return url;
+      }
     }
   }
 
-  // 2. media:content 태그
-  if (item['media:content']) {
-    const media = item['media:content'];
-    const url = media?.$ ?.url || media?.url || media;
+  // itunes:image 태그
+  if (item['itunes:image']) {
+    const itunesImage = item['itunes:image'];
+    const url = itunesImage?.href || itunesImage?.$?.href || itunesImage;
     if (typeof url === 'string' && url.startsWith('http')) {
       return url;
     }
   }
 
-  // 3. media:thumbnail 태그
+  // media:content 태그
+  if (item['media:content']) {
+    const media = item['media:content'];
+    const url = media?.$?.url || media?.url || media;
+    if (typeof url === 'string' && url.startsWith('http')) {
+      return url;
+    }
+  }
+
+  // media:thumbnail 태그
   if (item['media:thumbnail']) {
     const thumb = item['media:thumbnail'];
     const url = thumb?.$?.url || thumb?.url || thumb;
@@ -48,7 +60,7 @@ function extractImageFromRssItem(item: any): string | null {
     }
   }
 
-  // 4. content:encoded나 content 내의 첫 번째 img 태그
+  // content 내의 첫 번째 img 태그
   const content = item['content:encoded'] || item.content || '';
   const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
   if (imgMatch && imgMatch[1]) {
@@ -114,7 +126,7 @@ export async function GET(request: NextRequest) {
               // 썸네일 추출: RSS에서 먼저 시도, 없으면 페이지 크롤링
               let thumbnailUrl: string | null = null;
 
-              // 1. RSS 아이템에서 직접 이미지 추출 시도
+              // RSS 아이템에서 직접 이미지 추출 시도
               thumbnailUrl = extractImageFromRssItem(item);
 
               // 2. RSS에서 못 찾으면 페이지 크롤링으로 fallback
