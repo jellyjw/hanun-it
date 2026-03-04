@@ -352,7 +352,7 @@ function ArticlesPageContent() {
     return categoryTitles[selectedCategory] || '국내 아티클';
   };
 
-  const preprocessingThumbnail = (article: any) => {
+  const preprocessingThumbnail = (article: { thumbnail: string; source_name: string; category: string }) => {
     let thumbnail = article.thumbnail;
 
     // 우아한형제들 블로그 URL 수정
