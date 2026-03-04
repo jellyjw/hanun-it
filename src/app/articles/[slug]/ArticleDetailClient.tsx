@@ -5,6 +5,7 @@ import { useEffect, useMemo } from 'react';
 import { ExternalLink, Eye, Cpu, Sparkles } from 'lucide-react';
 import CommentSection from '@/components/comments/CommentSection';
 import { marked } from 'marked';
+import DOMPurify from 'isomorphic-dompurify';
 import { processArticleContent, detectContentType } from '@/utils/markdown';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -111,11 +112,11 @@ export default function ArticleDetailClient({ articleId, initialArticle }: Artic
     if (!article?.content) return '';
 
     const contentType = detectContentType(article.content);
-    if (contentType === 'markdown') {
-      return processArticleContent(article.content);
-    }
+    const html = contentType === 'markdown'
+      ? processArticleContent(article.content)
+      : article.content;
 
-    return article.content;
+    return DOMPurify.sanitize(html);
   }, [article?.content]);
 
   const handleBackfill = () => {
@@ -412,7 +413,7 @@ export default function ArticleDetailClient({ articleId, initialArticle }: Artic
                   (() => {
                     // 본문 일부만 추출 (1200자까지)
                     const previewContent = article.content.substring(0, 1200);
-                    const processedPreview = processArticleContent(previewContent);
+                    const processedPreview = DOMPurify.sanitize(processArticleContent(previewContent));
 
                     return (
                       <div className="mb-8">
