@@ -5,6 +5,7 @@ import { RSS_SOURCES } from '@/utils/constants';
 import { extractThumbnailFromUrl } from '@/lib/thumbnailExtractor';
 import { processArticleContent } from '@/utils/markdown';
 import { ArticleSummarizer } from '@/lib/summarizer/summarizer';
+import { checkIsAdmin } from '@/lib/admin';
 
 const parser = new Parser({
   customFields: {
@@ -74,12 +75,7 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient(request);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',');
-    const isAdmin = user && adminEmails.includes(user.email || '');
+    const isAdmin = await checkIsAdmin(supabase);
 
     const authHeader = request.headers.get('authorization');
     const isCron = authHeader === `Bearer ${process.env.CRON_SECRET}`;

@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { ArticleSummarizer } from '@/lib/summarizer/summarizer';
+import { checkIsAdmin } from '@/lib/admin';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createClient(request);
 
     // 관리자 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',');
-    const isAdmin = user && adminEmails.includes(user.email || '');
+    const isAdmin = await checkIsAdmin(supabase);
 
     if (!isAdmin) {
       return new Response('Unauthorized', { status: 401 });

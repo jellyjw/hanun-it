@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { checkIsAdmin } from '@/lib/admin';
 import Parser from 'rss-parser';
 import { processArticleContent } from '@/utils/markdown';
 
@@ -12,12 +13,7 @@ const parser = new Parser({
 export async function POST(request: NextRequest) {
   // 1. 관리자 인증
   const supabase = await createClient(request);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',');
-  const isAdmin = user && adminEmails.includes(user.email || '');
+  const isAdmin = await checkIsAdmin(supabase);
 
   if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
