@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { mapCommentWithProfile } from '@/lib/comments';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 // 댓글 목록 조회 (GET /api/comments?article_id=xxx)
 export async function GET(request: NextRequest) {
@@ -68,6 +69,11 @@ export async function GET(request: NextRequest) {
 // 댓글 작성 (POST /api/comments)
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting: 분당 10회
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    const rateLimited = checkRateLimit(ip, 'comments-create', 10, 60 * 1000);
+    if (rateLimited) return rateLimited;
+
     const { article_id, content } = await request.json();
 
     if (!article_id || !content?.trim()) {
