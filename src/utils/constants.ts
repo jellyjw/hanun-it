@@ -516,6 +516,12 @@ export const RSS_SOURCES = [
 
   // 5. 특화 분야 (AI, 데이터, 클라우드 등)
   {
+    name: '한국딥러닝',
+    url: 'https://www.koreadeep.com/blog/rss',
+    isDomestic: true,
+    category: 'ai',
+  },
+  {
     name: 'Google AI Blog',
     url: 'http://ai.googleblog.com/feeds/posts/default',
     isDomestic: false,
