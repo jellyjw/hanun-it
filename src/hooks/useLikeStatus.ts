@@ -26,9 +26,8 @@ export function useLikeStatus({ articleId, articleType = 'article', enabled = tr
       return response.json();
     },
     enabled: enabled,
-    staleTime: 1000 * 60 * 30, // 30분으로 증가
-    gcTime: 1000 * 60 * 60, // 1시간으로 증가
-    refetchOnWindowFocus: false, // 윈도우 포커스 시 재요청 방지
-    refetchOnMount: true, // 컴포넌트 마운트 시 항상 조회
+    staleTime: 1000 * 60 * 30, // 30분
+    gcTime: 1000 * 60 * 60, // 1시간
+    refetchOnWindowFocus: false,
   });
 }
