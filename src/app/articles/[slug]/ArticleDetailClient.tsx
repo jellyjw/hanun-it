@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { ExternalLink, Eye, Cpu, Sparkles } from 'lucide-react';
 import CommentSection from '@/components/comments/CommentSection';
 import { marked } from 'marked';
@@ -103,7 +103,10 @@ export default function ArticleDetailClient({ articleId, initialArticle }: Artic
     enabled: !!article,
   });
 
+  const viewCountedRef = useRef(false);
   useEffect(() => {
+    if (viewCountedRef.current) return;
+    viewCountedRef.current = true;
     incrementViewMutation.mutate(articleId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [articleId]);
