@@ -42,6 +42,12 @@ next-env.d.ts
 
 .history
 
+# cursor
+.cursor/
+
+# supabase temp
+supabase/.temp/
+
 *.sh
 summary.md
 
