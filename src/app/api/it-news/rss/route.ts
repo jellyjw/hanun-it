@@ -82,16 +82,11 @@ async function extractThumbnailsBatch(
 
   for (let i = 0; i < newsItems.length; i += batchSize) {
     const batch = newsItems.slice(i, i + batchSize);
-    console.log(
-      `배치 ${Math.floor(i / batchSize) + 1}/${Math.ceil(newsItems.length / batchSize)}: ${batch.length}개 IT 뉴스 썸네일 추출 중...`,
-    );
-
     const promises = batch.map(async (newsItem) => {
       try {
         const thumbnail = await extractThumbnail(newsItem.link);
         if (thumbnail) {
           thumbnailMap.set(newsItem.link, thumbnail);
-          console.log(`✓ 썸네일 추출 성공: ${newsItem.title}`);
         }
         return { link: newsItem.link, thumbnail };
       } catch (error) {
@@ -115,9 +110,6 @@ export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
-
-    console.log('Next.js API - Received Auth Header:', authHeader);
-    console.log('Next.js API - CRON_SECRET from process.env:', cronSecret);
 
     const isCron = authHeader === `Bearer ${cronSecret}`;
     const isAdmin = await checkAdminPermission();
@@ -153,8 +145,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    console.log(`🔍 ${rssSources.length}개의 활성화된 RSS 소스 발견`);
-
     const newsItems = [];
     let totalProcessed = 0;
     let thumbnailsExtracted = 0;
@@ -164,9 +154,7 @@ export async function GET(request: NextRequest) {
 
     for (const source of rssSources) {
       try {
-        console.log(`📡 IT 뉴스 RSS 수집 시작: ${source.name}`);
         const feed = await parser.parseURL(source.url);
-        console.log(`📄 ${feed.items.length}개 IT 뉴스 발견: ${source.name}`);
 
         for (const item of feed.items) {
           totalProcessed++;
@@ -224,7 +212,6 @@ export async function GET(request: NextRequest) {
           }
 
           // 중복 체크 후 삽입
-          console.log(`💾 뉴스 아이템 삽입 시도: ${item.title}`);
           const { data, error } = await supabase.from('it_news').upsert(newsItem, {
             onConflict: 'link',
             ignoreDuplicates: false, // 업데이트도 허용
@@ -232,7 +219,6 @@ export async function GET(request: NextRequest) {
 
           if (!error) {
             newsItems.push(newsItem);
-            console.log(`✅ DB 삽입 성공: ${item.title}`);
           } else {
             console.error(`❌ DB 삽입 실패 (${item.title}):`, error);
           }
@@ -246,7 +232,6 @@ export async function GET(request: NextRequest) {
           })
           .eq('id', source.id);
 
-        console.log(`✅ IT 뉴스 RSS 수집 완료: ${source.name}`);
       } catch (error) {
         console.error(`❌ IT 뉴스 RSS 수집 실패 (${source.name}):`, error);
         continue;
@@ -255,8 +240,6 @@ export async function GET(request: NextRequest) {
 
     // 2단계: 썸네일이 없는 새 뉴스들의 썸네일 배치 추출
     if (newsForThumbnailExtraction.length > 0) {
-      console.log(`🖼️  ${newsForThumbnailExtraction.length}개 IT 뉴스의 썸네일 배치 추출 시작...`);
-
       const thumbnailMap = await extractThumbnailsBatch(newsForThumbnailExtraction, 5);
 
       // 추출된 썸네일로 DB 업데이트
@@ -268,8 +251,6 @@ export async function GET(request: NextRequest) {
         }
       }
     }
-
-    console.log(`🎉 총 ${newsItems.length}개의 새로운 IT 뉴스 수집 완료!`);
 
     return NextResponse.json({
       success: true,

@@ -125,13 +125,6 @@ export async function GET(request: NextRequest) {
     // YouTube Search API 호출 - 단순화된 버전
     const searchUrl = `${YOUTUBE_API_URL}/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=${limit}&order=relevance&regionCode=KR&relevanceLanguage=ko&key=${YOUTUBE_API_KEY}`;
     
-    console.log('YouTube API 호출:', {
-      query,
-      limit,
-      hasApiKey: !!YOUTUBE_API_KEY,
-      apiKeyPrefix: YOUTUBE_API_KEY?.substring(0, 10) + '...'
-    });
-    
     const searchResponse = await fetch(searchUrl);
 
     if (!searchResponse.ok) {

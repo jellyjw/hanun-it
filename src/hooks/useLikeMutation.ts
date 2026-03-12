@@ -36,22 +36,10 @@ export function useLikeMutation() {
         queryKey: ['likeStatus', variables.articleId, variables.articleType],
       });
 
-      // 아티클 목록 캐시 무효화 (좋아요 수가 변경되었으므로)
-      queryClient.invalidateQueries({
-        queryKey: ['articles'],
-      });
-
       // 개별 아티클 캐시 무효화
       queryClient.invalidateQueries({
         queryKey: ['article', variables.articleId],
       });
-
-      // IT 뉴스 캐시 무효화 (IT 뉴스인 경우)
-      if (variables.articleType === 'it_news') {
-        queryClient.invalidateQueries({
-          queryKey: ['it-news'],
-        });
-      }
     },
   });
 }

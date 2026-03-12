@@ -19,8 +19,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  console.log('데이터 마이그레이션 시작: 전체 아티클 본문 채우기');
-
   try {
     // 2. 모든 고유 RSS 소스 URL 가져오기
     const { data: sources, error: sourcesError } = await supabase
@@ -31,7 +29,6 @@ export async function POST(request: NextRequest) {
     if (sourcesError) throw sourcesError;
 
     const uniqueSourceUrls = [...new Set(sources.map((s) => s.source_url))];
-    console.log(`${uniqueSourceUrls.length}개의 고유 RSS 소스를 찾았습니다.`);
 
     let totalUpdatedCount = 0;
 
@@ -40,7 +37,6 @@ export async function POST(request: NextRequest) {
       if (!sourceUrl) continue;
 
       try {
-        console.log(`처리 중인 RSS 피드: ${sourceUrl}`);
         const feed = await parser.parseURL(sourceUrl);
 
         // 4. 최신 아티클 본문 맵 생성 (링크 -> 본문)
@@ -79,7 +75,6 @@ export async function POST(request: NextRequest) {
         // 7. 병렬로 업데이트 실행
         if (updatePromises.length > 0) {
           await Promise.all(updatePromises);
-          console.log(`✅ [${feed.title}] ${sourceUpdatedCount}개 아티클 본문 업데이트 완료.`);
           totalUpdatedCount += sourceUpdatedCount;
         }
       } catch (feedError) {
@@ -89,7 +84,6 @@ export async function POST(request: NextRequest) {
     }
 
     const message = `마이그레이션 완료. 총 ${totalUpdatedCount}개의 아티클 본문을 업데이트했습니다.`;
-    console.log(message);
     return NextResponse.json({ success: true, message, totalUpdatedCount });
 
   } catch (error) {

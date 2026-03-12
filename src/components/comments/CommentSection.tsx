@@ -29,6 +29,7 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
     },
     staleTime: 1000 * 60, // 1분
     gcTime: 1000 * 60 * 5, // 5분
+    refetchOnWindowFocus: false,
   });
 
   // 댓글 작성 뮤테이션

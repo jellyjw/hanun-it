@@ -15,7 +15,6 @@ export default function SocialLogin({ redirectTo = '/articles' }: SocialLoginPro
     try {
       // 환경에 따른 리다이렉트 URL 설정
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-      console.log('baseUrl', baseUrl);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider,

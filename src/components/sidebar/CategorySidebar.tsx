@@ -42,6 +42,9 @@ export function CategorySidebar({ selectedCategory, onCategoryChange, isOpen = t
       if (!response.ok) throw new Error('Failed to fetch stats');
       return response.json();
     },
+    staleTime: 5 * 60 * 1000, // 5분
+    gcTime: 30 * 60 * 1000, // 30분
+    refetchOnWindowFocus: false,
   });
 
   const articleCategories = [

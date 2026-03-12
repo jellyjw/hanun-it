@@ -47,7 +47,6 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (existingTranslation) {
-          console.log(`아티클 ${article.id}는 이미 번역됨`);
           continue;
         }
 
@@ -88,7 +87,6 @@ export async function POST(request: NextRequest) {
         }
 
         translatedArticles.push(savedTranslation);
-        console.log(`✅ 아티클 번역 완료: ${article.title}`);
 
         // API 호출 간격 조절 (DeepL 무료 티어 제한 고려)
         await new Promise((resolve) => setTimeout(resolve, 1000));

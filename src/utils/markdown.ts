@@ -14,8 +14,8 @@ renderer.code = function ({ text, lang }) {
     try {
       const highlighted = hljs.highlight(text, { language: lang }).value;
       return `<pre><code class="hljs language-${lang}" data-language="${lang}">${highlighted}</code></pre>`;
-    } catch (err) {
-      console.warn('Highlight.js error:', err);
+    } catch {
+      // highlight failed, fall through to auto-detect
     }
   }
 
@@ -23,8 +23,7 @@ renderer.code = function ({ text, lang }) {
   try {
     const highlighted = hljs.highlightAuto(text).value;
     return `<pre><code class="hljs">${highlighted}</code></pre>`;
-  } catch (err) {
-    console.warn('Highlight.js auto-detect error:', err);
+  } catch {
     // 하이라이팅 실패 시 일반 코드 블록으로 표시
     const escapedText = text
       .replace(/&/g, '&amp;')

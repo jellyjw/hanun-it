@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { ErrorBoundary } from 'next/dist/client/components/error-boundary';
 
 const NEWSLETTER_TITLE = '뉴스레터 구독';
 const NEWSLETTER_DESCRIPTION = '매주 월요일, 최신 IT 아티클과\n주간 인기 아티클이 전송돼요';
