@@ -56,3 +56,6 @@ summary.md
 
 # private docs
 /docs
+
+# MCP config (contains secrets)
+.mcp.json
