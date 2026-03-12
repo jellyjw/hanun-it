@@ -51,5 +51,8 @@ supabase/.temp/
 *.sh
 summary.md
 
+# MCP config (contains secrets)
+.mcp.json
+
 # private docs
 /docs
