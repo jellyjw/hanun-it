@@ -216,7 +216,6 @@ function ArticlesPageContent() {
       const response = await fetch('/api/rss');
       const result = await response.json();
       if (result.success) {
-        console.log(result, 'result');
         toast({
           title: `${result.articles}개의 새로운 아티클을 수집했습니다. (썸네일 ${result.thumbnailsExtracted || 0}개 추출)`,
           variant: 'success',
@@ -236,7 +235,6 @@ function ArticlesPageContent() {
       const response = await fetch('/api/it-news/rss');
       const result = await response.json();
       if (result.success) {
-        console.log(result, 'it-news result');
         toast({
           title: `${result.articles}개의 새로운 IT 뉴스를 수집했습니다. (썸네일 ${result.thumbnailsExtracted || 0}개 추출)`,
           variant: 'success',

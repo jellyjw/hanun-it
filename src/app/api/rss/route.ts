@@ -96,12 +96,9 @@ export async function GET(request: NextRequest) {
     if (enableAI && openaiKey) {
       try {
         summarizer = new ArticleSummarizer(openaiKey);
-        console.log('✅ AI Summarization enabled');
-      } catch (error) {
-        console.warn('⚠️ Failed to initialize summarizer:', error);
+      } catch {
+        // Failed to initialize summarizer
       }
-    } else {
-      console.log('ℹ️ AI Summarization disabled');
     }
 
     // RSS 소스를 5개씩 배치로 처리
@@ -132,8 +129,8 @@ export async function GET(request: NextRequest) {
                     extractThumbnailFromUrl(item.link),
                     new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3초 타임아웃
                   ]);
-                } catch (error) {
-                  console.warn(`썸네일 추출 실패 (${item.link}):`, error);
+                } catch {
+                  // 썸네일 추출 실패
                 }
               }
 
@@ -142,11 +139,7 @@ export async function GET(request: NextRequest) {
               if (summarizer && articleContent && articleContent.length > 100) {
                 try {
                   aiSummary = await summarizer.summarizeArticle(articleContent, item.title || '');
-                  if (aiSummary) {
-                    console.log(`✅ 요약 생성: ${item.title?.substring(0, 30)}...`);
-                  }
-                } catch (error) {
-                  console.warn(`⚠️ 요약 실패 (${item.title?.substring(0, 30)}):`, error);
+                } catch {
                   // Fallback to RSS summary
                 }
               }
@@ -177,7 +170,6 @@ export async function GET(request: NextRequest) {
                 console.error(`DB 저장 실패 (${source.name}):`, error);
               } else {
                 totalArticlesProcessed += validArticles.length;
-                console.log(`배치 처리 완료: ${source.name} (${validArticles.length}개)`);
               }
             }
           } catch (error) {

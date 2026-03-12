@@ -59,7 +59,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 요약 생성
-    console.log(`🔄 Generating summary for article: ${article.title}`);
     const summarizer = new ArticleSummarizer(openaiKey);
     const summary = await summarizer.summarizeArticle(article.content, article.title);
 
@@ -79,8 +78,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         { status: 500 },
       );
     }
-
-    console.log(`✅ Summary generated successfully for: ${article.title}`);
 
     return NextResponse.json({
       success: true,

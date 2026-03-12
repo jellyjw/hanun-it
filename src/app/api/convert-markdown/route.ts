@@ -24,7 +24,6 @@ export async function POST() {
         const contentType = detectContentType(article.content);
 
         if (contentType === 'markdown') {
-          console.log(`마크다운 변환 중: ${article.title}`);
           const convertedContent = processArticleContent(article.content);
 
           const { error: updateError } = await supabase
@@ -34,7 +33,6 @@ export async function POST() {
 
           if (!updateError) {
             convertedCount++;
-            console.log(`✅ 변환 완료: ${article.title}`);
           } else {
             console.error(`❌ 업데이트 실패: ${article.title}`, updateError);
             errorCount++;

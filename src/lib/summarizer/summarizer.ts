@@ -1,12 +1,6 @@
 import OpenAI from 'openai';
 import { getSummaryPrompt } from './prompts';
 
-interface SummaryResult {
-  summary: string;
-  tokensUsed: number;
-  cost: number;
-}
-
 export class ArticleSummarizer {
   private client: OpenAI;
   private model = 'gpt-4o-mini';
@@ -56,7 +50,6 @@ export class ArticleSummarizer {
 
       // 너무 짧은 콘텐츠는 요약하지 않음
       if (processedContent.length < 100) {
-        console.warn('Content too short to summarize');
         return '';
       }
 
@@ -83,17 +76,8 @@ export class ArticleSummarizer {
 
       const summary = response.choices[0]?.message?.content?.trim() || '';
 
-      // 토큰 및 비용 계산
-      const tokensUsed = response.usage?.total_tokens || 0;
-      const inputTokens = response.usage?.prompt_tokens || 0;
-      const outputTokens = response.usage?.completion_tokens || 0;
-      const cost = (inputTokens / 1_000_000) * this.inputCostPer1M + (outputTokens / 1_000_000) * this.outputCostPer1M;
-
-      console.log(`✅ Summary generated - Tokens: ${tokensUsed}, Cost: $${cost.toFixed(4)}`);
-
       // 요약이 너무 짧거나 비어있으면 실패로 간주
       if (summary.length < 50) {
-        console.warn('Summary too short, might be invalid');
         return '';
       }
 
@@ -128,12 +112,9 @@ export class ArticleSummarizer {
         return await this.summarizeArticle(content, title);
       } catch (error) {
         lastError = error as Error;
-        console.warn(`Retry attempt ${attempt}/${maxRetries} failed:`, lastError.message);
-
         // Rate limit 에러면 exponential backoff
         if (lastError.message.includes('rate_limit') || lastError.message.includes('Rate limit')) {
           const delay = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
-          console.log(`Waiting ${delay}ms before retry...`);
           await new Promise((resolve) => setTimeout(resolve, delay));
         } else {
           // 다른 에러는 재시도하지 않음
