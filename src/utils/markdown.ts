@@ -14,8 +14,8 @@ renderer.code = function ({ text, lang }) {
     try {
       const highlighted = hljs.highlight(text, { language: lang }).value;
       return `<pre><code class="hljs language-${lang}" data-language="${lang}">${highlighted}</code></pre>`;
-    } catch {
-      // highlight failed, fall through to auto-detect
+    } catch (err) {
+      console.warn('Highlight.js error:', err);
     }
   }
 

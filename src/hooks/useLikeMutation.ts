@@ -40,6 +40,13 @@ export function useLikeMutation() {
       queryClient.invalidateQueries({
         queryKey: ['article', variables.articleId],
       });
+
+      // 아티클 목록 캐시 무효화 (좋아요 수 즉시 반영)
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+
+      if (variables.articleType === 'it_news') {
+        queryClient.invalidateQueries({ queryKey: ['it-news'] });
+      }
     },
   });
 }

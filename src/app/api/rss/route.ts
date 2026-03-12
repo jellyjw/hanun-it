@@ -96,8 +96,8 @@ export async function GET(request: NextRequest) {
     if (enableAI && openaiKey) {
       try {
         summarizer = new ArticleSummarizer(openaiKey);
-      } catch {
-        // Failed to initialize summarizer
+      } catch (error) {
+        console.warn('Failed to initialize summarizer:', error);
       }
     }
 
@@ -129,8 +129,8 @@ export async function GET(request: NextRequest) {
                     extractThumbnailFromUrl(item.link),
                     new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)) // 3초 타임아웃
                   ]);
-                } catch {
-                  // 썸네일 추출 실패
+                } catch (error) {
+                  console.warn(`썸네일 추출 실패 (${item.link}):`, error);
                 }
               }
 

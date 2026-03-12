@@ -76,7 +76,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!cancelled) {
           setAdminStatus(data.isAdmin ?? false);
         }
-      } catch {
+      } catch (error) {
+        console.error('Failed to check admin status:', error);
         if (!cancelled) {
           setAdminStatus(false);
         }

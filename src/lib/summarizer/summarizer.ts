@@ -50,6 +50,7 @@ export class ArticleSummarizer {
 
       // 너무 짧은 콘텐츠는 요약하지 않음
       if (processedContent.length < 100) {
+        console.warn(`[Summarizer] Content too short to summarize: "${title}"`);
         return '';
       }
 
