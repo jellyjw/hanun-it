@@ -130,7 +130,9 @@ export default function CommentList({ comments, isLoading, currentUserId, articl
                       comment.user_profile?.email?.split('@')[0] ||
                       '사용자'}
                   </span>
-                  <span className="text-sm text-gray-500">{dayjs(comment.created_at).fromNow()}</span>
+                  <span className="text-sm text-gray-500">
+                    {dayjs(comment.created_at).isAfter(dayjs()) ? '방금 전' : dayjs(comment.created_at).fromNow()}
+                  </span>
                 </div>
 
                 {/* 수정/삭제 버튼 */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -12,7 +12,7 @@ interface NewsletterSubscribeCardProps {
   className?: string;
 }
 
-export function NewsletterSubscribeCard({ className }: NewsletterSubscribeCardProps) {
+export const NewsletterSubscribeCard = React.memo(function NewsletterSubscribeCard({ className }: NewsletterSubscribeCardProps) {
   const router = useRouter();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -150,4 +150,4 @@ export function NewsletterSubscribeCard({ className }: NewsletterSubscribeCardPr
       </div>
     </div>
   );
-}
+});

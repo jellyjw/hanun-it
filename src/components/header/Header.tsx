@@ -13,7 +13,7 @@ interface HeaderProps {
 }
 
 function HeaderContent({ handleRefreshRSS, handleExtractThumbnails, handleRefreshITNews }: HeaderProps) {
-  const { isAuthenticated, isAdmin, signOut, loading } = useAuth();
+  const { user, isAuthenticated, isAdmin, signOut, loading } = useAuth();
 
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md transition-all duration-300">

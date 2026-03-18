@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import ArticleDetailClient from './ArticleDetailClient';
 import CategoryPageClient from './CategoryPageClient';
+import ArticleJsonLd from '@/components/seo/ArticleJsonLd';
 import { getArticleUrl, getImageUrl } from '@/utils/url';
 import { ARTICLE_CATEGORIES, CATEGORY_INFO, type CategoryType } from '@/utils/constants';
 
@@ -80,7 +81,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = `${article.title} | 한눈IT`;
   const description = article.description || article.title;
-  const imageUrl = getImageUrl(article.thumbnail);
+  const ogImageUrl = `https://hanun-it.com/api/og?title=${encodeURIComponent(article.title)}&source=${encodeURIComponent(article.source_name)}&category=${encodeURIComponent(article.category)}`;
   const articleUrl = getArticleUrl(slug);
 
   return {
@@ -108,7 +109,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       authors: [article.source_name],
       images: [
         {
-          url: imageUrl,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: article.title,
@@ -119,7 +120,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: 'summary_large_image',
       title,
       description,
-      images: [imageUrl],
+      images: [ogImageUrl],
     },
     alternates: {
       canonical: articleUrl,
@@ -148,5 +149,10 @@ export default async function ArticlePage({ params }: PageProps) {
     notFound();
   }
 
-  return <ArticleDetailClient articleId={slug} initialArticle={article} />;
+  return (
+    <>
+      <ArticleJsonLd article={article} articleId={slug} />
+      <ArticleDetailClient articleId={slug} initialArticle={article} />
+    </>
+  );
 }

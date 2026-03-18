@@ -26,53 +26,48 @@ export async function GET(request: NextRequest, { params }: Props) {
       }
     }
 
-    // 1. 먼저 일반 articles 테이블에서 조회
-    const { data: article, error } = await supabase.from('articles').select('*').eq('id', id).single();
+    // 3개 테이블 병렬 조회
+    const [articleResult, itNewsResult, translatedResult] = await Promise.allSettled([
+      supabase.from('articles').select('*').eq('id', id).single(),
+      supabase.from('it_news').select('*').eq('id', id).single(),
+      supabase.from('translated_articles').select('*').eq('id', id).single(),
+    ]);
 
-    if (article) {
-      // 국내 아티클은 그대로 반환
+    // 1. articles 테이블 결과 확인
+    if (articleResult.status === 'fulfilled' && articleResult.value.data) {
       return NextResponse.json({
         success: true,
-        article,
+        article: articleResult.value.data,
         type: 'article',
       });
     }
 
-    // 2. articles 테이블에 없으면 it_news 테이블에서 조회
-    const { data: itNews, error: itNewsError } = await supabase.from('it_news').select('*').eq('id', id).single();
-
-    if (itNews) {
-      // IT 뉴스는 is_domestic을 true로 설정하여 반환
+    // 2. it_news 테이블 결과 확인
+    if (itNewsResult.status === 'fulfilled' && itNewsResult.value.data) {
       return NextResponse.json({
         success: true,
         article: {
-          ...itNews,
+          ...itNewsResult.value.data,
           is_domestic: true,
         },
         type: 'it-news',
       });
     }
 
-    // 3. it_news 테이블에도 없으면 translated_articles 테이블에서 직접 조회
-    const { data: translatedArticle, error: translatedError } = await supabase
-      .from('translated_articles')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (translatedError || !translatedArticle) {
-      return NextResponse.json({ success: false, error: '아티클을 찾을 수 없습니다.' }, { status: 404 });
+    // 3. translated_articles 테이블 결과 확인
+    if (translatedResult.status === 'fulfilled' && translatedResult.value.data) {
+      return NextResponse.json({
+        success: true,
+        article: {
+          ...translatedResult.value.data,
+          is_domestic: false,
+          is_translated: true,
+        },
+        type: 'translated',
+      });
     }
 
-    return NextResponse.json({
-      success: true,
-      article: {
-        ...translatedArticle,
-        is_domestic: false,
-        is_translated: true,
-      },
-      type: 'translated',
-    });
+    return NextResponse.json({ success: false, error: '아티클을 찾을 수 없습니다.' }, { status: 404 });
   } catch (error) {
     console.error('아티클 조회 중 오류:', error);
     return NextResponse.json({ success: false, error: '아티클 조회 중 오류가 발생했습니다.' }, { status: 500 });
