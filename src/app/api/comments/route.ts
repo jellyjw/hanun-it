@@ -18,34 +18,27 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient(request);
     const offset = (page - 1) * limit;
 
-    // 댓글 목록 조회
-    const { data: comments, error: commentsError } = await supabase
-      .from('comments')
-      .select('*')
-      .eq('article_id', article_id)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    // 댓글 목록 + 전체 수 병렬 조회
+    const [commentsResult, countResult] = await Promise.all([
+      supabase
+        .from('comments')
+        .select('*')
+        .eq('article_id', article_id)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1),
+      supabase
+        .from('comments')
+        .select('*', { count: 'exact', head: true })
+        .eq('article_id', article_id),
+    ]);
 
-    if (commentsError) {
-      console.error('댓글 조회 오류:', commentsError);
+    if (commentsResult.error) {
+      console.error('댓글 조회 오류:', commentsResult.error);
       return NextResponse.json({ success: false, error: '댓글을 불러오는데 실패했습니다.' }, { status: 500 });
     }
 
-    // 저장된 사용자 정보를 사용하여 댓글 목록 구성
-    const commentsWithProfiles = (comments || []).map(mapCommentWithProfile);
-
-    // 전체 댓글 수 조회
-    const { count, error: countError } = await supabase
-      .from('comments')
-      .select('*', { count: 'exact', head: true })
-      .eq('article_id', article_id);
-
-    if (countError) {
-      console.error('댓글 수 조회 오류:', countError);
-      return NextResponse.json({ success: false, error: '댓글 수를 불러오는데 실패했습니다.' }, { status: 500 });
-    }
-
-    const total = count || 0;
+    const commentsWithProfiles = (commentsResult.data || []).map(mapCommentWithProfile);
+    const total = countResult.count || 0;
     const totalPages = Math.ceil(total / limit);
 
     return NextResponse.json({

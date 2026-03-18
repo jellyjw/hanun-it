@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import Script from 'next/script';
+import { Suspense } from 'react';
 import Providers from './providers';
 import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/Footer';
@@ -97,11 +99,14 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        <script
-          async
+        <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7127894498153967"
-          crossOrigin="anonymous"></script>
-        <script
+          strategy="lazyOnload"
+          crossOrigin="anonymous"
+        />
+        <Script
+          id="adsense-init"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: '(window.adsbygoogle=window.adsbygoogle||[]).push({overlays:{bottom:false,top:false}});',
           }}

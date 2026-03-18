@@ -93,33 +93,29 @@ export async function GET(request: NextRequest, { params }: Props) {
     const { searchParams } = new URL(request.url);
     const articleType = searchParams.get('type') || 'article';
 
-    // 로그인한 사용자의 경우 좋아요 상태 확인
-    let liked = false;
-    if (user) {
-      const { data: like } = await supabase
-        .from('article_likes')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('article_id', id)
-        .eq('article_type', articleType)
-        .single();
-
-      liked = !!like;
-    }
-
-    // 아티클의 좋아요 수 조회 (로그인 여부와 관계없이)
+    // 좋아요 상태 + 좋아요 수 병렬 조회
     const tableMap: Record<string, string> = {
       article: 'articles',
       it_news: 'it_news',
       translated_article: 'translated_articles',
     };
     const tableName = tableMap[articleType] || 'articles';
-    const { data: articleData } = await supabase
-      .from(tableName)
-      .select('like_count')
-      .eq('id', id)
-      .single();
-    const likeCount = articleData?.like_count || 0;
+
+    const [likeResult, countResult] = await Promise.all([
+      user
+        ? supabase
+            .from('article_likes')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('article_id', id)
+            .eq('article_type', articleType)
+            .single()
+        : Promise.resolve({ data: null }),
+      supabase.from(tableName).select('like_count').eq('id', id).single(),
+    ]);
+
+    const liked = !!likeResult.data;
+    const likeCount = countResult.data?.like_count || 0;
 
     return NextResponse.json({
       success: true,

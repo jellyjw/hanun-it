@@ -7,7 +7,8 @@ async function getDashboardStats() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [articlesRes, usersRes, todayArticlesRes, subscribersRes] = await Promise.all([
+  // 모든 독립 쿼리 병렬 실행
+  const [articlesRes, usersRes, todayArticlesRes, subscribersRes, recentRes, topRes] = await Promise.all([
     supabase.from('articles').select('id', { count: 'exact', head: true }),
     supabase.from('newsletter_subscriptions').select('id', { count: 'exact', head: true }),
     supabase
@@ -18,27 +19,25 @@ async function getDashboardStats() {
       .from('newsletter_subscriptions')
       .select('id', { count: 'exact', head: true })
       .eq('is_active', true),
+    supabase
+      .from('articles')
+      .select('id, title, source_name, pub_date, view_count')
+      .order('pub_date', { ascending: false })
+      .limit(10),
+    supabase
+      .from('articles')
+      .select('id, title, source_name, view_count')
+      .order('view_count', { ascending: false })
+      .limit(5),
   ]);
-
-  const { data: recentArticles } = await supabase
-    .from('articles')
-    .select('id, title, source_name, pub_date, view_count')
-    .order('pub_date', { ascending: false })
-    .limit(10);
-
-  const { data: topArticles } = await supabase
-    .from('articles')
-    .select('id, title, source_name, view_count')
-    .order('view_count', { ascending: false })
-    .limit(5);
 
   return {
     totalArticles: articlesRes.count ?? 0,
     totalUsers: usersRes.count ?? 0,
     todayArticles: todayArticlesRes.count ?? 0,
     activeSubscribers: subscribersRes.count ?? 0,
-    recentArticles: recentArticles ?? [],
-    topArticles: topArticles ?? [],
+    recentArticles: recentRes.data ?? [],
+    topArticles: topRes.data ?? [],
   };
 }
 

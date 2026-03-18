@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import ArticleDetailClient from './ArticleDetailClient';
@@ -16,38 +17,30 @@ function isCategory(slug: string): slug is CategoryType {
   return Object.values(ARTICLE_CATEGORIES).includes(slug as CategoryType);
 }
 
-async function getArticle(id: string) {
+// React.cache()로 같은 요청 내 중복 호출 방지 (generateMetadata + page)
+const getArticle = cache(async function getArticle(id: string) {
   const supabase = await createClient();
-  
-  // First try to find in regular articles table
-  const { data: articleData, error: articleError } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('id', id)
-    .single();
 
-  if (articleData && !articleError) {
-    return articleData;
+  // 두 테이블 병렬 조회
+  const [articleResult, newsResult] = await Promise.allSettled([
+    supabase.from('articles').select('*').eq('id', id).single(),
+    supabase.from('it_news').select('*').eq('id', id).single(),
+  ]);
+
+  if (articleResult.status === 'fulfilled' && articleResult.value.data) {
+    return articleResult.value.data;
   }
 
-  // If not found, try IT news table
-  const { data: newsData, error: newsError } = await supabase
-    .from('it_news')
-    .select('*')
-    .eq('id', id)
-    .single();
-
-  if (newsData && !newsError) {
-    // Transform IT news data to match article structure
+  if (newsResult.status === 'fulfilled' && newsResult.value.data) {
     return {
-      ...newsData,
-      is_domestic: true, // IT news are typically domestic
+      ...newsResult.value.data,
+      is_domestic: true,
       category: 'it-news',
     };
   }
 
   return null;
-}
+})
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
