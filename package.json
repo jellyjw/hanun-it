@@ -9,7 +9,9 @@
     "lint": "next lint",
     "prettier": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
     "stage": "npx stagewise",
-    "newsletter": "node --env-file=.env.local scripts/send-real-newsletter.mjs"
+    "newsletter": "node --env-file=.env.local scripts/send-real-newsletter.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.3",
@@ -25,8 +27,8 @@
     "@tanstack/react-query-devtools": "^5.64.1",
     "@types/marked": "^6.0.0",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/og": "^0.11.1",
     "@vercel/speed-insights": "^1.2.0",
-    "axios": "^1.7.9",
     "cheerio": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -50,11 +52,14 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tanstack/eslint-plugin-query": "^5.62.16",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
+    "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.1.4",
@@ -63,10 +68,12 @@
     "eslint-plugin-prettier": "^5.4.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-unused-imports": "^4.1.4",
+    "jsdom": "^29.0.0",
     "postcss": "^8.5.0",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.12",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.0"
   }
 }

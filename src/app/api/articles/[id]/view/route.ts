@@ -68,6 +68,32 @@ export async function POST(request: NextRequest, { params }: Props) {
           }).then(({ error: rpcError }) => {
             if (rpcError) console.error('조회 기록 저장 실패:', rpcError);
           });
+
+          // 추천 시스템용 읽기 기록 저장
+          const { data: existingHistory } = await authSupabase
+            .from('user_reading_history')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('article_id', id)
+            .maybeSingle();
+
+          if (existingHistory) {
+            await authSupabase
+              .from('user_reading_history')
+              .update({ read_at: new Date().toISOString() })
+              .eq('id', existingHistory.id);
+          } else {
+            await authSupabase
+              .from('user_reading_history')
+              .insert({
+                user_id: user.id,
+                article_id: id,
+                article_type: articleType,
+              })
+              .then(({ error: historyError }) => {
+                if (historyError) console.error('읽기 기록 저장 실패:', historyError);
+              });
+          }
         }
 
         return NextResponse.json({

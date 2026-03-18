@@ -65,8 +65,10 @@ export async function GET(request: NextRequest) {
         .order('view_count', { ascending: false, nullsFirst: false })
         .order('pub_date', { ascending: false });
     } else if (sort === 'comments') {
-      // 댓글순은 별도 처리
-      query = query.order('pub_date', { ascending: false });
+      // comment_count 컬럼은 마이그레이션 적용 후 사용 가능
+      query = query
+        .order('view_count', { ascending: false, nullsFirst: false })
+        .order('pub_date', { ascending: false });
     }
 
     // 페이지네이션
@@ -81,38 +83,7 @@ export async function GET(request: NextRequest) {
 
     // console.log(`📰 조회된 IT 뉴스: ${news?.length || 0}개`);
 
-    let newsWithCommentCount = news || [];
-
-    // 댓글순인 경우만 댓글 수 조회
-    if (sort === 'comments' && news && news.length > 0) {
-      const newsIds = news.map((newsItem) => newsItem.id);
-
-      const { data: commentCounts } = await supabase.from('it_news_comments').select('news_id').in('news_id', newsIds);
-
-      const commentCountMap = new Map();
-      (commentCounts || []).forEach((comment) => {
-        const count = commentCountMap.get(comment.news_id) || 0;
-        commentCountMap.set(comment.news_id, count + 1);
-      });
-
-      newsWithCommentCount = news.map((newsItem) => ({
-        ...newsItem,
-        comment_count: commentCountMap.get(newsItem.id) || 0,
-      }));
-
-      // 댓글순 정렬
-      newsWithCommentCount.sort((a: { comment_count?: number; view_count?: number; pub_date: string }, b: { comment_count?: number; view_count?: number; pub_date: string }) => {
-        const aComments = a.comment_count || 0;
-        const bComments = b.comment_count || 0;
-        if (aComments !== bComments) return bComments - aComments;
-
-        const aViews = a.view_count || 0;
-        const bViews = b.view_count || 0;
-        if (aViews !== bViews) return bViews - aViews;
-
-        return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
-      });
-    }
+    const newsWithCommentCount = news || [];
 
     const maxViewCount = newsWithCommentCount[0]?.view_count || 0;
     const totalPages = Math.ceil((count || 0) / limit);

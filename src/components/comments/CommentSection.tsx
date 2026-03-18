@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ interface CommentSectionProps {
   articleId: string;
 }
 
-export default function CommentSection({ articleId }: CommentSectionProps) {
+const CommentSection = React.memo(function CommentSection({ articleId }: CommentSectionProps) {
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, isAuthenticated } = useAuth();
@@ -131,4 +131,6 @@ export default function CommentSection({ articleId }: CommentSectionProps) {
       />
     </div>
   );
-}
+});
+
+export default CommentSection;

@@ -19,7 +19,7 @@ export function extractTextPreview(html: string, maxChars: number = 300): string
   if (!html) return '';
 
   // HTML 태그 제거
-  let text = html
+  const text = html
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // style 태그 제거
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // script 태그 제거
     .replace(/<[^>]+>/g, ' ') // 모든 HTML 태그 제거

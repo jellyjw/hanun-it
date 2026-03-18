@@ -116,9 +116,6 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
-    console.log('Next.js API - Received Auth Header:', authHeader);
-    console.log('Next.js API - CRON_SECRET from process.env:', cronSecret);
-
     const isCron = authHeader === `Bearer ${cronSecret}`;
     const isAdmin = await checkAdminPermission();
 

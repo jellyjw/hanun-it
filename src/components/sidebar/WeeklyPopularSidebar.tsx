@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, Heart } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -10,7 +11,7 @@ interface WeeklyPopularSidebarProps {
   className?: string;
 }
 
-export function WeeklyPopularSidebar({ className }: WeeklyPopularSidebarProps) {
+export const WeeklyPopularSidebar = React.memo(function WeeklyPopularSidebar({ className }: WeeklyPopularSidebarProps) {
   const router = useRouter();
   const { data: popularData, isLoading } = useGetPopularArticles();
 
@@ -95,4 +96,4 @@ export function WeeklyPopularSidebar({ className }: WeeklyPopularSidebarProps) {
       </div>
     </div>
   );
-}
+});

@@ -89,8 +89,11 @@ export async function GET(request: NextRequest) {
         .order('view_count', { ascending: false, nullsFirst: false })
         .order('pub_date', { ascending: false });
     } else if (sort === 'comments') {
-      // 댓글순은 별도 처리 필요
-      query = query.order('pub_date', { ascending: false });
+      // comment_count 컬럼은 마이그레이션 적용 후 사용 가능
+      // 적용 전까지는 view_count 기반 정렬로 fallback
+      query = query
+        .order('view_count', { ascending: false, nullsFirst: false })
+        .order('pub_date', { ascending: false });
     }
 
     // 페이지네이션
@@ -102,38 +105,7 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
-    // 댓글 수 조회 (댓글순 정렬인 경우만)
-    let articlesWithCommentCount = articles || [];
-
-    if (sort === 'comments' && articles && articles.length > 0) {
-      const articleIds = articles.map((article) => article.id);
-
-      const { data: commentCounts } = await supabase.from('comments').select('article_id').in('article_id', articleIds);
-
-      const commentCountMap = new Map();
-      (commentCounts || []).forEach((comment) => {
-        const count = commentCountMap.get(comment.article_id) || 0;
-        commentCountMap.set(comment.article_id, count + 1);
-      });
-
-      articlesWithCommentCount = articles.map((article) => ({
-        ...article,
-        comment_count: commentCountMap.get(article.id) || 0,
-      }));
-
-      // 댓글순 정렬
-      articlesWithCommentCount.sort((a: { comment_count?: number; view_count?: number; pub_date: string }, b: { comment_count?: number; view_count?: number; pub_date: string }) => {
-        const aComments = a.comment_count || 0;
-        const bComments = b.comment_count || 0;
-        if (aComments !== bComments) return bComments - aComments;
-
-        const aViews = a.view_count || 0;
-        const bViews = b.view_count || 0;
-        if (aViews !== bViews) return bViews - aViews;
-
-        return new Date(b.pub_date).getTime() - new Date(a.pub_date).getTime();
-      });
-    }
+    const articlesWithCommentCount = articles || [];
 
     // 최대 조회수는 첫 번째 아이템에서 가져오기 (정렬된 상태)
     const maxViewCount = articlesWithCommentCount[0]?.view_count || 0;
