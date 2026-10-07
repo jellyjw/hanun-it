@@ -2,25 +2,28 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Eye, Play } from 'lucide-react';
 import FallbackThumbnail from '@/components/FallbackThumbnail';
-import { Article } from '@/types/articles';
-
-type ArticleWithExtras = Omit<Article, 'category'> & {
-  category: string;
-  videoId?: string;
-  duration?: string;
-};
+import { ArticleCardData } from '@/types/articles';
 
 interface ArticleCardProps {
-  article: ArticleWithExtras;
+  article: ArticleCardData;
   selectedCategory: string;
   failedImages: Set<string>;
   onImageError: (articleId: string) => void;
-  onClick: (article: ArticleWithExtras) => void;
 }
 
-function preprocessThumbnail(article: Pick<ArticleWithExtras, 'thumbnail' | 'source_name' | 'category'>): string {
+// 카드가 이동할 경로. 영상은 영상 상세로, 그 외는 아티클 상세로 이동한다.
+function getArticleHref(article: ArticleCardData, selectedCategory: string): string {
+  if (article.category === 'videos' && article.videoId) {
+    return `/videos/${article.videoId}`;
+  }
+  const fromParam = selectedCategory ? `?from=${selectedCategory}` : '';
+  return `/articles/${article.id}${fromParam}`;
+}
+
+function preprocessThumbnail(article: Pick<ArticleCardData, 'thumbnail' | 'source_name' | 'category'>): string {
   let thumbnail = article.thumbnail;
 
   if (thumbnail.includes('https://techblog.woowa.in')) {
@@ -55,16 +58,11 @@ export const ArticleCard = React.memo(function ArticleCard({
   selectedCategory,
   failedImages,
   onImageError,
-  onClick,
 }: ArticleCardProps) {
   return (
-    <div
-      className="group flex h-auto min-h-0 w-full cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onClick(article);
-      }}>
+    <Link
+      href={getArticleHref(article, selectedCategory)}
+      className="group flex h-auto min-h-0 w-full cursor-pointer flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500">
       {/* 썸네일 */}
       <div
         className={`relative aspect-video w-full overflow-hidden bg-gray-100 ${
@@ -130,14 +128,14 @@ export const ArticleCard = React.memo(function ArticleCard({
         </h3>
         <p className="line-clamp-2 flex-1 text-xs text-gray-600 sm:text-sm">{article.description}</p>
         <div className="mt-3 flex items-center justify-between">
-          <button
-            className={`rounded-full px-3 py-1.5 text-xs font-medium text-white transition-all duration-200 hover:shadow-md sm:px-4 sm:py-2 sm:text-sm ${
+          <span
+            className={`rounded-full px-3 py-1.5 text-xs font-medium text-white transition-all duration-200 group-hover:shadow-md sm:px-4 sm:py-2 sm:text-sm ${
               article.category === 'videos'
-                ? 'bg-red-500 hover:bg-red-600'
-                : 'bg-emerald-500 hover:bg-emerald-600'
+                ? 'bg-red-500 group-hover:bg-red-600'
+                : 'bg-emerald-500 group-hover:bg-emerald-600'
             }`}>
             {article.category === 'videos' ? 'Watch Video' : 'Read More'}
-          </button>
+          </span>
           <div className="flex items-center gap-2 text-xs text-gray-500 sm:gap-3 sm:text-sm">
             {article.category === 'videos' && article.view_count ? (
               <div className="flex items-center gap-1">
@@ -153,6 +151,6 @@ export const ArticleCard = React.memo(function ArticleCard({
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 });
