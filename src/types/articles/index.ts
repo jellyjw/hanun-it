@@ -21,6 +21,14 @@ export interface Article {
   translated_language?: string;
 }
 
+// * 목록 카드에서 사용하는 아티클 데이터 (영상 변환 데이터 포함)
+// 영상 카테고리는 category를 'videos'로 바꾸고 videoId/duration을 덧붙이므로 category를 string으로 넓힌다.
+export type ArticleCardData = Omit<Article, 'category'> & {
+  category: string;
+  videoId?: string;
+  duration?: string;
+};
+
 // * 아티클 목록
 export interface ArticlesResponse {
   success: boolean;
