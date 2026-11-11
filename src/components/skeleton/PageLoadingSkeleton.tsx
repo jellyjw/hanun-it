@@ -43,11 +43,10 @@ export const PageLoadingSkeleton = () => {
         {/* 헤더 섹션 */}
         <div className="mb-8 flex flex-col items-center text-center sm:mb-12">
           <div className="mb-4 h-12 w-12 animate-pulse rounded-full bg-gray-200 sm:h-16 sm:w-16"></div>
-          <div className="mx-auto mb-4 h-8 w-80 animate-pulse rounded bg-gray-200"></div>
-          <div className="mx-auto max-w-2xl space-y-2">
-            <div className="h-4 w-full animate-pulse rounded bg-gray-200"></div>
-            <div className="mx-auto h-4 w-3/4 animate-pulse rounded bg-gray-200"></div>
-          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-4xl">한눈에 모아보는 IT 뉴스</h1>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-gray-600 sm:text-base">
+            국내외 최신 IT 기술 아티클과 뉴스, 개발자 블로그와 인기 기술 영상을 한눈에 큐레이션하여 제공합니다.
+          </p>
         </div>
 
         {/* 메인 컨텐츠 영역 */}

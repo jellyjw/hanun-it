@@ -80,6 +80,9 @@ export const metadata: Metadata = {
       '최신 IT 뉴스와 기술 트렌드를 한눈에 확인하세요. 개발자와 IT 전문가를 위한 큐레이션된 콘텐츠를 제공합니다.',
     images: [`${SITE_URL}/assets/logo/logo.png`],
   },
+  other: {
+    'google-adsense-account': 'ca-pub-7127894498153967',
+  },
 };
 
 export const viewport: Viewport = {
@@ -101,12 +104,12 @@ export default function RootLayout({
       <head>
         <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7127894498153967"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
           crossOrigin="anonymous"
         />
         <Script
           id="adsense-init"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: '(window.adsbygoogle=window.adsbygoogle||[]).push({overlays:{bottom:false,top:false}});',
           }}
