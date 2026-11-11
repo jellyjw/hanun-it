@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: `${SITE_URL}/assets/logo/logo.png`,
+        url: `${SITE_URL}/logo/code.png`,
         width: 1200,
         height: 630,
         alt: '한눈IT 로고',
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     title: '한눈IT - 국내, 해외의 IT 최신 아티클을 한눈에',
     description:
       '최신 IT 뉴스와 기술 트렌드를 한눈에 확인하세요. 개발자와 IT 전문가를 위한 큐레이션된 콘텐츠를 제공합니다.',
-    images: [`${SITE_URL}/assets/logo/logo.png`],
+    images: [`${SITE_URL}/logo/code.png`],
   },
   other: {
     'google-adsense-account': 'ca-pub-7127894498153967',
