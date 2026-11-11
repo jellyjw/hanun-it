@@ -25,8 +25,8 @@ const Footer = () => {
         </div>
 
         {/* 하단 구분선 및 저작권 */}
-        <section className="mt-2 border-t border-gray-400 pt-6">
-          <div className="flex flex-col justify-start">
+        <section className="mt-2 flex flex-col justify-between gap-4 border-t border-gray-400 pt-6 sm:flex-row sm:items-center">
+          <div className="flex flex-col justify-start gap-1">
             <div className="flex items-center text-sm text-gray-400">
               <Calendar className="mr-2 h-4 w-4" />
               <span>&copy; {dayjs().year()} 한눈IT. All rights reserved.</span>
@@ -36,6 +36,11 @@ const Footer = () => {
               <Mail className="mr-2 h-4 w-4" />
               <span>hanun.help@gmail.com</span>
             </div>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-gray-400">
+            <Link href="/privacy" className="transition-colors hover:text-white underline-offset-4 hover:underline">
+              개인정보처리방침
+            </Link>
           </div>
         </section>
       </div>
