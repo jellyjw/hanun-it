@@ -33,7 +33,7 @@ export default function ArticleDetailClient({ articleId, initialArticle }: Artic
   const { isAdmin } = useAuth();
   const { toast } = useToast();
 
-  const { data, isLoading, error, refetch } = useGetArticle(articleId);
+  const { data, isLoading, error, refetch } = useGetArticle(articleId, initialArticle);
 
   const incrementViewMutation = useMutation({
     mutationFn: async (id: string) => {
